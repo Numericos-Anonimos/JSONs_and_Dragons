@@ -1,0 +1,201 @@
+{
+  "characterSheetVersion": "0.2",
+  "characterName": "Kaelen, o Vingador",
+  "currentState": {
+    "hitPoints": 30,
+    "temporaryHitPoints": 0,
+    "spentHitDice": { "d10": 0, "d6": 0 },
+    "spentSpellSlots": {
+      "standard": { "level1": 0, "level2": 0 }
+    },
+    "resourceUses": {
+      "sentido_divino_gastos": 0,
+      "cura_pelas_maos_gastos": 0,
+      "canalizar_divindade_gastos": 0
+    }
+  },
+  "evolution": [
+    {
+      "type": "BASE_CHARACTER",
+      "operations": [
+        { "action": "SET", "property": "Força_base", "value": 15 },
+        { "action": "SET", "property": "Destreza_base", "value": 10 },
+        { "action": "SET", "property": "Constituição_base", "value": 13 },
+        { "action": "SET", "property": "Inteligência_base", "value": 8 },
+        { "action": "SET", "property": "Sabedoria_base", "value": 12 },
+        { "action": "SET", "property": "Carisma_base", "value": 14 }
+      ]
+    },
+    {
+      "type": "RACE",
+      "name": "Humano (Variante)",
+      "operations": [
+        { "action": "INCREMENT", "property": "Força_base", "value": 1 },
+        { "action": "INCREMENT", "property": "Carisma_base", "value": 1 },
+        { "action": "GRANT_PROFICIENCY", "category": "skill", "name": "Atletismo" },
+        { "action": "GRANT_LANGUAGE", "name": "Comum" },
+        { "action": "GRANT_LANGUAGE", "name": "Órquico" }
+      ],
+      "features": [
+        {
+          "name": "Talento: Maestria em Armas Grandes",
+          "description": "Você aprendeu a usar o peso em sua vantagem. No seu turno, quando você atingir um acerto crítico com uma arma corpo-a-corpo ou reduzir os pontos de vida de uma criatura a 0, você pode realizar um ataque corpo-a-corpo com arma, com uma ação bônus. Antes de você realizar um ataque corpo-a-corpo com uma arma pesada na qual você seja proficiente, você pode escolher sofrer –5 de penalidade em sua jogada de ataque. Se o ataque atingir, você adiciona +10 ao dano do ataque."
+        }
+      ]
+    },
+    {
+      "type": "LEVEL_UP",
+      "level": 1,
+      "className": "Paladino",
+      "hitDiceValue": 10,
+      "hpRoll": 10,
+      "operations": [
+        { "action": "SET", "property": "nivel_paladino", "value": 1 },
+        { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Todas as armaduras, escudos" },
+        { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas simples, armas marciais" },
+        { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Sabedoria" },
+        { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Carisma" }
+      ],
+      "features": [
+        {
+          "name": "Sentido Divino",
+          "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem.",
+          "operations": [
+            { "action": "SET", "property": "sentido_divino_max", "formula": "1 + properties.mod_carisma" },
+            { "action": "SET", "property": "sentido_divino_gastos", "value": 0, "recoversOn": "long_rest" }
+          ]
+        },
+        {
+          "name": "Cura pelas Mãos",
+          "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
+          "operations": [
+            { "action": "SET", "property": "cura_pelas_maos_max", "formula": "properties.nivel_paladino * 5" },
+            { "action": "SET", "property": "cura_pelas_maos_gastos", "value": 0, "recoversOn": "long_rest" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "LEVEL_UP",
+      "level": 2,
+      "className": "Paladino",
+      "hitDiceValue": 10,
+      "hpRoll": 6,
+      "operations": [
+        { "action": "INCREMENT", "property": "nivel_paladino", "value": 1 }
+      ],
+      "features": [
+        { "name": "Estilo de Luta: Combate com Armas Grandes", "description": "Quando você rolar um 1 ou um 2 num dado de dano de um ataque com arma corpo-a-corpo de duas mãos, você pode rolar o dado novamente." },
+        { 
+          "name": "Conjuração (Paladino)", 
+          "description": "Você aprende a extrair magia divina para conjurar magias.",
+          "operations": [
+            { "action": "SET", "property": "magias_preparadas_paladino_max", "formula": "properties.mod_carisma + floor(properties.nivel_paladino / 2)" },
+            { "action": "SET", "property": "multiclassCasterLevel_paladin", "formula": "floor(properties.nivel_paladino / 2)" }
+          ]
+        },
+        { "name": "Destruição Divina", "description": "Ao atingir um ataque, você pode gastar um espaço de magia para causar dano radiante extra." }
+      ]
+    },
+    {
+      "type": "LEVEL_UP",
+      "level": 3,
+      "className": "Paladino",
+      "hitDiceValue": 10,
+      "hpRoll": 6,
+      "operations": [
+        { "action": "INCREMENT", "property": "nivel_paladino", "value": 1 }
+      ],
+      "features": [
+        { "name": "Saúde Divina", "description": "Você é imune a doenças." },
+        { "name": "Juramento Sagrado: Juramento de Vingança", "description": "Seu juramento concede magias e novas formas de usar o Canalizar Divindade." },
+        {
+          "name": "Canalizar Divindade",
+          "description": "Você ganha a habilidade de canalizar energia divina.",
+          "operations": [
+            { "action": "SET", "property": "canalizar_divindade_max", "value": 1 },
+            { "action": "SET", "property": "canalizar_divindade_gastos", "value": 0, "recoversOn": "short_rest" }
+          ]
+        },
+        {
+          "name": "Voto de Inimizade",
+          "description": "Com uma ação bônus, você ganha vantagem nas jogadas de ataque contra uma criatura por 1 minuto.",
+          "cost": [
+            { "type": "bonus_action", "amount": 1 },
+            { "type": "resource", "property": "canalizar_divindade_gastos", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "LEVEL_UP",
+      "level": 4,
+      "className": "Feiticeiro",
+      "hitDiceValue": 6,
+      "hpRoll": 4,
+      "operations": [
+        { "action": "SET", "property": "nivel_feiticeiro", "value": 1 }
+      ],
+      "features": [
+        { 
+          "name": "Conjuração (Feiticeiro)", 
+          "description": "Você descobre a magia latente dentro de si.",
+          "operations": [
+            { "action": "SET", "property": "magias_conhecidas_feiticeiro_max", "value": 2 },
+            { "action": "SET", "property": "truques_conhecidos_feiticeiro_max", "value": 4 },
+            { "action": "SET", "property": "multiclassCasterLevel_sorcerer", "formula": "properties.nivel_feiticeiro" }
+          ]
+        },
+        { "name": "Origem de Feitiçaria: Linhagem Dracônica (Bronze)", "description": "Sua magia inata vem de ancestrais dracônicos.", "operations": [{ "action": "GRANT_LANGUAGE", "name": "Dracônico" }, { "action": "GRANT_RESISTANCE", "damageType": "Elétrico" }] },
+        { "name": "Resiliência Dracônica", "description": "Seu máximo de pontos de vida aumenta em 1 para cada nível de feiticeiro. Além disso, quando você não estiver utilizando armadura, sua CA será igual a 13 + seu modificador de Destreza.", "operations": [{ "action": "INCREMENT", "property": "HP_max_bonus", "formula": "properties.nivel_feiticeiro" }] }
+      ]
+    }
+  ],
+  "inventory": [
+    {
+      "name": "Montante",
+      "description": "Uma espada pesada de duas mãos.",
+      "equipped": true,
+      "operations": [
+        {
+          "action": "GRANT_ACTION",
+          "type": "attack",
+          "name": "Montante",
+          "ability": "Força",
+          "damage": "2d6 + properties.mod_força",
+          "damageType": "Cortante",
+          "properties": ["Pesada", "Duas Mãos"]
+        }
+      ]
+    },
+    {
+      "name": "Cota de Malha",
+      "description": "Feita de anéis de metal entrelaçados, oferece boa proteção.",
+      "equipped": true,
+      "operations": [
+        { "action": "SET", "property": "AC_base", "value": 16 }
+      ]
+    }
+  ],
+  "conditionalFeatures": [
+    {
+      "condition": "properties.prof_ferramentas_ferreiro == true",
+      "feature": {
+        "name": "Conhecimento de Ferreiro",
+        "description": "Você tem vantagem em testes de História relacionados a itens de metal."
+      }
+    }
+  ],
+  "spellbook": {
+    "paladin": {
+      "ability": "Carisma",
+      "prepared": ["Destruição Colérica", "Escudo da Fé", "Destruição Trovejante"],
+      "oathSpells": ["Marca do Caçador", "Perdição"]
+    },
+    "sorcerer": {
+      "ability": "Carisma",
+      "knownCantrips": ["Raio de Fogo", "Luz", "Mãos Mágicas", "Prestidigitação"],
+      "knownSpells": ["Mísseis Mágicos", "Armadura Arcana"]
+    }
+  }
+}
