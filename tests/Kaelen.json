@@ -175,6 +175,14 @@
       "operations": [
         { "action": "SET", "property": "AC_base", "value": 16 }
       ]
+    },
+    {
+      "name": "Manto da Sabedoria",
+      "description": "Um manto que aumenta a sabedoria de quem o veste.",
+      "equipped": true,
+      "operations": [
+        { "action": "INCREMENT", "property": "Sabedoria_base", "value": 2 }
+      ]
     }
   ],
   "conditionalFeatures": [
