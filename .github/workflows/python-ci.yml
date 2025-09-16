@@ -1,0 +1,52 @@
+# Nome do workflow. Ele aparecerá na aba "Actions" do seu repositório.
+name: Python CI for JSONs & Dragons
+
+# Define os gatilhos (triggers) que iniciarão o workflow.
+on:
+  # Executa o workflow quando houver um push para a branch 'main'.
+  push:
+    branches: [ "main" ]
+  # Executa também quando um pull request for aberto (ou atualizado) para a branch 'main'.
+  pull_request:
+    branches: [ "main" ]
+
+# Define os jobs (tarefas) que serão executados.
+jobs:
+  # Nome do job. Você pode chamar de 'build', 'test', etc.
+  test:
+    # Especifica o sistema operacional que executará o job. 'ubuntu-latest' é uma escolha comum e econômica.
+    runs-on: ubuntu-latest
+    
+    # Define uma matriz de estratégia para rodar o job com diferentes versões do Python.
+    # Isso garante que seu código é compatível com várias versões.
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    # Define a sequência de passos que o job executará.
+    steps:
+      # 1. Clona o seu repositório
+      # Este passo baixa o seu código para a máquina virtual do GitHub Actions.
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      # 2. Configura a versão do Python
+      # Usa a action 'setup-python' para instalar a versão do Python definida na matriz.
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 3. Instala as dependências
+      # Instala os pacotes listados no arquivo requirements.txt.
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # 4. Executa os testes com pytest
+      # Roda o comando 'pytest' para executar todos os seus testes.
+      # Se qualquer teste falhar, este passo falhará e o workflow inteiro será marcado como falho.
+      - name: Run tests with pytest
+        run: |
+          pytest
