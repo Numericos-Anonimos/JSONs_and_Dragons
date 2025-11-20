@@ -1,0 +1,45 @@
+{
+    "Paladino": {
+        "hitDiceValue": 10,
+        "evolution": [
+            {
+                "operations": [
+                    { "action": "SET", "property": "nivel_paladino", "value": 1 },
+                    { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Leve" },
+                    { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Media" },
+                    { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Pesada" },
+                    { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Escudo" },
+                    { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas simples" },
+                    { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas marciais" },
+                    { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Sabedoria" },
+                    { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Carisma" },
+                    { "action": "CHOOSE", "n": 1, "options": [
+                        {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Atletismo"},
+                        {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intimidação"},
+                        {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intuição"},
+                        {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Medicina"},
+                        {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Persuasão"},
+                        {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Religião"}
+                    ]}
+                ],
+                "features": [
+                    {
+                        "name": "Sentido Divino",
+                        "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem.",
+                        "operations": [
+                            { "action": "SET", "counter": "sentido_divino", "formula": "1 + properties.mod_carisma", "recoversOn": "long_rest" }
+                        ]
+                    },
+                    {
+                        "name": "Cura pelas Mãos",
+                        "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
+                        "operations": [
+                            { "action": "SET", "property": "cura_pelas_maos_max", "formula": "properties.nivel_paladino * 5" },
+                            { "action": "SET", "property": "cura_pelas_maos_gastos", "value": 0, "recoversOn": "long_rest" }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
