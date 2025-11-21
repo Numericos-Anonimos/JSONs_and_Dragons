@@ -3,146 +3,309 @@
         "hitDiceValue": 10,
         "metadata": {
             "can_multiclass": true,
-            "multiclass_formula": "floor(properties.nivel_paladino / 2)",
+            "multiclass_formula": "floor(properties.paladin_level / 2)",
             "spellcasting_modifier": "attributes.carisma.modifier",
-            "spells_prepared": "formula de quantos",
-            "spells_known": "formula de quantos",
+            "spell_save_dc": "8 + properties.proficiency_bonus + attributes.carisma.modifier",
+            "spell_attack_modifier": "properties.proficiency_bonus + attributes.carisma.modifier",
+            "spells_prepared": "max(1, attributes.carisma.modifier + floor(properties.paladin_level / 2))",
+            "spells_known": "all_list",
+            "spellSlotsRecoverOn": "long_rest",
+            "spellbook_query": "spells/'paladin' in metadata.classes",
             "spellSlots": [
                 [0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [2, 0, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0, 0]
-                // continua
-            ],
-            "spellSlotsRecoverOn": "long_rest",
-            "spellbook": "spells/'paladin' in metadata.classes"
+                [3, 0, 0, 0, 0, 0, 0, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 0, 0],
+                [4, 2, 0, 0, 0, 0, 0, 0, 0],
+                [4, 2, 0, 0, 0, 0, 0, 0, 0],
+                [4, 3, 0, 0, 0, 0, 0, 0, 0],
+                [4, 3, 0, 0, 0, 0, 0, 0, 0],
+                [4, 3, 2, 0, 0, 0, 0, 0, 0],
+                [4, 3, 2, 0, 0, 0, 0, 0, 0]
+            ]
         },
-
         "level_0": {
             "operations": [
                 { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Sabedoria" },
                 { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Carisma" },
                 { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Pesada" },
-                { "action": "CHOOSE", "n": 2, "options": [
-                    {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Atletismo"},
-                    {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intimidação"},
-                    {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intuição"},
-                    {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Medicina"},
-                    {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Persuasão"},
-                    {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Religião"}
-                ]},
-                { "action": "CHOOSE", "n": 1, "options": [
-                    [
-                        { "action": "CHOOSE", "name": "Escudo", "query": "items/type == 'armor' AND metadata.category == 'shield'" },
-                        { "action": "CHOOSE", "name": "Armas marciais", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
-                    ],
-                    { "action": "CHOOSE", "name": "Armas marciais", "n": 2, "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
-                ]}
+                { 
+                    "action": "CHOOSE", 
+                    "n": 2, 
+                    "label": "Perícias de Paladino",
+                    "options": [
+                        {"label": "Atletismo", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Atletismo"}]},
+                        {"label": "Intimidação", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intimidação"}]},
+                        {"label": "Intuição", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intuição"}]},
+                        {"label": "Medicina", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Medicina"}]},
+                        {"label": "Persuasão", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Persuasão"}]},
+                        {"label": "Religião", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Religião"}]}
+                    ]
+                },
+                { 
+                    "action": "CHOOSE", 
+                    "n": 1, 
+                    "label": "Equipamento Inicial A",
+                    "options": [
+                        {
+                            "label": "Escudo e Arma Marcial",
+                            "operations": [
+                                { "action": "ADD_ITEM", "name": "Escudo", "query": "items/name == 'Escudo'" },
+                                { "action": "CHOOSE_ITEM", "name": "Arma Marcial", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
+                            ]
+                        },
+                        {
+                            "label": "Duas Armas Marciais",
+                            "operations": [
+                                { "action": "CHOOSE_ITEM", "n": 2, "name": "Arma Marcial", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
+                            ]
+                        }
+                    ]
+                },
+                { 
+                    "action": "CHOOSE", 
+                    "n": 1, 
+                    "label": "Equipamento Inicial B",
+                    "options": [
+                        {
+                            "label": "Cinco Azagaias",
+                            "operations": [{ "action": "ADD_ITEM", "name": "Azagaia", "amount": 5, "query": "items/name == 'Azagaia'" }]
+                        },
+                        {
+                            "label": "Arma Simples Corpo-a-Corpo",
+                            "operations": [{ "action": "CHOOSE_ITEM", "name": "Arma Simples", "query": "items/type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true" }]
+                        }
+                    ]
+                },
+                { 
+                    "action": "CHOOSE", 
+                    "n": 1, 
+                    "label": "Equipamento Inicial C",
+                    "options": [
+                        { "label": "Pacote de Sacerdote", "operations": [{ "action": "ADD_ITEM", "name": "Pacote de Sacerdote", "query": "items/name == 'Pacote de sacerdote'" }] },
+                        { "label": "Pacote de Aventureiro", "operations": [{ "action": "ADD_ITEM", "name": "Pacote de Aventureiro", "query": "items/name == 'Pacote de aventureiro'" }] }
+                    ]
+                },
+                { "action": "ADD_ITEM", "name": "Cota de malha", "query": "items/name == 'Cota de malha'" },
+                { "action": "ADD_ITEM", "name": "Símbolo sagrado", "query": "items/name == 'Símbolo sagrado'" }
             ]
         },
         "level_1": {
             "operations": [
-                { "action": "SET", "property": "nivel_paladino", "type": "value", "value": 1 },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Leve" },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Media" },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Escudo" },
-                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas simples" },
-                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas marciais" }
+                { "action": "SET", "property": "properties.paladin_level", "value": 1 },
+                { "action": "INCREMENT", "property": "properties.level", "formula": "properties.paladin_level"},
+                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": ["Leve", "Media", "Escudo"] },
+                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": ["Simples", "Marciais"] }
             ],
             "features": [
                 {
                     "name": "Sentido Divino",
-                    "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem.",
+                    "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem...",
                     "operations": [
-                        { "action": "SET", "property": "sentido_divino", "type": "counter", "formula": "1 + attributes.carisma.modifier", "recoversOn": "long_rest" }
+                        { "action": "SET", "property": "resources.sentido_divino", "type": "counter", "formula": "max(1, 1 + attributes.carisma.modifier)", "recoversOn": "long_rest" },
+                        { "action": "ADD_ACTION", "name": "Sentido Divino", "cost": { "resource": "sentido_divino", "amount": 1, "action": "action" }}
                     ]
                 },
                 {
                     "name": "Cura pelas Mãos",
                     "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
                     "operations": [
-                        { "action": "SET", "property": "cura_pelas_maos", "formula": "5 * properties.nivel_paladino", "recoversOn": "long_rest" }
+                        { "action": "SET", "property": "resources.cura_pelas_maos", "formula": "5 * properties.paladin_level", "recoversOn": "long_rest" },
+                        { "action": "ADD_ACTION", "name": "Cura pelas Mãos", "cost": { "resource": "curas_pelas_maos", "amount": 1, "action": "action" }}
                     ]
                 }
             ]
         },
         "level_2": {
             "operations": [
-                {"action": "INCREMENT", "property": "nivel_paladino", "value": 1}
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
             ],
-
             "features": [
                 {
                     "name": "Estilo de Luta",
-                    "description": "No segundo nível, você escolhe um estilo de luta como sua especialidade.",
+                    "description": "Você adota um estilo de combate particular que será sua especialidade.",
                     "operations": [
-                        { "action": "CHOOSE", "n": 1, "query": "features/type == 'figth_style' AND 'paladin' in metadata.classes" }
+                        { 
+                            "action": "CHOOSE", 
+                            "n": 1, 
+                            "source": "features", 
+                            "query": "type == 'fighting_style' AND 'paladin' in metadata.classes",
+                            "label": "Estilo de Luta"
+                        }
                     ]
                 },
                 {
                     "name": "Conjuração",
-                    "description": "Você aprende a extrair magia divina para conjurar magias."
+                    "description": "Você aprende a extrair magia divina através de meditação e oração."
                 },
                 {
                     "name": "Destruição Divina",
-                    "description": "Ao atingir um ataque, você pode gastar um espaço de magia para causar dano radiante extra.",
-                    "cost": {
-                        "action": "Free",
-                        "resource": {
-                            "property": "spellSlots",
-                            "min_slot": 1,
-                            "amount": 1
+                    "description": "Quando você atingir uma criatura com um ataque corpo-a-corpo com arma, você pode gastar um espaço de magia...",
+                    "operations": [
+                        { 
+                            "action": "ADD_ACTION", 
+                            "name": "Destruição Divina",
+                            "cost": { "type": "spell_slot", "min_level": 1 },
+                            "description": "Quando você atingir uma criatura com um ataque corpo-a-corpo com arma, você pode gastar um espaço de magia..."
                         }
-                    }
-                }   
+                    ]
+                }
             ]
         },
         "level_3": {
             "operations": [
-                {"action": "INCREMENT", "property": "nivel_paladino", "value": 1}
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
             ],
             "features": [
                 {
                     "name": "Saúde Divina",
-                    "description": "Você é imune a doenças"
-                },
-                {
-                    "name": "Juramento Sagrado (Subclasse)",
-                    "description": "Você faz um juramento...",
-                    "operations": [
-                        { "action": "CHOOSE", "n": 1, "query": "subclasses/metadata.class == 'paladin'" }
-                    ]
+                    "description": "A magia divina flui através de você tornando você imune a doenças."
                 },
                 {
                     "name": "Canalizar Divindade",
-                    "description": "Seu juramento permite que você canalize a energia divina para...",
+                    "description": "Seu juramento permite que você canalize energia divina.",
                     "operations": [
-                        { "action": "SET", "property": "canalizar_divindade", "type": "counter", "value": 1, "recoversOn": "long_rest" }   
+                        { "action": "SET", "property": "resources.canalizar_divindade", "value": 1, "recoversOn": "short_rest" }
+                    ]
+                },
+                {
+                    "name": "Juramento Sagrado",
+                    "description": "Você faz um juramento que torna-o um paladino para sempre.",
+                    "operations": [
+                        { 
+                            "action": "CHOOSE", 
+                            "source": "subclasses", 
+                            "query": "metadata.class == 'Paladino'",
+                            "n": 1,
+                            "label": "Juramento Sagrado",
+                            "save_to": "paladino.subclass" // Eu quero ter poucos comandos de ação.  
+                        },
+                        { "action": "IMPORT", "source": "subclasses", "query": "paladino.subclass AND level == 3" } // Adiciona as features da subclasse selecionada
                     ]
                 }
             ]
         },
         "level_4": {
             "operations": [
-                {"action": "INCREMENT", "property": "nivel_paladino", "value": 1}
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
             ],
             "features": [
                 {
                     "name": "Incremento no Valor de Habilidade",
-                    "description": "Aumenta 2 habilidades em 1 ou pega um talento",
+                    "description": "Aumente um valor de habilidade em 2 ou dois em 1, ou escolha um talento.",
                     "operations": [
-                        { "action": "CHOOSE", "n": 1, "options": [
-                            {"action": "CHOOSE", "n": 2, "options": [
-                                { "action": "INCREMENT", "property": "attributes.str", "value": 1 },
-                                { "action": "INCREMENT", "property": "attributes.dex", "value": 1 },
-                                { "action": "INCREMENT", "property": "attributes.con", "value": 1 },
-                                { "action": "INCREMENT", "property": "attributes.int", "value": 1 },
-                                { "action": "INCREMENT", "property": "attributes.wis", "value": 1 },
-                                { "action": "INCREMENT", "property": "attributes.cha", "value": 1 }
-                            ]},
-                            { "action": "ADD_FEATURE", "n": 1,"query": "feats/" }
+                        {
+                            "action": "CHOOSE",
+                            "n": 1,
+                            "label": "Evolução Nível 4",
+                            "options": [
+                                {
+                                    "label": "Aumento de Atributo",
+                                    "description": "Aumente atributos.",
+                                    "operations": [
+                                        { 
+                                            "action": "CHOOSE_INCREMENT", 
+                                            "pool_size": 2, 
+                                            "max_per_stat": 2, 
+                                            "cap": 20,
+                                            "options": ["str", "dex", "con", "int", "wis", "cha"]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "label": "Talento",
+                                    "description": "Escolha um talento da lista.",
+                                    "operations": [
+                                        { 
+                                            "action": "ADD_FEATURE", 
+                                            "source": "feats", 
+                                            "query": "type == 'feat'",
+                                            "n": 1
+                                        }
+                                    ]
+                                }
                             ]
                         }
                     ]
+                }
+            ]
+        },
+        "level_5": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
+            ],
+            "features": [
+                {
+                    "name": "Ataque Extra",
+                    "description": "Você pode atacar duas vezes, ao invés de uma, sempre que você realizar a ação de Ataque no seu turno.",
+                    "operations":[
+                        {
+                            "action": "ADD_ACTION", 
+                            "name": "Ataque Extra", 
+                            "cost": {"action": "action"},
+                            "description": "Como parte da sua ação de ataque, você pode realizar uma segunda ação de ataque."
+                        }
+                    ]
+                }
+            ]
+        },
+        "level_6": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
+            ],
+            "features": [
+                {
+                    "name": "Aura de Proteção",
+                    "description": "Sempre que você ou uma criatura amigável a até 3 metros de você tiver que fazer um teste de resistência, aquela criatura ganha um bônus igual a seu modificador de Carisma."
+                }
+            ]
+        },
+        "level_7": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 },
+                { "action": "IMPORT", "source": "subclasses", "query": "paladin.subclass AND level == 7" }
+            ]
+        },
+        "level_8": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
+            ],
+            "features": [
+                {
+                    "name": "Incremento no Valor de Habilidade",
+                    "operations": [
+                        {
+                            "action": "CHOOSE",
+                            "n": 1,
+                            "label": "Evolução Nível 8",
+                            "options": [
+                                {
+                                    "label": "Aumento de Atributo",
+                                    "operations": [{ "action": "CHOOSE_INCREMENT", "pool_size": 2, "max_per_stat": 2, "cap": 20, "options": ["str", "dex", "con", "int", "wis", "cha"] }]
+                                },
+                                {
+                                    "label": "Talento",
+                                    "operations": [{ "action": "ADD_FEATURE", "source": "feats", "query": "type == 'feat'", "n": 1 }]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "level_9": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
+            ]
+        },
+        "level_10": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.paladin_level", "value": 1 }
+            ],
+            "features": [
+                {
+                    "name": "Aura de Coragem",
+                    "description": "Você e as criaturas amigáveis dentro de um raio de 3 metros de você não podem ser amedrontadas enquanto você estiver consciente."
                 }
             ]
         }
