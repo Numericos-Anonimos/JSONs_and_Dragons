@@ -1,26 +1,27 @@
 {
     "Paladino": {
         "hitDiceValue": 10,
-        "equipment": [
-            { "action": "CHOOSE", "n": 1, "options": [
-                [
-                    { "action": "CHOOSE", "name": "Escudo", "query": "items/type == 'armor' AND metadata.category == 'shield'" },
-                    { "action": "CHOOSE", "name": "Armas marciais", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
-                ],
-                { "action": "CHOOSE", "name": "Armas marciais", "n": 2, "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
-            ]}
-        ],
-        "level_1": {
+        "metadata": {
+            "can_multiclass": true,
+            "multiclass_formula": "floor(properties.nivel_paladino / 2)",
+            "spellcasting_modifier": "attributes.carisma.modifier",
+            "spells_prepared": "formula de quantos",
+            "spells_known": "formula de quantos",
+            "spellSlots": [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [2, 0, 0, 0, 0, 0, 0, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 0, 0]
+                // continua
+            ],
+            "spellSlotsRecoverOn": "long_rest",
+            "spellbook": "spells/'paladin' in metadata.classes"
+        },
+
+        "level_0": {
             "operations": [
-                { "action": "SET", "property": "nivel_paladino", "type": "value", "value": 1 },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Leve" },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Media" },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Pesada" },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Escudo" },
-                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas simples" },
-                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas marciais" },
                 { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Sabedoria" },
                 { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Carisma" },
+                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Pesada" },
                 { "action": "CHOOSE", "n": 2, "options": [
                     {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Atletismo"},
                     {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intimidação"},
@@ -28,7 +29,24 @@
                     {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Medicina"},
                     {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Persuasão"},
                     {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Religião"}
+                ]},
+                { "action": "CHOOSE", "n": 1, "options": [
+                    [
+                        { "action": "CHOOSE", "name": "Escudo", "query": "items/type == 'armor' AND metadata.category == 'shield'" },
+                        { "action": "CHOOSE", "name": "Armas marciais", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
+                    ],
+                    { "action": "CHOOSE", "name": "Armas marciais", "n": 2, "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
                 ]}
+            ]
+        },
+        "level_1": {
+            "operations": [
+                { "action": "SET", "property": "nivel_paladino", "type": "value", "value": 1 },
+                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Leve" },
+                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Media" },
+                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Escudo" },
+                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas simples" },
+                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": "Armas marciais" }
             ],
             "features": [
                 {
@@ -62,15 +80,7 @@
                 },
                 {
                     "name": "Conjuração",
-                    "description": "Você aprende a extrair magia divina para conjurar magias.",
-                    "metadata": {
-                        "can_multiclass": true,
-                        "formula": "floor(properties.nivel_paladino / 2)",
-                        "spellcasting_modifier": "attributes.carisma.modifier",
-                        "spellSlots": [2, 0, 0, 0, 0, 0, 0, 0, 0],
-                        "spellSlotsRecoverOn": "long_rest",
-                        "spellbook": "spells/'paladin' in metadata.classes"
-                    }
+                    "description": "Você aprende a extrair magia divina para conjurar magias."
                 },
                 {
                     "name": "Destruição Divina",
