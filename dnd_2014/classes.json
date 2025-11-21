@@ -22,7 +22,8 @@
                 [4, 3, 0, 0, 0, 0, 0, 0, 0],
                 [4, 3, 2, 0, 0, 0, 0, 0, 0],
                 [4, 3, 2, 0, 0, 0, 0, 0, 0]
-            ]
+            ],
+            "subclass_features_levels": [3, 7]
         },
         "level_0": {
             "operations": [
@@ -42,7 +43,7 @@
                             "operations": [
                                 { "action": "ADD_ITEM", "name": "Escudo", "query": "items/name == 'Escudo'" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'"},
+                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'/name"},
                                     "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
                                 }
                             ]
@@ -51,7 +52,7 @@
                             "label": "Duas Armas Marciais",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'"},
+                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'/name"},
                                     "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
                                 }
                             ]
@@ -68,8 +69,8 @@
                         {
                             "label": "Arma Simples Corpo-a-Corpo",
                             "operations": [
-                                { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples",
-                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true"},
+                                { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples Corpo-a-Corpo",
+                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true/name"},
                                     "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
                                 }
                             ]
@@ -124,7 +125,7 @@
                     "operations": [
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "name": "Estilo de Luta",
-                            "options": { "action": "REQUEST", "query": "features/type == 'fighting_style' AND 'paladin' in metadata.classes"},
+                            "options": { "action": "REQUEST", "query": "features/type == 'fighting_style' AND 'paladin' in metadata.classes/name"},
                             "function": { "action": "IMPORT", "query": "features/name = 'x'"}
                         }
                     ]
@@ -160,7 +161,7 @@
                     "name": "Canalizar Divindade",
                     "description": "Seu juramento permite que você canalize energia divina.",
                     "operations": [
-                        { "action": "SET", "property": "resources.canalizar_divindade", "value": 1, "recoversOn": "short_rest" }
+                        { "action": "INIT", "property": "resources.canalizar_divindade", "value": 1, "recoversOn": "short_rest" }
                     ]
                 },
                 {
@@ -168,14 +169,10 @@
                     "description": "Você faz um juramento que torna-o um paladino para sempre.",
                     "operations": [
                         { 
-                            "action": "CHOOSE", 
-                            "source": "subclasses", 
-                            "query": "metadata.class == 'Paladino'",
-                            "n": 1,
-                            "label": "Juramento Sagrado",
-                            "save_to": "paladino.subclass" // Eu quero ter poucos comandos de ação.  
-                        },
-                        { "action": "IMPORT", "source": "subclasses", "query": "paladino.subclass AND level == 3" } // Adiciona as features da subclasse selecionada
+                            "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
+                            "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'" },
+                            "function": { "action": "IMPORT", "query": "subclasses/name = 'x'" }
+                        }
                     ]
                 }
             ]
