@@ -30,42 +30,36 @@
                 { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Carisma" },
                 { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Pesada" },
                 { 
-                    "action": "CHOOSE", 
-                    "n": 2, 
-                    "label": "Perícias de Paladino",
-                    "options": [
-                        {"label": "Atletismo", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Atletismo"}]},
-                        {"label": "Intimidação", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intimidação"}]},
-                        {"label": "Intuição", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intuição"}]},
-                        {"label": "Medicina", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Medicina"}]},
-                        {"label": "Persuasão", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Persuasão"}]},
-                        {"label": "Religião", "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Religião"}]}
-                    ]
+                    "action": "CHOOSE_MAP", "n": 2, "label": "Perícias de Paladino",
+                    "options": ["Atletismo", "Intimidação", "Intuição", "Medicina", "Persuasão", "Religião"],
+                    "function": {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "x"}
                 },
                 { 
-                    "action": "CHOOSE", 
-                    "n": 1, 
-                    "label": "Equipamento Inicial A",
+                    "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial A",
                     "options": [
                         {
                             "label": "Escudo e Arma Marcial",
                             "operations": [
                                 { "action": "ADD_ITEM", "name": "Escudo", "query": "items/name == 'Escudo'" },
-                                { "action": "CHOOSE_ITEM", "name": "Arma Marcial", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
+                                { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
+                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'"},
+                                    "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
+                                }
                             ]
                         },
                         {
                             "label": "Duas Armas Marciais",
                             "operations": [
-                                { "action": "CHOOSE_ITEM", "n": 2, "name": "Arma Marcial", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
+                                { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
+                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'"},
+                                    "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
+                                }
                             ]
                         }
                     ]
                 },
                 { 
-                    "action": "CHOOSE", 
-                    "n": 1, 
-                    "label": "Equipamento Inicial B",
+                    "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial B",
                     "options": [
                         {
                             "label": "Cinco Azagaias",
@@ -73,14 +67,17 @@
                         },
                         {
                             "label": "Arma Simples Corpo-a-Corpo",
-                            "operations": [{ "action": "CHOOSE_ITEM", "name": "Arma Simples", "query": "items/type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true" }]
+                            "operations": [
+                                { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples",
+                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true"},
+                                    "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
+                                }
+                            ]
                         }
                     ]
                 },
                 { 
-                    "action": "CHOOSE", 
-                    "n": 1, 
-                    "label": "Equipamento Inicial C",
+                    "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial C",
                     "options": [
                         { "label": "Pacote de Sacerdote", "operations": [{ "action": "ADD_ITEM", "name": "Pacote de Sacerdote", "query": "items/name == 'Pacote de sacerdote'" }] },
                         { "label": "Pacote de Aventureiro", "operations": [{ "action": "ADD_ITEM", "name": "Pacote de Aventureiro", "query": "items/name == 'Pacote de aventureiro'" }] }
@@ -126,11 +123,9 @@
                     "description": "Você adota um estilo de combate particular que será sua especialidade.",
                     "operations": [
                         { 
-                            "action": "CHOOSE", 
-                            "n": 1, 
-                            "source": "features", 
-                            "query": "type == 'fighting_style' AND 'paladin' in metadata.classes",
-                            "label": "Estilo de Luta"
+                            "action": "CHOOSE_MAP", "n": 1, "name": "Estilo de Luta",
+                            "options": { "action": "REQUEST", "query": "features/type == 'fighting_style' AND 'paladin' in metadata.classes"},
+                            "function": { "action": "IMPORT", "query": "features/name = 'x'"}
                         }
                     ]
                 },
@@ -194,38 +189,7 @@
                     "name": "Incremento no Valor de Habilidade",
                     "description": "Aumente um valor de habilidade em 2 ou dois em 1, ou escolha um talento.",
                     "operations": [
-                        {
-                            "action": "CHOOSE",
-                            "n": 1,
-                            "label": "Evolução Nível 4",
-                            "options": [
-                                {
-                                    "label": "Aumento de Atributo",
-                                    "description": "Aumente atributos.",
-                                    "operations": [
-                                        { 
-                                            "action": "CHOOSE_INCREMENT", 
-                                            "pool_size": 2, 
-                                            "max_per_stat": 2, 
-                                            "cap": 20,
-                                            "options": ["str", "dex", "con", "int", "wis", "cha"]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "label": "Talento",
-                                    "description": "Escolha um talento da lista.",
-                                    "operations": [
-                                        { 
-                                            "action": "ADD_FEATURE", 
-                                            "source": "feats", 
-                                            "query": "type == 'feat'",
-                                            "n": 1
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
+                        {"action": "IVH"}
                     ]
                 }
             ]
@@ -273,22 +237,9 @@
             "features": [
                 {
                     "name": "Incremento no Valor de Habilidade",
+                    "description": "Aumente um valor de habilidade em 2 ou dois em 1, ou escolha um talento.",
                     "operations": [
-                        {
-                            "action": "CHOOSE",
-                            "n": 1,
-                            "label": "Evolução Nível 8",
-                            "options": [
-                                {
-                                    "label": "Aumento de Atributo",
-                                    "operations": [{ "action": "CHOOSE_INCREMENT", "pool_size": 2, "max_per_stat": 2, "cap": 20, "options": ["str", "dex", "con", "int", "wis", "cha"] }]
-                                },
-                                {
-                                    "label": "Talento",
-                                    "operations": [{ "action": "ADD_FEATURE", "source": "feats", "query": "type == 'feat'", "n": 1 }]
-                                }
-                            ]
-                        }
+                        {"action": "IVH"}
                     ]
                 }
             ]
