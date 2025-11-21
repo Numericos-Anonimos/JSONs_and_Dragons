@@ -4,18 +4,15 @@
         "equipment": [
             { "action": "CHOOSE", "n": 1, "options": [
                 [
-                    { "action": "GRANT_EQUIPMENT", "name": "Escudo", "reference": "itens/armor/shield" },
-                    { "action": "GRANT_EQUIPMENT", "name": "Armas marciais", "reference": "itens/weapon/marcial" }
+                    { "action": "CHOOSE", "name": "Escudo", "query": "items/type == 'armor' AND metadata.category == 'shield'" },
+                    { "action": "CHOOSE", "name": "Armas marciais", "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
                 ],
-                [
-                    { "action": "GRANT_EQUIPMENT", "name": "Armas marciais", "reference": "itens/weapon/marcial" },
-                    { "action": "GRANT_EQUIPMENT", "name": "Armas marciais", "reference": "itens/weapon/marcial" },
-                ]
+                { "action": "CHOOSE", "name": "Armas marciais", "n": 2, "query": "items/type == 'weapon' AND metadata.category == 'martial'" }
             ]}
         ],
         "level_1": {
             "operations": [
-                { "action": "SET", "property": "nivel_paladino", "value": 1 },
+                { "action": "SET", "property": "nivel_paladino", "type": "value", "value": 1 },
                 { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Leve" },
                 { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Media" },
                 { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Pesada" },
@@ -38,15 +35,14 @@
                     "name": "Sentido Divino",
                     "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem.",
                     "operations": [
-                        { "action": "SET", "counter": "sentido_divino", "formula": "1 + properties.mod_carisma", "recoversOn": "long_rest" }
+                        { "action": "SET", "property": "sentido_divino", "type": "counter", "formula": "1 + attributes.carisma.modifier", "recoversOn": "long_rest" }
                     ]
                 },
                 {
                     "name": "Cura pelas Mãos",
                     "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
                     "operations": [
-                        { "action": "SET", "property": "cura_pelas_maos_max", "formula": "properties.nivel_paladino * 5" },
-                        { "action": "SET", "property": "cura_pelas_maos_gastos", "value": 0, "recoversOn": "long_rest" }
+                        { "action": "SET", "property": "cura_pelas_maos", "formula": "5 * properties.nivel_paladino", "recoversOn": "long_rest" }
                     ]
                 }
             ]
@@ -61,19 +57,20 @@
                     "name": "Estilo de Luta",
                     "description": "No segundo nível, você escolhe um estilo de luta como sua especialidade.",
                     "operations": [
-                        { "action": "CHOOSE", "n": 1, "reference": "features/combat/figth_styles" }
+                        { "action": "CHOOSE", "n": 1, "query": "features/type == 'figth_style' AND 'paladin' in metadata.classes" }
                     ]
                 },
                 {
                     "name": "Conjuração",
                     "description": "Você aprende a extrair magia divina para conjurar magias.",
-                    "operations": [
-                        { "action": "SET", "counter": "magias_preparadas_paladino", "formula": "properties.mod_carisma + floor(properties.nivel_paladino / 2)", 
-                          "recoversOn": "long_rest", "reference": "spells/paladin" },
-                        { "action": "SET", "property": "spellSlots", "value": [2, 0, 0, 0, 0, 0, 0, 0, 0]},
-                        { "action": "SET", "property": "atribute", "value": "carisma"},
-                        { "action": "SET", "property": "multiclassCasterLevel_paladin", "formula": "floor(properties.nivel_paladino / 2)" },
-                    ]
+                    "metadata": {
+                        "can_multiclass": true,
+                        "formula": "floor(properties.nivel_paladino / 2)",
+                        "spellcasting_modifier": "attributes.carisma.modifier",
+                        "spellSlots": [2, 0, 0, 0, 0, 0, 0, 0, 0],
+                        "spellSlotsRecoverOn": "long_rest",
+                        "spellbook": "spells/'paladin' in metadata.classes"
+                    }
                 },
                 {
                     "name": "Destruição Divina",
@@ -87,6 +84,56 @@
                         }
                     }
                 }   
+            ]
+        },
+        "level_3": {
+            "operations": [
+                {"action": "INCREMENT", "property": "nivel_paladino", "value": 1}
+            ],
+            "features": [
+                {
+                    "name": "Saúde Divina",
+                    "description": "Você é imune a doenças"
+                },
+                {
+                    "name": "Juramento Sagrado (Subclasse)",
+                    "description": "Você faz um juramento...",
+                    "operations": [
+                        { "action": "CHOOSE", "n": 1, "query": "subclasses/metadata.class == 'paladin'" }
+                    ]
+                },
+                {
+                    "name": "Canalizar Divindade",
+                    "description": "Seu juramento permite que você canalize a energia divina para...",
+                    "operations": [
+                        { "action": "SET", "property": "canalizar_divindade", "type": "counter", "value": 1, "recoversOn": "long_rest" }   
+                    ]
+                }
+            ]
+        },
+        "level_4": {
+            "operations": [
+                {"action": "INCREMENT", "property": "nivel_paladino", "value": 1}
+            ],
+            "features": [
+                {
+                    "name": "Incremento no Valor de Habilidade",
+                    "description": "Aumenta 2 habilidades em 1 ou pega um talento",
+                    "operations": [
+                        { "action": "CHOOSE", "n": 1, "options": [
+                            {"action": "CHOOSE", "n": 2, "options": [
+                                { "action": "INCREMENT", "property": "attributes.str", "value": 1 },
+                                { "action": "INCREMENT", "property": "attributes.dex", "value": 1 },
+                                { "action": "INCREMENT", "property": "attributes.con", "value": 1 },
+                                { "action": "INCREMENT", "property": "attributes.int", "value": 1 },
+                                { "action": "INCREMENT", "property": "attributes.wis", "value": 1 },
+                                { "action": "INCREMENT", "property": "attributes.cha", "value": 1 }
+                            ]},
+                            { "action": "ADD_FEATURE", "n": 1,"query": "feats/" }
+                            ]
+                        }
+                    ]
+                }
             ]
         }
     }

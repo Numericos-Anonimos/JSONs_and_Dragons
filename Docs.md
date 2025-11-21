@@ -1,6 +1,6 @@
 # 1. Arquivos Essenciais (O Banco de Dados)
 
-Para cobrir D&D 5e e permitir expansão, eu sugiro dividir os JSONs por **Tipo de Entidade**. O _Chain of Responsibility_ (SRD -> Tasha -> Homebrew do Zé) vai carregar esses arquivos em memória ou indexá-los.
+Para cobrir D&D 5e 2014 e permitir expansão, eu sugiro dividir os JSONs por **Tipo de Entidade**. O _Chain of Responsibility_ (SRD -> Tasha -> Homebrew do Zé) vai carregar esses arquivos em memória ou indexá-los.
 
 **Estrutura de Diretórios Sugerida:**
 ```Plaintext
