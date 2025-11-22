@@ -1,0 +1,60 @@
+{
+    "Juramento de Devoção": {
+        "metadata": {
+            "class": "Paladino",
+            "source": "Livro do Jogador"
+        },
+        "level_3": {
+            "operations": [
+                { "action": "GRANT_SPELL", "name": "Proteção contra o bem e mal", "type": "always_prepared", "spellbook": "Paladino" },
+                { "action": "GRANT_SPELL", "name": "Santuário", "type": "always_prepared", "spellbook": "Paladino" }
+            ],
+            "features": [
+                {
+                    "name": "Canalizar Divindade: Arma Sagrada",
+                    "description": "Com uma ação, você pode imbuir uma arma que você esteja empunhando com energia positiva. Por 1 minuto, você adiciona seu modificador de Carisma as jogadas de ataque feitas com essa arma (bônus mínimo de +1). A arma também emite luz plena num raio de 6 metros e penumbra mais 6 metros além. Se a arma ainda não for mágica, ela se torna mágica por essa duração.",
+                    "operations": [
+                        {
+                            "action": "ADD_ACTION",
+                            "name": "Arma Sagrada",
+                            "cost": { "resource": "canalizar_divindade", "amount": 1, "action": "action" },
+                            "description": "Adiciona Carisma nas jogadas de ataque e emite luz."
+                        }
+                    ]
+                },
+                {
+                    "name": "Canalizar Divindade: Expulsar o Profano",
+                    "description": "Com uma ação, você apresenta seu símbolo sagrado e faz uma oração censurando corruptores e mortos-vivos. Cada corruptor ou morto-vivo que puder ver ou ouvir você e esteja a até 9 metros, deve realizar um teste de resistência de Sabedoria. Se a criatura falhar no teste de resistência, ela será expulsa por 1 minuto ou até sofrer dano.",
+                    "operations": [
+                        {
+                            "action": "ADD_ACTION",
+                            "name": "Expulsar o Profano",
+                            "cost": { "resource": "canalizar_divindade", "amount": 1, "action": "action" },
+                            "description": "Expulsa corruptores e mortos-vivos a até 9m."
+                        }
+                    ]
+                }
+            ]
+        },
+        "level_5": {
+            "operations": [
+                { "action": "GRANT_SPELL", "name": "Restauração menor", "type": "always_prepared", "spellbook": "Paladino" },
+                { "action": "GRANT_SPELL", "name": "Zona da verdade", "type": "always_prepared", "spellbook": "Paladino" }
+            ]
+        },
+        "level_7": {
+            "features": [
+                {
+                    "name": "Aura de Devoção",
+                    "description": "A partir do 7º nível, você e as criaturas amistosas a até 3 metros não podem ser enfeitiçadas enquanto você estiver consciente."
+                }
+            ]
+        },
+        "level_9": {
+            "operations": [
+                { "action": "GRANT_SPELL", "name": "Sinal de esperança", "type": "always_prepared", "spellbook": "Paladino" },
+                { "action": "GRANT_SPELL", "name": "Dissipar magia", "type": "always_prepared", "spellbook": "Paladino" }
+            ]
+        }
+    }
+}
