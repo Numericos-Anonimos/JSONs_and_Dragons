@@ -2,13 +2,16 @@
     "Paladino": {
         "hitDiceValue": 10,
         "metadata": {
+            "subclass_features_levels": [3, 5, 7, 9]
+        },
+        "conjuration": {
             "can_multiclass": true,
             "multiclass_formula": "floor(properties.paladin_level / 2)",
             "spellcasting_modifier": "attributes.carisma.modifier",
             "spell_save_dc": "8 + properties.proficiency_bonus + attributes.carisma.modifier",
             "spell_attack_modifier": "properties.proficiency_bonus + attributes.carisma.modifier",
             "spells_prepared": "max(1, attributes.carisma.modifier + floor(properties.paladin_level / 2))",
-            "spells_known": "all_list",
+            "spells_known": "infinity",
             "spellSlotsRecoverOn": "long_rest",
             "spellbook_query": "spells/'paladin' in metadata.classes",
             "spellSlots": [
@@ -22,8 +25,7 @@
                 [4, 3, 0, 0, 0, 0, 0, 0, 0],
                 [4, 3, 2, 0, 0, 0, 0, 0, 0],
                 [4, 3, 2, 0, 0, 0, 0, 0, 0]
-            ],
-            "subclass_features_levels": [3, 5, 7, 9]
+            ]
         },
         "level_0": {
             "operations": [
@@ -33,7 +35,7 @@
                 { 
                     "action": "CHOOSE_MAP", "n": 2, "label": "Perícias de Paladino",
                     "options": ["Atletismo", "Intimidação", "Intuição", "Medicina", "Persuasão", "Religião"],
-                    "function": {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "x"}
+                    "function": {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "THIS"}
                 },
                 { 
                     "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial A",
@@ -43,8 +45,8 @@
                             "operations": [
                                 { "action": "ADD_ITEM", "name": "Escudo", "query": "items/name == 'Escudo'" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'/name"},
-                                    "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
+                                    "options": {"action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == 'martial'/name"},
+                                    "function": {"action": "ADD_ITEM", "name": "THIS", "query": "items/name == 'THIS'"}
                                 }
                             ]
                         },
@@ -52,8 +54,8 @@
                             "label": "Duas Armas Marciais",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'martial'/name"},
-                                    "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
+                                    "options": {"action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == 'martial'/name"},
+                                    "function": {"action": "ADD_ITEM", "name": "THIS", "query": "items/name == 'THIS'"}
                                 }
                             ]
                         }
@@ -70,8 +72,8 @@
                             "label": "Arma Simples Corpo-a-Corpo",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples Corpo-a-Corpo",
-                                    "options": {"action": "REQUEST", "query": "items/type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true/name"},
-                                    "function": {"action": "ADD_ITEM", "name": "x", "query": "items/name == 'x'"}
+                                    "options": {"action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true/name"},
+                                    "function": {"action": "ADD_ITEM", "name": "THIS", "query": "items/name == 'THIS'"}
                                 }
                             ]
                         }
@@ -101,15 +103,15 @@
                     "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem...",
                     "operations": [
                         { "action": "SET", "property": "resources.sentido_divino", "type": "counter", "formula": "max(1, 1 + attributes.carisma.modifier)", "recoversOn": "long_rest" },
-                        { "action": "ADD_ACTION", "name": "Sentido Divino", "cost": { "resource": "sentido_divino", "amount": 1, "action": "action" }}
+                        { "action": "ADD_ACTION", "name": "Sentido Divino", "cost": [{ "resource": "sentido_divino", "amount": 1}, {"resource": "action"}]}
                     ]
                 },
                 {
                     "name": "Cura pelas Mãos",
                     "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
                     "operations": [
-                        { "action": "SET", "property": "resources.cura_pelas_maos", "formula": "5 * properties.paladin_level", "recoversOn": "long_rest" },
-                        { "action": "ADD_ACTION", "name": "Cura pelas Mãos", "cost": { "resource": "curas_pelas_maos", "amount": 1, "action": "action" }}
+                        { "action": "SET", "property": "resources.cura_pelas_maos", "type": "counter", "formula": "5 * properties.paladin_level", "recoversOn": "long_rest" },
+                        { "action": "ADD_ACTION", "name": "Cura pelas Mãos", "cost": [{"resource": "cura_pelas_maos", "amount": "x"}, {"resource": "action"}] }
                     ]
                 }
             ]
@@ -125,8 +127,8 @@
                     "operations": [
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "name": "Estilo de Luta",
-                            "options": { "action": "REQUEST", "query": "features/type == 'fighting_style' AND 'paladin' in metadata.classes/name"},
-                            "function": { "action": "IMPORT", "query": "features/name = 'x'"}
+                            "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/name"},
+                            "function": { "action": "IMPORT", "query": "features/name = 'THIS'"}
                         }
                     ]
                 },
@@ -138,12 +140,7 @@
                     "name": "Destruição Divina",
                     "description": "Quando você atingir uma criatura com um ataque corpo-a-corpo com arma, você pode gastar um espaço de magia...",
                     "operations": [
-                        { 
-                            "action": "ADD_ACTION", 
-                            "name": "Destruição Divina",
-                            "cost": { "type": "spell_slot", "min_level": 1 },
-                            "description": "Quando você atingir uma criatura com um ataque corpo-a-corpo com arma, você pode gastar um espaço de magia..."
-                        }
+                        { "action": "ADD_ACTION", "name": "Destruição Divina", "cost": [{ "type": "spell_slot", "min_level": 1 }] }
                     ]
                 }
             ]
@@ -171,7 +168,7 @@
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
                             "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'/name" },
-                            "function": { "action": "SET", "property": "properties.paladin_subclass", "formula": "x" }
+                            "function": { "action": "SET", "property": "properties.paladin_subclass", "formula": "THIS" }
                         }
                     ]
                 },

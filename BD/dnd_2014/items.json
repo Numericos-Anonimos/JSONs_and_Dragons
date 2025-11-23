@@ -1,0 +1,55 @@
+{
+    "Armadura": {
+        "Cota de Malha": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Pesada",
+                "price": [75, "gp"],
+                "weight": [27.5, "kg"]
+            },
+            "description": "Feita de anéis de metal entrelaçados, oferece boa proteção.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 16 }
+            ]
+        },
+        "Couro Batido": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Leve",
+                "price": [5, "gp"],
+                "weight": [6.5, "kg"]
+            },
+            "description": "Feita de couro batido, oferece proteção leve.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "11 + attributes.dexterity.modifier" }
+            ]
+        },
+        "Escudo": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Escudo",
+                "price": [10, "gp"],
+                "weight": [3, "kg"]
+            },
+            "description": "Escudo de metal, oferece proteção adicional.",
+            "operations": [
+                { "action": "INCREMENT", "property": "attributes.AC", "value": 2 }
+            ]
+        }
+
+    },
+    "Arma": {
+        "Espada Grande": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial",
+                "properties": ["Pesada", "Duas mãos"],
+                "price": [50, "gp"],
+                "weight": [3, "kg"]
+            },
+            "description": "Uma espada grande de metal.",
+            "operations": []
+        }
+    }
+
+}

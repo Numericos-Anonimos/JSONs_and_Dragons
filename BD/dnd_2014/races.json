@@ -1,0 +1,9 @@
+{
+    "Humano": {
+        "features": [
+            {"action": "CHOOSE_OPERATIONS", "n": 1}
+            
+        ]
+
+    }
+}
