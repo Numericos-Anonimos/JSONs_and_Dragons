@@ -1,6 +1,7 @@
 {
     "Humano": {
         "features": [
+            { "action": "SET", "property": "personal.race", "value": "Humano" },
             {
                 "action": "CHOSE_MAP", "n": 1, "label": "Subraça",
                 "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Humano'/name"},

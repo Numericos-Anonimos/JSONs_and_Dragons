@@ -1,7 +1,7 @@
 {
     "Humano (Comum)": {
         "operations": [
-            {"action": "SET", "property": "personal.race", "value": "Humano (Comum)"},
+            {"action": "SET", "property": "personal.subrace", "value": "Humano (Comum)"},
             {"action": "INCREMENT", "property": "atributes.força", "formula": "1"},
             {"action": "INCREMENT", "property": "atributes.destreza", "formula": "1"},
             {"action": "INCREMENT", "property": "atributes.constituição", "formula": "1"},
@@ -12,6 +12,7 @@
     },
     "Humano (Variante)": {
         "operations": [
+            {"action": "SET", "property": "personal.subrace", "value": "Humano (Variante)"},
             {
                 "action": "CHOOSE_MAP", "n": 2, "label": "Aumento no Valor de Habilidade",
                 "options": ["força", "destreza", "constituição", "inteligência", "sabedoria", "carisma"],

@@ -1,11 +1,15 @@
 {
-    "Armadura": {
+    "Armaduras": {
         "Cota de Malha": {
             "metadata": {
                 "type": "Armadura",
                 "category": "Pesada",
                 "price": [75, "gp"],
-                "weight": [27.5, "kg"]
+                "weight": [27.5, "kg"],
+                "requirements": {
+                    "Força": "attributes.strength.value >= 13",
+                    "Proficiência": "proficiency.heavy_armor == true"
+                }
             },
             "description": "Feita de anéis de metal entrelaçados, oferece boa proteção.",
             "operations": [
@@ -17,7 +21,10 @@
                 "type": "Armadura",
                 "category": "Leve",
                 "price": [5, "gp"],
-                "weight": [6.5, "kg"]
+                "weight": [6.5, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.light_armor == true"
+                }
             },
             "description": "Feita de couro batido, oferece proteção leve.",
             "operations": [
@@ -29,7 +36,10 @@
                 "type": "Armadura",
                 "category": "Escudo",
                 "price": [10, "gp"],
-                "weight": [3, "kg"]
+                "weight": [3, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.shield == true"
+                }
             },
             "description": "Escudo de metal, oferece proteção adicional.",
             "operations": [
@@ -37,7 +47,7 @@
             ]
         }
     },
-    "Arma": {
+    "Armas": {
         "Espada Grande": {
             "metadata": {
                 "type": "Arma",
@@ -47,7 +57,18 @@
                 "weight": [3, "kg"]
             },
             "description": "Uma espada grande de metal.",
-            "operations": []
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Espada Grande", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Alcance": "6m (20 pés) / 18m (60 pés)"
+                    }
+                }
+            ]
         }
     },
     "Itens Mágicos": {
@@ -56,8 +77,8 @@
                 "type": "Item Mágico",
                 "category": "Mochila",
                 "rarity": "Incomum",
-                "attunement": {
-                    "required": true
+                "requirements": {
+                    "attunement": true
                 }
             },
             "description": "Você ganha +1 de bonus na sua CA e salvaguardas enquanto utilizar essa capa.",
@@ -71,20 +92,27 @@
                 { "action": "INCREMENT", "property": "attributes.carisma.save", "value": 1 }
             ]
         },
-        "Arremessador Anão": {
+        "Arremessador Anão (Martelo de Guerra)": {
             "metadata": {
                 "type": "Item Mágico",
                 "category": "Arma",
                 "rarity": "Muito Raro",
-                "attunement": {
-                    "required": true,
-                    "race": "Anão"
-                },
+                "requirements": {
+                    "attunement": true,
+                    "Raça": "personal.race == 'Anão'"
+                }
             },
             "description": "Você ganha um bônus de +3 nas jogadas de ataque e dano feitas com esta arma mágica. Ela possui a propriedade arremesso com um alcance normal de 6 metros (20 pés) e um alcance longo de 18 metros (60 pés).\nQuando você acerta um ataque à distância usando esta arma, ela causa 1d8 de dano extra ou, se o alvo for um gigante, 2d8 de dano. Imediatamente após o ataque, a arma voa de volta para a sua mão.",
             "operations": [
                 {
-                    
+                    "action": "GRANT_ACTION", "name": "Arremessar o Arremessador Anão (Martelo de Guerra)",
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + 3 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + 3 + atributes.força.modifier",
+                        "Alcance": "6m (20 pés) / 18m (60 pés)"
+                    }
                 }
             ]
         }
