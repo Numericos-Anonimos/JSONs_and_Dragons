@@ -36,7 +36,6 @@
                 { "action": "INCREMENT", "property": "attributes.AC", "value": 2 }
             ]
         }
-
     },
     "Arma": {
         "Espada Grande": {
@@ -50,6 +49,44 @@
             "description": "Uma espada grande de metal.",
             "operations": []
         }
+    },
+    "Itens Mágicos": {
+        "Capa da Proteção": {
+            "metadata": {
+                "type": "Item Mágico",
+                "category": "Mochila",
+                "rarity": "Incomum",
+                "attunement": {
+                    "required": true
+                }
+            },
+            "description": "Você ganha +1 de bonus na sua CA e salvaguardas enquanto utilizar essa capa.",
+            "operations": [
+                { "action": "INCREMENT", "property": "attributes.AC", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.força.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.dextreza.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.constituição.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.inteligência.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.sabedoria.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.carisma.save", "value": 1 }
+            ]
+        },
+        "Arremessador Anão": {
+            "metadata": {
+                "type": "Item Mágico",
+                "category": "Arma",
+                "rarity": "Muito Raro",
+                "attunement": {
+                    "required": true,
+                    "race": "Anão"
+                },
+            },
+            "description": "Você ganha um bônus de +3 nas jogadas de ataque e dano feitas com esta arma mágica. Ela possui a propriedade arremesso com um alcance normal de 6 metros (20 pés) e um alcance longo de 18 metros (60 pés).\nQuando você acerta um ataque à distância usando esta arma, ela causa 1d8 de dano extra ou, se o alvo for um gigante, 2d8 de dano. Imediatamente após o ataque, a arma voa de volta para a sua mão.",
+            "operations": [
+                {
+                    
+                }
+            ]
+        }
     }
-
 }

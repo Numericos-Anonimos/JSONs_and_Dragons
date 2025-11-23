@@ -14,7 +14,7 @@ Para cobrir D&D 5e 2014 e permitir expansão, eu sugiro dividir os JSONs por **T
   - items.json       (Equipamentos, Itens Mágicos, Loot)
   - spells.json      (Magias)
   - feats.json       (Talentos)
-  - features.json    (Features soltas referenciadas por ID, ex: Estilos de Luta, Invocações de Bruxo)
+  - features.json    (Features soltas referenciadas por ID, ex: Estilos de Luta, Invocações de Bruxo, Linguas, Proficiências)
   - monsters.json    (Para o futuro: formas selvagens de druida, familiares, etc)
 ```
 

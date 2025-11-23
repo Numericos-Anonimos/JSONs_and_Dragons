@@ -1,0 +1,32 @@
+{
+    "Humano (Comum)": {
+        "operations": [
+            {"action": "SET", "property": "personal.race", "value": "Humano (Comum)"},
+            {"action": "INCREMENT", "property": "atributes.força", "formula": "1"},
+            {"action": "INCREMENT", "property": "atributes.destreza", "formula": "1"},
+            {"action": "INCREMENT", "property": "atributes.constituição", "formula": "1"},
+            {"action": "INCREMENT", "property": "atributes.inteligência", "formula": "1"},
+            {"action": "INCREMENT", "property": "atributes.sabedoria", "formula": "1"},
+            {"action": "INCREMENT", "property": "atributes.carisma", "formula": "1"}
+        ]
+    },
+    "Humano (Variante)": {
+        "operations": [
+            {
+                "action": "CHOOSE_MAP", "n": 2, "label": "Aumento no Valor de Habilidade",
+                "options": ["força", "destreza", "constituição", "inteligência", "sabedoria", "carisma"],
+                "function": {"action": "INCREMENT", "property": "atributes.THIS", "formula": "1"}
+            },
+            { 
+                "action": "CHOOSE_MAP", "n": 1, "label": "Perícia",
+                "options": {"action": "REQUEST", "query": "features/proficiências/metadata.type == 'skill'/name"},
+                "function": {"action": "IMPORT", "query": "features/proficiências/name == THIS"}
+            },
+            { 
+                "action": "CHOOSE_MAP", "n": 1, "label": "Talento",
+                "options": {"action": "REQUEST", "query": "feats/name"},
+                "function": {"action": "IMPORT", "query": "feats/name == THIS"}
+            }
+        ]
+    }
+}

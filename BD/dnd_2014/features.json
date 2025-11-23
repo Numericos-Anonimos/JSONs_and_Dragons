@@ -1,3 +1,30 @@
 {
-    
+    "Languages": {
+        "Comum": {
+            "operations": [
+                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Comum"}
+            ]
+        },
+        "Elfico": {
+            "operations": [
+                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Elfico"}
+            ]
+        },
+        "Anão": {
+            "operations": [
+                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Anão"}
+            ]
+        },
+        "Diacônico": {
+            "operations": [
+                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Diacônico"}
+            ]
+        }           
+    },
+    "Proficiências": {
+        "Armas Simples": {}
+    },
+    "Estilos de Luta": {
+        "Defesa": {}
+    }
 }
