@@ -1,5 +1,110 @@
 {
     "Armaduras": {
+        "Couro Batido": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Leve",
+                "price": [45, "gp"],
+                "weight": [6.5, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.light_armor == true"
+                }
+            },
+            "description": "Feita de couro batido, oferece proteção leve.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "11 + attributes.dexterity.modifier" }
+            ]
+        },
+        "Gibão de Peles": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Média",
+                "price": [10, "gp"],
+                "weight": [6, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.medium_armor == true"
+                }
+            },
+            "description": "Feito de peles grossas, oferece proteção moderada.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "12 + max(attributes.dexterity.modifier, 2)" }
+            ]
+        }, 
+        "Camisão de Malha": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Média",
+                "price": [30, "gp"],
+                "weight": [10, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.medium_armor == true"
+                }
+            },
+            "description": "Feito de anéis de metal entrelaçados, oferece boa proteção.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "13 + max(attributes.dexterity.modifier, 2)" }
+            ]
+        },
+        "Brunea": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Média",
+                "price": [50, "gp"],
+                "weight": [22.5, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.medium_armor == true"
+                }
+            },
+            "description": "Feita de tecido resistente, oferece proteção leve.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "14 + max(attributes.dexterity.modifier, 2)" }
+            ]
+        },
+        "Peitoral": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Média",
+                "price": [400, "gp"],
+                "weight": [10, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.medium_armor == true"
+                }
+            },
+            "description": "Feito de placas de metal, oferece excelente proteção.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "14 + max(attributes.dexterity.modifier, 2)" }
+            ]
+        },
+        "Meia-Armadura": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Média",
+                "price": [750, "gp"],
+                "weight": [20, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.medium_armor == true"
+                }
+            },
+            "description": "Feita de placas de metal, oferece boa proteção.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "15 + max(attributes.dexterity.modifier, 2)" }
+            ]
+        },
+        "Cota de Anéis": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Pesada",
+                "price": [30, "gp"],
+                "weight": [20, "kg"],
+                "requirements": {
+                    "Proficiência": "proficiency.heavy_armor == true"
+                }
+            },
+            "description": "Feita de anéis de metal entrelaçados, oferece boa proteção.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 14 }
+            ]
+        },
         "Cota de Malha": {
             "metadata": {
                 "type": "Armadura",
@@ -16,19 +121,36 @@
                 { "action": "SET", "property": "attributes.AC", "type": "value", "value": 16 }
             ]
         },
-        "Couro Batido": {
+        "Cota de Talas": {
             "metadata": {
                 "type": "Armadura",
-                "category": "Leve",
-                "price": [5, "gp"],
-                "weight": [6.5, "kg"],
+                "category": "Pesada",
+                "price": [200, "gp"],
+                "weight": [30, "kg"],
                 "requirements": {
-                    "Proficiência": "proficiency.light_armor == true"
+                    "Força": "attributes.strength.value >= 15",
+                    "Proficiência": "proficiency.heavy_armor == true"
                 }
             },
-            "description": "Feita de couro batido, oferece proteção leve.",
+            "description": "Feita de placas de metal, oferece excelente proteção.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "11 + attributes.dexterity.modifier" }
+                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 17 }
+            ]
+        },
+        "Placas": {
+            "metadata": {
+                "type": "Armadura",
+                "category": "Pesada",
+                "price": [1500, "gp"],
+                "weight": [32.5, "kg"],
+                "requirements": {
+                    "Força": "attributes.strength.value >= 15",
+                    "Proficiência": "proficiency.heavy_armor == true"
+                }
+            },
+            "description": "Feita de placas de metal, oferece a melhor proteção possível.",
+            "operations": [
+                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 18 }
             ]
         },
         "Escudo": {
@@ -47,6 +169,10 @@
             ]
         }
     },
+
+
+
+
     "Armas": {
         "Espada Grande": {
             "metadata": {
@@ -69,8 +195,86 @@
                     }
                 }
             ]
+        },
+        "Adaga": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Simples",
+                "properties": ["Acuidade", "Leve", "Arremesso"],
+                "price": [2, "gp"],
+                "weight": [0.5, "kg"]
+            },
+            "description": "Uma pequena lâmina afiada.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Adaga", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
+                        "Dano": "1d4 + atributes.força.modifier",
+                        "Alcance": "6m (20 pés) / 18m (60 pés)"
+                    }
+                }
+            ]
+        },
+        "Martelo Leve": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Simples",
+                "properties": ["Leve", "Arremesso"],
+                "price": [2, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Um martelo pequeno e manejável.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Martelo Leve", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
+                        "Dano": "1d4 + atributes.força.modifier",
+                        "Alcance": "6m (20 pés) / 18m (60 pés)"
+                    }
+                }
+            ]
         }
     },
+
+
+
+
+
+    "Equipamento de Aventura": {
+        "Ábaco": {
+            "metadata": {
+                "type": "Equipamento de Aventura",
+                "category": "Instrumento",
+                "price": [2, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Instrumento de cálculo, formado por uma moldura com bastões ou arames paralelos.",
+            "operations": []
+        },
+        "Algemas": {
+            "metadata": {
+                "type": "Equipamento de Aventura",
+                "category": "Ferramenta",
+                "price": [2, "gp"],
+                "weight": [2, "kg"]
+            },
+            "description": "Dispositivo usado para prender os pulsos ou tornozelos de uma criatura.",
+            "operations": []
+        }
+    },
+
+
+
+
+
+
+
     "Itens Mágicos": {
         "Capa da Proteção": {
             "metadata": {
