@@ -434,6 +434,8 @@
             ]
         },
 
+
+
         "Arco Curto": {
             "metadata": {
                 "type": "Arma",
@@ -448,7 +450,7 @@
                     "action": "GRANT_ACTION", "name": "Ataque com Arco Curto", 
                     "cost": [{"action": "action"}],
                     "metadata": {
-                        "category": ["Combate", "Ataque"],
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
                         "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
                         "Dano": "1d6 + atributes.dextreza.modifier",
                         "Tipo de Dano": "Perfurante",
@@ -471,7 +473,7 @@
                     "action": "GRANT_ACTION", "name": "Ataque com Besta Leve", 
                     "cost": [{"action": "action"}],
                     "metadata": {
-                        "category": ["Combate", "Ataque"],
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
                         "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
                         "Dano": "1d8 + atributes.dextreza.modifier",
                         "Tipo de Dano": "Perfurante",
@@ -494,7 +496,7 @@
                     "action": "GRANT_ACTION", "name": "Ataque com Dardo", 
                     "cost": [{"action": "action"}],
                     "metadata": {
-                        "category": ["Combate", "Ataque"],
+                        "category": ["Combate", "Ataque", "Uma Mão"],
                         "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
                         "Dano": "1d4 + atributes.dextreza.modifier",
                         "Tipo de Dano": "Perfurante",
@@ -503,14 +505,125 @@
                 }
             ]
         },
-
-
-
-
+        "Funda": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Simples à Distância",
+                "properties": ["Munição"],
+                "price": [1, "sp"],
+                "weight": []
+            },
+            "description": "Uma funda simples para lançar pedras.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Funda", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
+                        "Dano": "1d4 + atributes.dextreza.modifier",
+                        "Tipo de Dano": "Concussão",
+                        "Alcance": "9m (30 pés) / 36m (120 pés)"
+                    }
+                }
+            ]
+        },
+        "Alabarda": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Pesada", "Alcance", "Duas mãos"],
+                "price": [20, "gp"],
+                "weight": [3, "kg"]
+            },
+            "description": "Uma arma longa com uma lâmina afiada na ponta.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Alabarda", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d10 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "3m (10 pés) / 9m (30 pés)"
+                    }
+                }
+            ]
+        },
+        "Cimitarra": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Acuidade", "Leve"],
+                "price": [25, "gp"],
+                "weight": [1.5, "kg"]
+            },
+            "description": "Uma espada curva e afiada.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Cimitarra", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d6 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Chicote": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Alcance", "Acuidade"],
+                "price": [2, "gp"],
+                "weight": [1.5, "kg"]
+            },
+            "description": "Um chicote flexível e resistente.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Chicote", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d4 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "3m (10 pés) / 9m (30 pés)"
+                    }
+                }
+            ]
+        },
+        "Espada Curta": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Acuidade", "Leve"],
+                "price": [10, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Uma espada curta e afiada.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Espada Curta", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d6 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
         "Espada Grande": {
             "metadata": {
                 "type": "Arma",
-                "category": "Marcial",
+                "category": "Marcial Corpo-a-Corpo",
                 "properties": ["Pesada", "Duas mãos"],
                 "price": [50, "gp"],
                 "weight": [3, "kg"]
@@ -523,15 +636,134 @@
                     "metadata": {
                         "category": ["Combate", "Ataque"],
                         "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Dano": "2d6 + atributes.força.modifier",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "6m (20 pés) / 18m (60 pés)"
                     }
                 }
             ]
-        }
-    },
+        },
+        "Espada Longa": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Versátil"],
+                "price": [15, "gp"],
+                "weight": [1.5, "kg"]
+            },
+            "description": "Uma espada longa e resistente.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Espada Longa (Uma Mão)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                },
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Espada Longa (Duas Mãos)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d10 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
 
+
+
+
+        "Arco Longo": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial à Distância",
+                "properties": ["Munição", "Pesada", "Duas Mãos"],
+                "price": [50, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Um arco longo e poderoso.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Arco Longo", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.dextreza.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "45m (150 pés) / 180m (600 pés)"
+                    }
+                }
+            ]
+        },
+        "Besta de Mão": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial à Distância",
+                "properties": ["Munição", "Recarga", "Leve"],
+                "price": [75, "gp"],
+                "weight": [1.5, "kg"]
+            },
+            "description": "Uma besta pequena e fácil de manusear.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Besta de Mão", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
+                        "Dano": "1d6 + atributes.dextreza.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "9m (30 pés) / 36m (120 pés)"
+                    }
+                }
+            ]
+        },
+        "Besta Pesada": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial à Distância",
+                "properties": ["Munição", "Recarga", "Pesada", "Duas Mãos"],
+                "price": [50, "gp"],
+                "weight": [4.5, "kg"]
+            },
+            "description": "Uma besta pesada e poderosa.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Besta Pesada", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
+                        "Dano": "1d10 + atributes.dextreza.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "30m (100 pés) / 120m (400 pés)"
+                    }
+                }
+            ]
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+    },
+    
 
 
 
