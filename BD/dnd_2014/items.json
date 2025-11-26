@@ -677,10 +677,315 @@
                 }
             ]
         },
-
-
-
-
+        "Glaive": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Pesada", "Alcance", "Duas mãos"],
+                "price": [20, "gp"],
+                "weight": [3, "kg"]
+            },
+            "description": "Uma arma longa com uma lâmina afiada na ponta.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Glaive", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d10 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "3m (10 pés) / 9m (30 pés)"
+                    }
+                }
+            ]
+        },
+        "Lança de Montaria": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Alcance", "Especial"],
+                "price": [10, "gp"],
+                "weight": [3, "kg"]
+            },
+            "description": "Uma lança longa usada por cavaleiros.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Lança de Montaria", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d12 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Lança Longa": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Pesada", "Alcance", "Duas mãos"],
+                "price": [5, "gp"],
+                "weight": [4, "kg"]
+            },
+            "description": "Uma lança longa e resistente.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Lança Longa", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d10 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "3m (10 pés) / 9m (30 pés)"
+                    }
+                }
+            ]
+        },
+        "Maça Estrela": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": [],
+                "price": [15, "gp"],
+                "weight": [2, "kg"]
+            },
+            "description": "Uma maça com pontas afiadas.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Maça Estrela", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Machado Grande": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Pesada", "Duas mãos"],
+                "price": [30, "gp"],
+                "weight": [3.5, "kg"]
+            },
+            "description": "Um machado grande e pesado.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Machado Grande", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d12 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Machado de Batalha": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Versátil"],
+                "price": [10, "gp"],
+                "weight": [2, "kg"]
+            },
+            "description": "Um machado resistente e versátil.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Machado de Batalha (Uma Mão)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                },
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Machado de Batalha (Duas Mãos)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d10 + atributes.força.modifier",
+                        "Tipo de Dano": "Cortante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Malho": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Pesada", "Duas mãos"],
+                "price": [10, "gp"],
+                "weight": [5, "kg"]
+            },
+            "description": "Um malho grande e pesado.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Malho", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "2d6 + atributes.força.modifier",
+                        "Tipo de Dano": "Concussão",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Mangual": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": [],
+                "price": [10, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Um mangual com uma cabeça pesada presa a uma corrente.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Mangual", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Concussão",
+                        "Alcance": "3m (10 pés) / 9m (30 pés)"
+                    }
+                }
+            ]
+        },
+        "Martelo de Guerra": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Versátil"],
+                "price": [15, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Um martelo grande e resistente.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Martelo de Guerra (Uma Mão)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Concussão",
+                        "Alcance": "Corpo a corpo"
+                    }
+                },
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Martelo de Guerra (Duas Mãos)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d10 + atributes.força.modifier",
+                        "Tipo de Dano": "Concussão",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Picareta de Guerra": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": [],
+                "price": [5, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Uma picareta resistente e pesada.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Picareta de Guerra", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Rapieira": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Acuidade"],
+                "price": [25, "gp"],
+                "weight": [1, "kg"]
+            },
+            "description": "Uma espada longa e fina.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Rapieira", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
+        "Tridente": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial Corpo-a-Corpo",
+                "properties": ["Arremesso", "Versátil"],
+                "price": [5, "gp"],
+                "weight": [2, "kg"]
+            },
+            "description": "Um tridente afiado e resistente.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Tridente (Uma Mão)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d6 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                },
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Tridente (Duas Mãos)", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Duas Mãos"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "1d8 + atributes.força.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "Corpo a corpo"
+                    }
+                }
+            ]
+        },
         "Arco Longo": {
             "metadata": {
                 "type": "Arma",
@@ -746,6 +1051,52 @@
                         "Dano": "1d10 + atributes.dextreza.modifier",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "30m (100 pés) / 120m (400 pés)"
+                    }
+                }
+            ]
+        },
+        "Rede": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial à Distância",
+                "properties": ["Especial", "Arremesso"],
+                "price": [1, "gp"],
+                "weight": [1.5, "kg"]
+            },
+            "description": "Uma rede usada para capturar criaturas.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Rede", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque"],
+                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Dano": "Null",
+                        "Tipo de Dano": "Null",
+                        "Alcance": "1.5m (7 pés) / 4.5m (14 pés)"
+                    }
+                }
+            ]
+        },
+        "Zarabatana": {
+            "metadata": {
+                "type": "Arma",
+                "category": "Marcial à Distância",
+                "properties": ["Munição", "Recarga"],
+                "price": [20, "gp"],
+                "weight": [0.5, "kg"]
+            },
+            "description": "Uma zarabatana simples para lançar dardos.",
+            "operations": [
+                {
+                    "action": "GRANT_ACTION", "name": "Ataque com Zarabatana", 
+                    "cost": [{"action": "action"}],
+                    "metadata": {
+                        "category": ["Combate", "Ataque", "Uma Mão"],
+                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
+                        "Dano": "1 + atributes.dextreza.modifier",
+                        "Tipo de Dano": "Perfurante",
+                        "Alcance": "7.5m (25 pés) / 30m (100 pés)"
                     }
                 }
             ]

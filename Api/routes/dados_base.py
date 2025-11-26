@@ -8,16 +8,12 @@ from urllib.parse import unquote
 
 router = APIRouter()
 
-# Base do arquivo atual
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Sobe dois níveis: routes → Api → JSONs_and_Dragons
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
-
 BD_DIR = os.path.join(ROOT_DIR, "BD", "dnd_2014")
 
 def carregar_json(nome_arquivo):
     caminho = os.path.join(BD_DIR, nome_arquivo)
-    print("Lendo arquivo:", caminho)  # debug opcional
     with open(caminho, "r", encoding="utf-8") as f:
         return json.load(f)
 
