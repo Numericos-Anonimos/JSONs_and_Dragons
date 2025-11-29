@@ -1,14 +1,24 @@
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 
 from Api.routes.dados_base import router as base_router
 from Api.routes.criar_ficha import router as router_ficha
 
-
 app = FastAPI()
 
-# Para testar deve 1º ativar a venv no terminal: . venv/Scripts/activate
-# Em seguida rodar o comando: uvicorn Api.main:app --reload
+origins = [
+    "http://localhost:4200",
+    "https://localhost:4200",
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(base_router, prefix="/base")
-app.include_router(base_router, prefix="/criar")
+app.include_router(router_ficha, prefix="/criar")
