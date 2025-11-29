@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from Api.routes.dados_base import router as base_router
-from Api.routes.criar_ficha import router as router_ficha
+from Api.routes.criar_ficha import router_ficha
+from Api.routes.auth import router as auth_router  # <--- add this
 
 app = FastAPI()
 
@@ -22,3 +23,4 @@ app.add_middleware(
 
 app.include_router(base_router, prefix="/base")
 app.include_router(router_ficha, prefix="/criar")
+app.include_router(auth_router, prefix="/auth")
