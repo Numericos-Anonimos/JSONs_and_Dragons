@@ -2,7 +2,7 @@
     "Agarrador": {
         "metadata": {
             "requirements": {
-                "Força": "attributes.str.score >= 13"
+                "Força": "{attributes.str.score} >= 13"
             }
         },
         "description": "Você desenvolveu as habilidades necessárias para se garantir em luta agarrada corpo a corpo. Você ganha os seguintes benefícios:\n - Você tem vantagem nas jogadas de ataque contra uma criatura que você esteja agarrando.\n - Você pode usar sua ação para tentar imobilizar uma criatura agarrada por você. Para fazer isso, faça outro teste de agarrar. Se você for bem-sucedido, você e a criatura estarão ambos contidos até o agarramento terminar.",

@@ -70,7 +70,7 @@
         "level_1": {
             "operations": [
                 { "action": "SET", "property": "properties.level.Paladino", "value": 1 },
-                { "action": "INCREMENT", "property": "properties.level", "formula": "properties.level.Paladino"},
+                { "action": "INCREMENT", "property": "properties.level", "formula": "{properties.level.Paladino}"},
                 { 
                     "action": "FOR_EACH", "list": ["Leve", "Media", "Escudo"],
                     "operations": [{ "action": "SET", "property": "proficiency.armor.{THIS}.multiplier", "value": 1 }]
@@ -93,7 +93,7 @@
                     "name": "Cura pelas Mãos",
                     "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
                     "operations": [
-                        { "action": "SET", "property": "resources.cura_pelas_maos", "type": "counter", "formula": "5 * properties.level.Paladino", "recoversOn": "long_rest" },
+                        { "action": "SET", "property": "resources.cura_pelas_maos", "type": "counter", "formula": "5 * {properties.level.Paladino}", "recoversOn": "long_rest" },
                         { "action": "ADD_ACTION", "name": "Cura pelas Mãos", "cost": [{"resource": "cura_pelas_maos", "amount": "x"}, {"action": "action"}] }
                     ]
                 }
@@ -124,7 +124,7 @@
                             "name": "Paladino",
                             "can_multiclass": true,
                             "multiclass_formula": "floor({properties.level.Paladino} / 2)",
-                            "spellcastig_modifier": "{attributes.cha.modifier}",
+                            "spellcasting_modifier": "{attributes.cha.modifier}",
                             "spell_save_dc": "8 + {properties.proficiency_bonus} + {attributes.cha.modifier}",
                             "spell_attack_modifier": "{properties.proficiency_bonus} + {attributes.cha.modifier}",
                             "spells_prepared": "max(1, {attributes.cha.modifier} + floor({properties.level.Paladino} / 2))",
@@ -180,11 +180,11 @@
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
                             "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'/name" },
-                            "operations": [{ "action": "SET", "property": "properties.paladin_subclass", "formula": "{THIS}" }]
+                            "operations": [{ "action": "SET", "property": "properties.Paladino.subclass", "formula": "{THIS}" }]
                         }
                     ]
                 },
-                { "action": "IMPORT", "query": "subclasses/name = properties.paladin_subclass/level_3" }
+                { "action": "IMPORT", "query": "subclasses/name = properties.Paladino.subclass/level_3" }
 
             ]
         },
@@ -219,7 +219,7 @@
                         }
                     ]
                 },
-                { "action": "IMPORT", "query": "subclasses/name = properties.paladin_subclass/level_5" }
+                { "action": "IMPORT", "query": "subclasses/name = properties.Paladino.subclass/level_5" }
             ]
         },
         "level_6": {
@@ -236,7 +236,7 @@
         "level_7": {
             "operations": [
                 { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
-                { "action": "IMPORT", "query": "subclasses/name = properties.paladin_subclass/level_7" }
+                { "action": "IMPORT", "query": "subclasses/name = properties.Paladino.subclass/level_7" }
             ]
         },
         "level_8": {
@@ -256,7 +256,7 @@
         "level_9": {
             "operations": [
                 { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
-                { "action": "IMPORT", "query": "subclasses/name = properties.paladin_subclass/level_9" }
+                { "action": "IMPORT", "query": "subclasses/name = properties.Paladino.subclass/level_9" }
             ]
         },
         "level_10": {

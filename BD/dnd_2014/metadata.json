@@ -3,7 +3,7 @@
         "name": "D&D 5e 2014 - SRD CC V5.1",
         "author": "Wizards of the Coast"
     },
-    "Personagem" {
+    "Personagem": {
         "operations": [
             { "action": "SET", "property": "properties.level", "value": 0},
             { "action": "SET", "property": "properties.proficiency", "formula": "2 + floor(({properties.level} - 1)/ 4)"},
@@ -17,8 +17,8 @@
             { 
                 "action": "FOR_EACH", "list": ["str", "dex", "con", "int", "wis", "cha"], 
                 "operations": [
-                    { "action": "SET", "property": "attributes.{THIS}.modifier", "formula": "floor((attributes.{THIS}.score - 10) / 2)"},
-                    { "action": "SET", "property": "attributes.{THIS}.save", "formula": "attributes.{THIS}.modifier"}
+                    { "action": "SET", "property": "attributes.{THIS}.modifier", "formula": "floor(({attributes.{THIS}.score} - 10) / 2)"},
+                    { "action": "SET", "property": "attributes.{THIS}.save", "formula": "{attributes.{THIS}.modifier}"}
                 ]
             },
 

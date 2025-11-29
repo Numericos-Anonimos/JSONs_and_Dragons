@@ -5,13 +5,14 @@
             {"action": "SET", "property": "proficiency.skill.Intuição.multiplier", "value": 1 },
             {
                 "action": "CHOOSE_MAP", "n": 2, "label": "Idiomas", 
-                "options": {"action": "REQUEST", "query": "features/languages/name"},
-                "operations": [{"action": "IMPORT", "query": "features/languages/name == '{THIS}'"}]
+                "options": {"action": "REQUEST", "query": "features/metadata.type == 'language'/name"},
+                "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
             },
-            {"action": "ADD_ITEM", "query": "items/name == 'Simbolo sagrado'"},
-            {"action": "CHOOSE_MAP", "n": 1, "label": "Livro de Orações ou Roda de Oração", 
+            {"action": "ADD_ITEM", "query": "items/name == 'Símbolo sagrado'"},
+            {
+                "action": "CHOOSE_MAP", "n": 1, "label": "Livro de Orações ou Roda de Oração", 
                 "options": ["Livro de Orações", "Roda de Oração"],
-                "operations": [{"action": "IMPORT", "query": "features/languages/name == '{THIS}'"}]
+                "operations": [{"action": "ADD_ITEM", "query": "items/name == '{THIS}'"}]
             },
             {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Varetas de Incenso'"},
             {"action": "ADD_ITEM", "query": "items/name == 'Roupas Comuns'"},
