@@ -1,3 +1,34 @@
 {
-    
+  "Curar Ferimentos": {
+    "metadata": {
+      "class": ["Clérigo", "Bardo", "Druida", "Paladino", "Patrulheiro"],
+      "type": "spell",
+      "Nivel": 1,
+      "source": "Livro do Jogador"
+    },
+    "nivel": 1,
+    "escola": "Evocação",
+    "tempo_conjuracao": "1 ação",
+    "alcance": "Toque",
+    "componentes": ["V", "S"],
+    "duracao": "Instantânea",
+    "descricao": "Uma criatura que você tocar recupera um número de pontos de vida igual a 1d8 + seu modificador de conjurador. Esta magia não pode curar mortos-vivos ou constructos.",
+    "classes": ["Clérigo", "Druida", "Paladino"]
+  },
+  "Palavra Curativa": {
+    "metadata": {
+      "class": ["Bardo", "Clérigo", "Druida"],
+      "type": "spell",
+      "Nivel": 1,
+      "source": "Livro do Jogador"
+    },
+    "nivel": 1,
+    "escola": "Evocação",
+    "tempo_conjuracao": "1 ação bônus",
+    "alcance": "30 pés",
+    "componentes": ["V"],
+    "duracao": "Instantânea",
+    "descricao": "Você emite uma palavra curativa. Escolha uma criatura que você possa ver dentro do alcance. A criatura recupera um número de pontos de vida igual a 1d4 + seu modificador de conjurador. Esta magia não pode curar mortos-vivos ou constructos.",
+    "classes": ["Bardo", "Clérigo", "Druida"]
+  }
 }
