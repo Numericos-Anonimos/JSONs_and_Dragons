@@ -24,7 +24,13 @@ def criar_ficha_classe(classe: str, nivel: int):
     if classe_decodificada not in dados:
         raise HTTPException(status_code=404, detail="Classe não encontrada")
     
-    #for pos in dados[classe_decodificada]:
+    level = "level_" + str(nivel)
+    if level not in dados[classe_decodificada]:
+        raise HTTPException(status_code=400, detail="Nível inválido para a classe")
+    
+    return classe_decodificada[level]
+
+
 
         
 
