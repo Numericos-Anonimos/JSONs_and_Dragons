@@ -3,9 +3,6 @@ import json
 from fastapi import APIRouter, HTTPException
 from urllib.parse import unquote
 
-# Para testar deve 1º ativar a venv no terminal: . venv/Scripts/activate
-# Em seguida rodar o comando: uvicorn Api.main:app --reload
-
 router = APIRouter()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,14 +19,19 @@ def carregar_json(nome_arquivo):
 
 
 
-# Rota Inicial da API
+@router.get("/racas/")
+def list_armaduras():
+    dados = carregar_json("races.json")
+    return dados
 
+
+
+# Rota Inicial da API
 @router.get("/itens/")
 def list_itens():
     return carregar_json("items.json")
 
 #Trabalhando com armaduras
-
 @router.get("/itens/armaduras")
 def list_armaduras():
     dados = carregar_json("items.json")
@@ -51,9 +53,7 @@ def pegar_armadura(nome: str):
 
 
 
-
 #Trabalhando com armas
-
 @router.get("/itens/armas")
 def list_armas():
     dados = carregar_json("items.json")
@@ -65,12 +65,7 @@ def pegar_arma(nome: str):
     armas = dados.get("Armas", {})
     return armas.get(nome, {"erro": "Arma não encontrada"})
 
-
-
-
-
 #Trabalhando com equipamentos de aventura
-
 @router.get("/itens/equipamentosaventura")
 def list_equipamentos_aventura():
     dados = carregar_json("items.json")

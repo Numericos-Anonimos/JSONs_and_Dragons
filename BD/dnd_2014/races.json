@@ -17,5 +17,22 @@
             }
         ]
 
+    },
+
+    "Elfo": {
+        "features": [
+            { "action": "SET", "property": "personal.race", "value": "Elfo" },
+            {
+                "action": "CHOSE_MAP", "n": 1, "label": "Subraça",
+                "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Elfo'/name"},
+                "function": {"action": "IMPORT", "query": "subraces/metadata.race == THIS"}
+            },
+            {"action": "INCREMENT", "property": "atributes.dexterity", "value": 2},
+            {"action": "SET", "property": "atributes.speed", "value": "9"},
+            {"action": "SET", "property": "atributes.size", "value": "Médio"},  
+            {"action":"GRAND_PROFICIENCY","category": "pericia", "name": "Percepção"},
+            {"action": "IMPORT", "query": "features/languages/Comum"},
+            {"action": "IMPORT", "query": "features/languages/Élfico"}      
+        ]   
     }
 }
