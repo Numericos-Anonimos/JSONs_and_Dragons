@@ -12,7 +12,7 @@
             },
             "description": "Feita de couro batido, oferece proteção leve.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "11 + attributes.dexterity.modifier" }
+                { "action": "SET", "property": "properties.ac", "type": "value", "formula": "11 + {attributes.dex.modifier}" }
             ]
         },
         "Gibão de Peles": {
@@ -27,7 +27,7 @@
             },
             "description": "Feito de peles grossas, oferece proteção moderada.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "12 + max(attributes.dexterity.modifier, 2)" }
+                { "action": "SET", "property": "properties.ac", "type": "value", "formula": "12 + max({attributes.dex.modifier}, 2)" }
             ]
         }, 
         "Camisão de Malha": {
@@ -42,7 +42,7 @@
             },
             "description": "Feito de anéis de metal entrelaçados, oferece boa proteção.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "13 + max(attributes.dexterity.modifier, 2)" }
+                { "action": "SET", "property": "properties.ac", "type": "value", "formula": "13 + max({attributes.dex.modifier}, 2)" }
             ]
         },
         "Brunea": {
@@ -57,7 +57,7 @@
             },
             "description": "Feita de tecido resistente, oferece proteção leve.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "14 + max(attributes.dexterity.modifier, 2)" }
+                { "action": "SET", "property": "properties.ac", "type": "value", "formula": "14 + max({attributes.dex.modifier}, 2)" }
             ]
         },
         "Peitoral": {
@@ -72,7 +72,7 @@
             },
             "description": "Feito de placas de metal, oferece excelente proteção.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "14 + max(attributes.dexterity.modifier, 2)" }
+                { "action": "SET", "property": "properties.ac", "type": "value", "formula": "14 + max({attributes.dex.modifier}, 2)" }
             ]
         },
         "Meia-Armadura": {
@@ -87,7 +87,7 @@
             },
             "description": "Feita de placas de metal, oferece boa proteção.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "formula": "15 + max(attributes.dexterity.modifier, 2)" }
+                { "action": "SET", "property": "properties.ac", "type": "value", "formula": "15 + max({attributes.dex.modifier}, 2)" }
             ]
         },
         "Cota de Anéis": {
@@ -102,7 +102,7 @@
             },
             "description": "Feita de anéis de metal entrelaçados, oferece boa proteção.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 14 }
+                { "action": "SET", "property": "properties.ac", "type": "value", "value": 14 }
             ]
         },
         "Cota de Malha": {
@@ -112,13 +112,13 @@
                 "price": [75, "gp"],
                 "weight": [27.5, "kg"],
                 "requirements": {
-                    "Força": "attributes.strength.value >= 13",
+                    "Força": "attributes.str.score >= 13",
                     "Proficiência": "proficiency.heavy_armor == true"
                 }
             },
             "description": "Feita de anéis de metal entrelaçados, oferece boa proteção.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 16 }
+                { "action": "SET", "property": "properties.ac", "type": "value", "value": 16 }
             ]
         },
         "Cota de Talas": {
@@ -128,13 +128,13 @@
                 "price": [200, "gp"],
                 "weight": [30, "kg"],
                 "requirements": {
-                    "Força": "attributes.strength.value >= 15",
+                    "Força": "attributes.str.score >= 15",
                     "Proficiência": "proficiency.heavy_armor == true"
                 }
             },
             "description": "Feita de placas de metal, oferece excelente proteção.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 17 }
+                { "action": "SET", "property": "properties.ac", "type": "value", "value": 17 }
             ]
         },
         "Placas": {
@@ -144,13 +144,13 @@
                 "price": [1500, "gp"],
                 "weight": [32.5, "kg"],
                 "requirements": {
-                    "Força": "attributes.strength.value >= 15",
+                    "Força": "attributes.str.score >= 15",
                     "Proficiência": "proficiency.heavy_armor == true"
                 }
             },
             "description": "Feita de placas de metal, oferece a melhor proteção possível.",
             "operations": [
-                { "action": "SET", "property": "attributes.AC", "type": "value", "value": 18 }
+                { "action": "SET", "property": "properties.ac", "type": "value", "value": 18 }
             ]
         },
         "Escudo": {
@@ -165,7 +165,7 @@
             },
             "description": "Escudo de metal, oferece proteção adicional.",
             "operations": [
-                { "action": "INCREMENT", "property": "attributes.AC", "value": 2 }
+                { "action": "INCREMENT", "property": "properties.ac", "value": 2 }
             ]
         }
     },
@@ -196,8 +196,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d4 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d4 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "6m (20 pés) / 18m (60 pés)"
                     }
@@ -219,8 +219,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "9m (30 pés) / 36m (120 pés)"
                     }
@@ -242,8 +242,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -253,8 +253,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -276,8 +276,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -299,8 +299,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d4 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d4 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -322,8 +322,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -333,8 +333,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -356,8 +356,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -379,8 +379,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "6m (20 pés) / 18m (60 pés)"
                     }
@@ -402,8 +402,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d4 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d4 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "6m (20 pés) / 18m (60 pés)"
                     }
@@ -425,8 +425,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_simples",
-                        "Dano": "1d4 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d4 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -451,8 +451,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
-                        "Dano": "1d6 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d6 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "24m (80 pés) / 96m (320 pés)"
                     }
@@ -474,8 +474,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
-                        "Dano": "1d8 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d8 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "24m (80 pés) / 96m (320 pés)"
                     }
@@ -497,8 +497,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
-                        "Dano": "1d4 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d4 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "6m (20 pés) / 18m (60 pés)"
                     }
@@ -520,8 +520,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_simples",
-                        "Dano": "1d4 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_simples}",
+                        "Dano": "1d4 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "9m (30 pés) / 36m (120 pés)"
                     }
@@ -543,8 +543,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d10 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d10 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "3m (10 pés) / 9m (30 pés)"
                     }
@@ -566,8 +566,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -589,8 +589,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d4 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d4 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "3m (10 pés) / 9m (30 pés)"
                     }
@@ -612,8 +612,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -635,8 +635,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "2d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "2d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "6m (20 pés) / 18m (60 pés)"
                     }
@@ -658,8 +658,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -669,8 +669,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d10 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d10 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -692,8 +692,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d10 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d10 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "3m (10 pés) / 9m (30 pés)"
                     }
@@ -715,8 +715,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d12 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d12 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -738,8 +738,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d10 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d10 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "3m (10 pés) / 9m (30 pés)"
                     }
@@ -761,8 +761,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -784,8 +784,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d12 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d12 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -807,8 +807,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -818,8 +818,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d10 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d10 + {attributes.str.modifier}",
                         "Tipo de Dano": "Cortante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -841,8 +841,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "2d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "2d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -864,8 +864,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "3m (10 pés) / 9m (30 pés)"
                     }
@@ -887,8 +887,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -898,8 +898,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d10 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d10 + {attributes.str.modifier}",
                         "Tipo de Dano": "Concussão",
                         "Alcance": "Corpo a corpo"
                     }
@@ -921,8 +921,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -944,8 +944,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -967,8 +967,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d6 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d6 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -978,8 +978,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.força.modifier",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.str.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "Corpo a corpo"
                     }
@@ -1001,8 +1001,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "45m (150 pés) / 180m (600 pés)"
                     }
@@ -1024,8 +1024,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
-                        "Dano": "1d6 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d6 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "9m (30 pés) / 36m (120 pés)"
                     }
@@ -1047,8 +1047,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Duas Mãos"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
-                        "Dano": "1d10 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d10 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "30m (100 pés) / 120m (400 pés)"
                     }
@@ -1070,7 +1070,7 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + atributes.força.modifier + proficiency.arma_marcial",
+                        "Acerto": "1d20 + {attributes.str.modifier} + {proficiency.arma_marcial}",
                         "Dano": "Null",
                         "Tipo de Dano": "Null",
                         "Alcance": "1.5m (7 pés) / 4.5m (14 pés)"
@@ -1093,8 +1093,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque", "Uma Mão"],
-                        "Acerto": "1d20 + atributes.dextreza.modifier + proficiency.arma_marcial",
-                        "Dano": "1 + atributes.dextreza.modifier",
+                        "Acerto": "1d20 + {attributes.dex.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1 + {attributes.dex.modifier}",
                         "Tipo de Dano": "Perfurante",
                         "Alcance": "7.5m (25 pés) / 30m (100 pés)"
                     }
@@ -1179,13 +1179,13 @@
             },
             "description": "Você ganha +1 de bonus na sua CA e salvaguardas enquanto utilizar essa capa.",
             "operations": [
-                { "action": "INCREMENT", "property": "attributes.AC", "value": 1 },
-                { "action": "INCREMENT", "property": "attributes.força.save", "value": 1 },
-                { "action": "INCREMENT", "property": "attributes.dextreza.save", "value": 1 },
-                { "action": "INCREMENT", "property": "attributes.constituição.save", "value": 1 },
-                { "action": "INCREMENT", "property": "attributes.inteligência.save", "value": 1 },
-                { "action": "INCREMENT", "property": "attributes.sabedoria.save", "value": 1 },
-                { "action": "INCREMENT", "property": "attributes.carisma.save", "value": 1 }
+                { "action": "INCREMENT", "property": "properties.ac", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.str.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.dex.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.con.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.int.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.wis.save", "value": 1 },
+                { "action": "INCREMENT", "property": "attributes.cha.save", "value": 1 }
             ]
         },
         "Arremessador Anão (Martelo de Guerra)": {
@@ -1205,8 +1205,8 @@
                     "cost": [{"action": "action"}],
                     "metadata": {
                         "category": ["Combate", "Ataque"],
-                        "Acerto": "1d20 + 3 + atributes.força.modifier + proficiency.arma_marcial",
-                        "Dano": "1d8 + 3 + atributes.força.modifier",
+                        "Acerto": "1d20 + 3 + {attributes.str.modifier} + {proficiency.arma_marcial}",
+                        "Dano": "1d8 + 3 + {attributes.str.modifier}",
                         "Alcance": "6m (20 pés) / 18m (60 pés)"
                     }
                 }

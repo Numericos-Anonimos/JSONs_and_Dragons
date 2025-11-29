@@ -2,12 +2,12 @@
     "Humano (Comum)": {
         "operations": [
             {"action": "SET", "property": "personal.subrace", "value": "Humano (Comum)"},
-            {"action": "INCREMENT", "property": "atributes.força", "formula": "1"},
-            {"action": "INCREMENT", "property": "atributes.destreza", "formula": "1"},
-            {"action": "INCREMENT", "property": "atributes.constituição", "formula": "1"},
-            {"action": "INCREMENT", "property": "atributes.inteligência", "formula": "1"},
-            {"action": "INCREMENT", "property": "atributes.sabedoria", "formula": "1"},
-            {"action": "INCREMENT", "property": "atributes.carisma", "formula": "1"}
+            {"action": "INCREMENT", "property": "attributes.str.score", "formula": "1"},
+            {"action": "INCREMENT", "property": "attributes.dex.score", "formula": "1"},
+            {"action": "INCREMENT", "property": "attributes.con.score", "formula": "1"},
+            {"action": "INCREMENT", "property": "attributes.int.score", "formula": "1"},
+            {"action": "INCREMENT", "property": "attributes.wis.score", "formula": "1"},
+            {"action": "INCREMENT", "property": "attributes.cha.score", "formula": "1"}
         ]
     },
     "Humano (Variante)": {
@@ -15,18 +15,18 @@
             {"action": "SET", "property": "personal.subrace", "value": "Humano (Variante)"},
             {
                 "action": "CHOOSE_MAP", "n": 2, "label": "Aumento no Valor de Habilidade",
-                "options": ["força", "destreza", "constituição", "inteligência", "sabedoria", "carisma"],
-                "operations": [{"action": "INCREMENT", "property": "atributes.THIS", "formula": "1"}]
+                "options": ["str", "dex", "con", "int", "wis", "cha"],
+                "operations": [{"action": "INCREMENT", "property": "attributes.{THIS}.score", "formula": "1"}]
             },
             { 
                 "action": "CHOOSE_MAP", "n": 1, "label": "Perícia",
                 "options": {"action": "REQUEST", "query": "features/proficiências/metadata.type == 'skill'/name"},
-                "operations": [{"action": "IMPORT", "query": "features/proficiências/name == THIS"}}
+                "operations": [{"action": "IMPORT", "query": "features/proficiências/name == {THIS}"}]
             },
             { 
                 "action": "CHOOSE_MAP", "n": 1, "label": "Talento",
                 "options": {"action": "REQUEST", "query": "feats/name"},
-                "operations": [{"action": "IMPORT", "query": "feats/name == THIS"}]
+                "operations": [{"action": "IMPORT", "query": "feats/name == {THIS}"}]
             }
         ]
     }

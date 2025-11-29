@@ -2,22 +2,22 @@
     "Languages": {
         "Comum": {
             "operations": [
-                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Comum"}
+                {"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Comum"}
             ]
         },
         "Elfico": {
             "operations": [
-                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Elfico"}
+                {"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Elfico"}
             ]
         },
         "Anão": {
             "operations": [
-                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Anão"}
+                {"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Anão"}
             ]
         },
-        "Diacônico": {
+        "Dracônico": {
             "operations": [
-                {"action": "INCREMENT", "property": "atributes.languages", "type": "list", "value": "Diacônico"}
+                {"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Diacônico"}
             ]
         }           
     },
@@ -36,7 +36,7 @@
             },
             "description": "Enquanto estiver usando armadura, você ganha +1 de bônus em sua CA.",
             "operations": [
-                { "action": "INCREMENT", "property": "attributes.ac", "value": 1 }
+                { "action": "INCREMENT", "property": "properties.ac", "value": 1 }
             ]
         },
         "Proteção": {

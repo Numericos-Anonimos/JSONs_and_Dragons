@@ -1,17 +1,17 @@
 {
     "Acólito": {
         "operations": [
-            {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Religião" },
-            {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "Intuição" },
+            {"action": "SET", "property": "proficiency.skill.Religião.multiplier", "value": 1 },
+            {"action": "SET", "property": "proficiency.skill.Intuição.multiplier", "value": 1 },
             {
-                "action": "CHOSE_MAP", "n": 2, "label": "Idiomas", 
+                "action": "CHOOSE_MAP", "n": 2, "label": "Idiomas", 
                 "options": {"action": "REQUEST", "query": "features/languages/name"},
-                "function": {"action": "IMPORT", "query": "features/languages/name == THIS"}
+                "operations": [{"action": "IMPORT", "query": "features/languages/name == '{THIS}'"}]
             },
             {"action": "ADD_ITEM", "query": "items/name == 'Simbolo sagrado'"},
-            {"action": "CHOSE_MAP", "n": 1, "label": "Livro de Orações ou Roda de Oração", 
+            {"action": "CHOOSE_MAP", "n": 1, "label": "Livro de Orações ou Roda de Oração", 
                 "options": ["Livro de Orações", "Roda de Oração"],
-                "function": {"action": "IMPORT", "query": "features/languages/name == THIS"}
+                "operations": [{"action": "IMPORT", "query": "features/languages/name == '{THIS}'"}]
             },
             {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Varetas de Incenso'"},
             {"action": "ADD_ITEM", "query": "items/name == 'Roupas Comuns'"},

@@ -6,13 +6,13 @@
         },
         "level_0": {
             "operations": [
-                { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Sabedoria" },
-                { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Carisma" },
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": "Pesada" },
+                { "action": "INCREMENT", "property": "proficiency.wis.save", "formula": 1 },
+                { "action": "INCREMENT", "property": "proficiency.cha.save", "formula": 1 },
+                { "action": "SET", "property": "proficiency.armor.Pesada.multiplier", "value": 1 },
                 { 
                     "action": "CHOOSE_MAP", "n": 2, "label": "Perícias de Paladino",
                     "options": ["Atletismo", "Intimidação", "Intuição", "Medicina", "Persuasão", "Religião"],
-                    "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "THIS"}]
+                    "operations": [{"action": "SET", "property": "proficiency.skill.{THIS}.multiplier", "value": 1}]
                 },
                 { 
                     "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial A",
@@ -20,10 +20,10 @@
                         {
                             "label": "Escudo e Arma Marcial",
                             "operations": [
-                                { "action": "ADD_ITEM", "name": "Escudo", "query": "items/name == 'Escudo'" },
+                                { "action": "ADD_ITEM", "query": "items/name == 'Escudo'" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
                                     "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
-                                    "operations": [{"action": "ADD_ITEM", "name": "{THIS}", "query": "items/Armas/name == '{THIS}'"}]
+                                    "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]
                         },
@@ -32,7 +32,7 @@
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
                                     "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
-                                    "operations": [{"action": "ADD_ITEM", "name": "{THIS}", "query": "items/Armas/name == '{THIS}'"}]
+                                    "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]
                         }
@@ -43,14 +43,14 @@
                     "options": [
                         {
                             "label": "Cinco Azagaias",
-                            "operations": [{ "action": "ADD_ITEM", "name": "Azagaia", "amount": 5, "query": "items/name == 'Azagaia'" }]
+                            "operations": [{ "action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Azagaia'" }]
                         },
                         {
                             "label": "Arma Simples Corpo-a-Corpo",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples Corpo-a-Corpo",
                                     "options": {"action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true/name"},
-                                    "operations": [{"action": "ADD_ITEM", "name": "THIS", "query": "items/name == 'THIS'"}]
+                                    "operations": [{"action": "ADD_ITEM", "name": "{THIS}", "query": "items/name == '{THIS}'"}]
                                 }
                             ]
                         }
@@ -59,27 +59,33 @@
                 { 
                     "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial C",
                     "options": [
-                        { "label": "Pacote de Sacerdote", "operations": [{ "action": "ADD_ITEM", "name": "Pacote de Sacerdote", "query": "items/name == 'Pacote de sacerdote'" }] },
-                        { "label": "Pacote de Aventureiro", "operations": [{ "action": "ADD_ITEM", "name": "Pacote de Aventureiro", "query": "items/name == 'Pacote de aventureiro'" }] }
+                        { "label": "Pacote de Sacerdote", "operations": [{ "action": "ADD_ITEM", "query": "items/name == 'Pacote de sacerdote'" }] },
+                        { "label": "Pacote de Aventureiro", "operations": [{ "action": "ADD_ITEM", "query": "items/name == 'Pacote de aventureiro'" }] }
                     ]
                 },
-                { "action": "ADD_ITEM", "name": "Cota de malha", "query": "items/name == 'Cota de malha'" },
-                { "action": "ADD_ITEM", "name": "Símbolo sagrado", "query": "items/name == 'Símbolo sagrado'" }
+                { "action": "ADD_ITEM", "query": "items/name == 'Cota de malha'" },
+                { "action": "ADD_ITEM", "name": "Símbolo sagrado (Foco Arcano)", "query": "items/name == 'Símbolo sagrado'" }
             ]
         },
         "level_1": {
             "operations": [
                 { "action": "SET", "property": "properties.level.Paladino", "value": 1 },
                 { "action": "INCREMENT", "property": "properties.level", "formula": "properties.level.Paladino"},
-                { "action": "GRANT_PROFICIENCY", "category": "armor", "name": ["Leve", "Media", "Escudo"] },
-                { "action": "GRANT_PROFICIENCY", "category": "weapon", "name": ["Simples", "Marciais"] }
+                { 
+                    "action": "FOR_EACH", "list": ["Leve", "Media", "Escudo"],
+                    "operations": [{ "action": "SET", "property": "proficiency.armor.{THIS}.multiplier", "value": 1 }]
+                },
+                { 
+                    "action": "FOR_EACH", "list": ["Simples", "Marciais"],
+                    "operations": [{ "action": "SET", "property": "proficiency.weapon.{THIS}.multiplier", "value": 1 }]
+                }
             ],
             "features": [
                 {
                     "name": "Sentido Divino",
                     "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem...",
                     "operations": [
-                        { "action": "SET", "property": "resources.sentido_divino", "type": "counter", "formula": "max(1, 1 + attributes.carisma.modifier)", "recoversOn": "long_rest" },
+                        { "action": "SET", "property": "resources.sentido_divino", "type": "counter", "formula": "max(1, 1 + {attributes.cha.modifier})", "recoversOn": "long_rest" },
                         { "action": "ADD_ACTION", "name": "Sentido Divino", "cost": [{ "resource": "sentido_divino", "amount": 1}, {"action": "action"}]}
                     ]
                 },
@@ -105,7 +111,7 @@
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "name": "Estilo de Luta",
                             "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/name"},
-                            "operations": [{ "action": "IMPORT", "query": "features/name = 'THIS'"}]
+                            "operations": [{ "action": "IMPORT", "query": "features/name = '{THIS}'"}]
                         }
                     ]
                 },
@@ -174,7 +180,7 @@
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
                             "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'/name" },
-                            "operations": [{ "action": "SET", "property": "properties.paladin_subclass", "formula": "THIS" }]
+                            "operations": [{ "action": "SET", "property": "properties.paladin_subclass", "formula": "{THIS}" }]
                         }
                     ]
                 },

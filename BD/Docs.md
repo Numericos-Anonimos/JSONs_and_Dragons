@@ -19,9 +19,10 @@ O sistema funciona baseada em **Entidades** (Classes, Raças, Itens) que aplicam
 ```
 ## 2. Estrutura de Dados (Schemas)
 Todo arquivo JSON deve seguir o padrão de dicionário onde a **Chave** é o ID único (Nome) e o **Valor** é o objeto da entidade.
+
 ### 2.1. Objeto Entidade Padrão
 Todas as entidades (Item, Spell, Feature, Class) herdam desta estrutura:
-```
+```json
 "Nome da Entidade": {
   "metadata": {
     "type": "string",       // ex: "weapon", "spell", "class"
@@ -126,13 +127,13 @@ Na prática, esses valores também vão ser armazenados como propriedades. Quand
 {
 	"name": "atletismo",
 	"multiplier": 0,
-	"atributes": "int",
+	"attributes": "int",
 	"roll": "N",
-	"formula": "{atributes.int.bonus} + 0 * {properties.proficiency}"
+	"formula": "{attributes.int.bonus} + 0 * {properties.proficiency}"
 }
 ```
 
-O bônus final é calculado pela fórmula: `atributes.{atributes}.bonus + multiplier * proeficiencia`. Isso permite flexibilidade para mecânicas como "Expertise" (Maestria) ou "Jack of all Trades" do Bardo: basta aplicar um `SET` na propriedade `proficiency.skill.atletismo.multiplier`. Para itens que impõem desvantagem (como armaduras pesadas em Furtividade), basta alterar o `roll` para `"D"`.
+O bônus final é calculado pela fórmula: `attributes.{attributes}.bonus + multiplier * proeficiencia`. Isso permite flexibilidade para mecânicas como "Expertise" (Maestria) ou "Jack of all Trades" do Bardo: basta aplicar um `SET` na propriedade `proficiency.skill.atletismo.multiplier`. Para itens que impõem desvantagem (como armaduras pesadas em Furtividade), basta alterar o `roll` para `"D"`.
 
 ### Ações de Fluxo de Controle
 #### Fazendo Escolhas:

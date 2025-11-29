@@ -23,31 +23,45 @@
             },
 
 
-            { "action": "INIT_PROFICIENCY", "category": "skill", "name": "atletismo", "multiplier": 0, "attributes": "str", "roll": "N" },
+            { "action": "INIT_PROFICIENCY", "category": "skill", "name": "Atletismo", "multiplier": 0, "attributes": "str", "roll": "N" },
             {
-                "action": "FOR_EACH", "list": ["acrobacia", "furtividade", "prestidigitação"],
+                "action": "FOR_EACH", "list": ["Acrobacia", "Furtividade", "Prestidigitação"],
                 "operations": [
                     { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "dex", "roll": "N" }
                 ]
             },
             {
-                "action": "FOR_EACH", "list": ["arcanismo", "história", "investigação", "natureza", "religião"],
+                "action": "FOR_EACH", "list": ["Arcanismo", "História", "Investigação", "Natureza", "Religião"],
                 "operations": [
                     { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "int", "roll": "N" }
                 ]
             },
             {
-                "action": "FOR_EACH", "list": ["adestrar animais", "intuição", "medicina", "percepção", "sobrevivência"],
+                "action": "FOR_EACH", "list": ["Adestrar Animais", "Intuição", "Medicina", "Percepção", "Sobrevivência"],
                 "operations": [
                     { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "wis", "roll": "N" }
                 ]
             },
             {
-                "action": "FOR_EACH", "list": ["atuação", "enganação", "intimidação", "persuasão"],
+                "action": "FOR_EACH", "list": ["Atuação", "Enganação", "Intimidação", "Persuasão"],
                 "operations": [
                     { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "cha", "roll": "N" }
                 ]
+            },
+
+            {
+                "action": "FOR_EACH", "list": ["Leve", "Media", "Pesada", "Escudo"],
+                "operations": [
+                    { "action": "INIT_PROFICIENCY", "category": "armor", "name": "{THIS}", "multiplier": 0 }
+                ]
+            },
+            {
+                "action": "FOR_EACH", "list": ["Simples", "Marcial"],
+                "operations": [
+                    { "action": "INIT_PROFICIENCY", "category": "weapon", "name": "{THIS}", "multiplier": 0, "attributes": "str", "roll": "N" }
+                ]
             }
+
         ]
     }
 }
