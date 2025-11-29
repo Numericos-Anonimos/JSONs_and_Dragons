@@ -3,7 +3,7 @@ import json
 from fastapi import APIRouter, HTTPException
 from urllib.parse import unquote
 
-router = APIRouter()
+router_ficha = APIRouter()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
@@ -16,10 +16,8 @@ def carregar_json(nome_arquivo):
 
 
 
-
-
-@router.post("ficha/classe/{classe}")
-def criar_ficha_classe(classe: str):
+@router.post("ficha/classe/{classe}/{nivel}")
+def criar_ficha_classe(classe: str, nivel: int):
     dados = carregar_json("classes.json")
     classe_decodificada = unquote(classe)
 
