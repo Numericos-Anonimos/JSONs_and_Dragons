@@ -16,7 +16,7 @@ def carregar_json(nome_arquivo):
 
 
 
-@router.post("ficha/classe/{classe}/{nivel}")
+@router_ficha.post("ficha/classe/{classe}/{nivel}")
 def criar_ficha_classe(classe: str, nivel: int):
     dados = carregar_json("classes.json")
     classe_decodificada = unquote(classe)
@@ -28,7 +28,7 @@ def criar_ficha_classe(classe: str, nivel: int):
 
         
 
-@router.post("/ficha/atributos")
+@router_ficha.post("/ficha/atributos")
 def criar_ficha_atributos_selecionado(valores: dict):
 
     atributos_esperados = {"Força", "Destreza", "Constituição", "Inteligência", "Sabedoria", "Carisma"}
