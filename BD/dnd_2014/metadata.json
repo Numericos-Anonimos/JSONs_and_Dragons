@@ -1,4 +1,53 @@
 {
-    "name": "D&D 5e 2014 - SRD CC V5.1",
-    "author": "Wizards of the Coast"
+    "metadata": {
+        "name": "D&D 5e 2014 - SRD CC V5.1",
+        "author": "Wizards of the Coast"
+    },
+    "Personagem" {
+        "operations": [
+            { "action": "SET", "property": "properties.level", "value": 0},
+            { "action": "SET", "property": "properties.proficiency", "formula": "2 + floor(({properties.level} - 1)/ 4)"},
+
+            { "action": "SET", "property": "attributes.str.score", "value": "x"},
+            { "action": "SET", "property": "attributes.dex.score", "value": "x"},
+            { "action": "SET", "property": "attributes.con.score", "value": "x"},
+            { "action": "SET", "property": "attributes.int.score", "value": "x"},
+            { "action": "SET", "property": "attributes.wis.score", "value": "x"},
+            { "action": "SET", "property": "attributes.cha.score", "value": "x"},
+            { 
+                "action": "FOR_EACH", "list": ["str", "dex", "con", "int", "wis", "cha"], 
+                "operations": [
+                    { "action": "SET", "property": "attributes.{THIS}.modifier", "formula": "floor((attributes.{THIS}.score - 10) / 2)"},
+                    { "action": "SET", "property": "attributes.{THIS}.save", "formula": "attributes.{THIS}.modifier"}
+                ]
+            },
+
+
+            { "action": "INIT_PROFICIENCY", "category": "skill", "name": "atletismo", "multiplier": 0, "attributes": "str", "roll": "N" },
+            {
+                "action": "FOR_EACH", "list": ["acrobacia", "furtividade", "prestidigitação"],
+                "operations": [
+                    { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "dex", "roll": "N" }
+                ]
+            },
+            {
+                "action": "FOR_EACH", "list": ["arcanismo", "história", "investigação", "natureza", "religião"],
+                "operations": [
+                    { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "int", "roll": "N" }
+                ]
+            },
+            {
+                "action": "FOR_EACH", "list": ["adestrar animais", "intuição", "medicina", "percepção", "sobrevivência"],
+                "operations": [
+                    { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "wis", "roll": "N" }
+                ]
+            },
+            {
+                "action": "FOR_EACH", "list": ["atuação", "enganação", "intimidação", "persuasão"],
+                "operations": [
+                    { "action": "INIT_PROFICIENCY", "category": "skill", "name": "{THIS}", "multiplier": 0, "attributes": "cha", "roll": "N" }
+                ]
+            }
+        ]
+    }
 }

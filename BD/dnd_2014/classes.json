@@ -4,29 +4,6 @@
         "metadata": {
             "subclass_features_levels": [3, 5, 7, 9]
         },
-        "conjuration": {
-            "can_multiclass": true,
-            "multiclass_formula": "floor({properties.level.Paladino} / 2)",
-            "spellcasting_modifier": "{attributes.cha.modifier}",
-            "spell_save_dc": "8 + {properties.proficiency_bonus} + {attributes.cha.modifier}",
-            "spell_attack_modifier": "{properties.proficiency_bonus} + {attributes.cha.modifier}",
-            "spells_prepared": "max(1, {attributes.cha.modifier} + floor({properties.level.Paladino} / 2))",
-            "spells_known": "infinity",
-            "spellSlotsRecoverOn": "long_rest",
-            "spellbook_query": "spells/'Paladino' in metadata.classes",
-            "spellSlots": [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [2, 0, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0, 0],
-                [4, 2, 0, 0, 0, 0, 0, 0, 0],
-                [4, 2, 0, 0, 0, 0, 0, 0, 0],
-                [4, 3, 0, 0, 0, 0, 0, 0, 0],
-                [4, 3, 0, 0, 0, 0, 0, 0, 0],
-                [4, 3, 2, 0, 0, 0, 0, 0, 0],
-                [4, 3, 2, 0, 0, 0, 0, 0, 0]
-            ]
-        },
         "level_0": {
             "operations": [
                 { "action": "GRANT_PROFICIENCY", "category": "saving_throw", "name": "Sabedoria" },
@@ -35,7 +12,7 @@
                 { 
                     "action": "CHOOSE_MAP", "n": 2, "label": "Perícias de Paladino",
                     "options": ["Atletismo", "Intimidação", "Intuição", "Medicina", "Persuasão", "Religião"],
-                    "function": {"action": "GRANT_PROFICIENCY", "category": "skill", "name": "THIS"}
+                    "operations": [{"action": "GRANT_PROFICIENCY", "category": "skill", "name": "THIS"}]
                 },
                 { 
                     "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial A",
@@ -46,7 +23,7 @@
                                 { "action": "ADD_ITEM", "name": "Escudo", "query": "items/name == 'Escudo'" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
                                     "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
-                                    "function": {"action": "ADD_ITEM", "name": "{THIS}", "query": "items/Armas/name == '{THIS}'"}
+                                    "operations": [{"action": "ADD_ITEM", "name": "{THIS}", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]
                         },
@@ -55,7 +32,7 @@
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
                                     "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
-                                    "function": {"action": "ADD_ITEM", "name": "{THIS}", "query": "items/Armas/name == '{THIS}'"}
+                                    "operations": [{"action": "ADD_ITEM", "name": "{THIS}", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]
                         }
@@ -73,7 +50,7 @@
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples Corpo-a-Corpo",
                                     "options": {"action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true/name"},
-                                    "function": {"action": "ADD_ITEM", "name": "THIS", "query": "items/name == 'THIS'"}
+                                    "operations": [{"action": "ADD_ITEM", "name": "THIS", "query": "items/name == 'THIS'"}]
                                 }
                             ]
                         }
@@ -128,13 +105,40 @@
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "name": "Estilo de Luta",
                             "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/name"},
-                            "function": { "action": "IMPORT", "query": "features/name = 'THIS'"}
+                            "operations": [{ "action": "IMPORT", "query": "features/name = 'THIS'"}]
                         }
                     ]
                 },
                 {
                     "name": "Conjuração",
-                    "description": "Você aprende a extrair magia divina através de meditação e oração."
+                    "description": "Você aprende a extrair magia divina através de meditação e oração.",
+                    "operations": [
+                        {
+                            "action": "ADD_SPELLCASTING", 
+                            "name": "Paladino",
+                            "can_multiclass": true,
+                            "multiclass_formula": "floor({properties.level.Paladino} / 2)",
+                            "spellcastig_modifier": "{attributes.cha.modifier}",
+                            "spell_save_dc": "8 + {properties.proficiency_bonus} + {attributes.cha.modifier}",
+                            "spell_attack_modifier": "{properties.proficiency_bonus} + {attributes.cha.modifier}",
+                            "spells_prepared": "max(1, {attributes.cha.modifier} + floor({properties.level.Paladino} / 2))",
+                            "spells_known": "infinity",
+                            "spellSlotsRecoverOn": "long_rest",
+                            "spellbook_query": "spells/'Paladino' in metadata.classes",
+                            "spellSlots": [
+                                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                [2, 0, 0, 0, 0, 0, 0, 0, 0],
+                                [3, 0, 0, 0, 0, 0, 0, 0, 0],
+                                [3, 0, 0, 0, 0, 0, 0, 0, 0],
+                                [4, 2, 0, 0, 0, 0, 0, 0, 0],
+                                [4, 2, 0, 0, 0, 0, 0, 0, 0],
+                                [4, 3, 0, 0, 0, 0, 0, 0, 0],
+                                [4, 3, 0, 0, 0, 0, 0, 0, 0],
+                                [4, 3, 2, 0, 0, 0, 0, 0, 0],
+                                [4, 3, 2, 0, 0, 0, 0, 0, 0]
+                            ]
+                        }
+                    ]
                 },
                 {
                     "name": "Destruição Divina",
@@ -158,7 +162,9 @@
                     "name": "Canalizar Divindade",
                     "description": "Seu juramento permite que você canalize energia divina.",
                     "operations": [
-                        { "action": "INIT", "property": "resources.canalizar_divindade", "value": 1, "recoversOn": "short_rest" }
+                        { 
+                            "action": "INIT", "property": "resources.canalizar_divindade", 
+                            "type": "counter", "value": 1, "recoversOn": "short_rest" }
                     ]
                 },
                 {
@@ -168,7 +174,7 @@
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
                             "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'/name" },
-                            "function": { "action": "SET", "property": "properties.paladin_subclass", "formula": "THIS" }
+                            "operations": [{ "action": "SET", "property": "properties.paladin_subclass", "formula": "THIS" }]
                         }
                     ]
                 },
