@@ -15,8 +15,7 @@ def carregar_json(nome_arquivo):
         return json.load(f)
 
 
-
-@router_ficha.post("ficha/classe/{classe}/{nivel}")
+@router_ficha.post("/ficha/classe/{classe}/{nivel}")
 def criar_ficha_classe(classe: str, nivel: int):
     dados = carregar_json("classes.json")
     classe_decodificada = unquote(classe)
@@ -24,15 +23,17 @@ def criar_ficha_classe(classe: str, nivel: int):
     if classe_decodificada not in dados:
         raise HTTPException(status_code=404, detail="Classe não encontrada")
     
-    level = "level_" + str(nivel)
+    level = f"level_{nivel}"
     if level not in dados[classe_decodificada]:
         raise HTTPException(status_code=400, detail="Nível inválido para a classe")
-    
-    return classe_decodificada[level]
+
+    return dados[classe_decodificada][level]
 
 
 
-        
+
+
+
 
 @router_ficha.post("/ficha/atributos")
 def criar_ficha_atributos_selecionado(valores: dict):
@@ -60,16 +61,13 @@ def criar_ficha_atributos_selecionado(valores: dict):
     ficha_atributos = {
         "type": "BASE_CHARACTER",
         "operations": [
-            { "action": "SET", "property": "Força_base", "value": valores["Força"] },
-            { "action": "SET", "property": "Destreza_base", "value": valores["Destreza"] },
-            { "action": "SET", "property": "Constituição_base", "value": valores["Constituição"] },
-            { "action": "SET", "property": "Inteligência_base", "value": valores["Inteligência"] },
-            { "action": "SET", "property": "Sabedoria_base", "value": valores["Sabedoria"] },
-            { "action": "SET", "property": "Carisma_base", "value": valores["Carisma"] }
+            {"action": "SET", "property": "Força_base",        "value": valores["Força"]},
+            {"action": "SET", "property": "Destreza_base",     "value": valores["Destreza"]},
+            {"action": "SET", "property": "Constituição_base", "value": valores["Constituição"]},
+            {"action": "SET", "property": "Inteligência_base", "value": valores["Inteligência"]},
+            {"action": "SET", "property": "Sabedoria_base",    "value": valores["Sabedoria"]},
+            {"action": "SET", "property": "Carisma_base",      "value": valores["Carisma"]}
         ]
     }
 
     return ficha_atributos
-
-
-

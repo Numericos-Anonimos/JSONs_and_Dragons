@@ -34,6 +34,16 @@ oauth.register(
     },
 )
 
+@router.get("/debug")
+def debug():
+    return {
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": True if GOOGLE_CLIENT_SECRET else False,
+        "jwt_secret": True if JWT_SECRET else False,
+        "jwt_algorithm": JWT_ALGORITHM,
+    }
+
+
 
 @router.get("/login")
 async def login(request: Request):
