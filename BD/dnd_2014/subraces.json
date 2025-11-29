@@ -1,32 +1,124 @@
 {
     "Humano (Comum)": {
+        "metadata": { "race": "Humano" },
         "operations": [
             {"action": "SET", "property": "personal.subrace", "value": "Humano (Comum)"},
-            {"action": "INCREMENT", "property": "attributes.str.score", "formula": "1"},
-            {"action": "INCREMENT", "property": "attributes.dex.score", "formula": "1"},
-            {"action": "INCREMENT", "property": "attributes.con.score", "formula": "1"},
-            {"action": "INCREMENT", "property": "attributes.int.score", "formula": "1"},
-            {"action": "INCREMENT", "property": "attributes.wis.score", "formula": "1"},
-            {"action": "INCREMENT", "property": "attributes.cha.score", "formula": "1"}
+            {"action": "INCREMENT", "property": "attributes.str.score", "formula": 1},
+            {"action": "INCREMENT", "property": "attributes.dex.score", "formula": 1},
+            {"action": "INCREMENT", "property": "attributes.con.score", "formula": 1},
+            {"action": "INCREMENT", "property": "attributes.int.score", "formula": 1},
+            {"action": "INCREMENT", "property": "attributes.wis.score", "formula": 1},
+            {"action": "INCREMENT", "property": "attributes.cha.score", "formula": 1}
         ]
     },
     "Humano (Variante)": {
+        "metadata": { "race": "Humano" },
         "operations": [
             {"action": "SET", "property": "personal.subrace", "value": "Humano (Variante)"},
             {
                 "action": "CHOOSE_MAP", "n": 2, "label": "Aumento no Valor de Habilidade",
                 "options": ["str", "dex", "con", "int", "wis", "cha"],
-                "operations": [{"action": "INCREMENT", "property": "attributes.{THIS}.score", "formula": "1"}]
+                "operations": [{"action": "INCREMENT", "property": "attributes.{THIS}.score", "formula": 1}]
             },
             { 
                 "action": "CHOOSE_MAP", "n": 1, "label": "Perícia",
-                "options": {"action": "REQUEST", "query": "features/proficiências/metadata.type == 'skill'/name"},
-                "operations": [{"action": "IMPORT", "query": "features/proficiências/name == {THIS}"}]
+                "options": ["Acrobacia", "Adestrar Animais", "Arcanismo", "Atletismo", "Atuação", "Enganação", "Furtividade", "História", "Intimidação", "Intuição", "Investigação", "Medicina", "Natureza", "Percepção", "Persuasão", "Prestidigitação", "Religião", "Sobrevivência"],
+                "operations": [{"action": "SET", "property": "proficiency.skill.{THIS}.multiplier", "value": 1}]
             },
             { 
                 "action": "CHOOSE_MAP", "n": 1, "label": "Talento",
                 "options": {"action": "REQUEST", "query": "feats/name"},
-                "operations": [{"action": "IMPORT", "query": "feats/name == {THIS}"}]
+                "operations": [{"action": "IMPORT", "query": "feats/name == '{THIS}'"}]
+            }
+        ]
+    },
+    "Anão da Colina": {
+        "metadata": { "race": "Anão" },
+        "operations": [
+            {"action": "SET", "property": "personal.subrace", "value": "Anão da Colina"},
+            {"action": "INCREMENT", "property": "attributes.wis.score", "formula": 1}
+        ],
+        "features": [
+            {
+                "name": "Tenacidade Anã",
+                "description": "Seu máximo de pontos de vida aumenta em 1, e aumenta em 1 toda vez que você ganha um nível.",
+                "operations": [
+                    {"action": "INCREMENT", "property": "attributes.hp_max_bonus", "formula": "{properties.level}"}
+                ]
+            }
+        ]
+    },
+    "Anão da Montanha": {
+        "metadata": { "race": "Anão" },
+        "operations": [
+            {"action": "SET", "property": "personal.subrace", "value": "Anão da Montanha"},
+            {"action": "INCREMENT", "property": "attributes.str.score", "formula": 2},
+            {"action": "SET", "property": "proficiency.armor.Leve.multiplier", "value": 1},
+            {"action": "SET", "property": "proficiency.armor.Media.multiplier", "value": 1}
+        ]
+    },
+    "Alto Elfo": {
+        "metadata": { "race": "Elfo" },
+        "operations": [
+            {"action": "SET", "property": "personal.subrace", "value": "Alto Elfo"},
+            {"action": "INCREMENT", "property": "attributes.int.score", "formula": 1},
+            {
+                "action": "CHOOSE_MAP", "n": 1, "label": "Idioma Adicional", 
+                "options": {"action": "REQUEST", "query": "features/metadata.type == 'language'/name"},
+                "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
+            },
+            {
+                "name": "Treinamento de Elfo com Armas",
+                "operations": [
+                    { "action": "SET", "property": "proficiency.weapon.Espada Longa.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Espada Curta.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Arco Curto.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Arco Longo.multiplier", "value": 1 }
+                ]
+            }
+        ]
+    },
+    "Elfo da Floresta": {
+        "metadata": { "race": "Elfo" },
+        "operations": [
+            {"action": "SET", "property": "personal.subrace", "value": "Elfo da Floresta"},
+            {"action": "INCREMENT", "property": "attributes.wis.score", "formula": 1},
+            {"action": "SET", "property": "attributes.speed", "value": "10.5"},
+            {
+                "name": "Treinamento de Elfo com Armas",
+                "operations": [
+                    { "action": "SET", "property": "proficiency.weapon.Espada Longa.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Espada Curta.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Arco Curto.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Arco Longo.multiplier", "value": 1 }
+                ]
+            },
+            {
+                "name": "Máscara da Natureza",
+                "description": "Você pode tentar se esconder mesmo quando estiver apenas levemente obscurecido por folhagem, chuva forte, neve caindo, névoa ou outro fenômeno natural."
+            }
+        ]
+    },
+    "Elfo Negro (Drow)": {
+        "metadata": { "race": "Elfo" },
+        "operations": [
+            {"action": "SET", "property": "personal.subrace", "value": "Elfo Negro (Drow)"},
+            {"action": "INCREMENT", "property": "attributes.cha.score", "formula": 1},
+            {
+                "name": "Visão no Escuro Superior",
+                "description": "Sua visão no escuro tem raio de 36 metros."
+            },
+            {
+                "name": "Sensibilidade à Luz Solar",
+                "description": "Você tem desvantagem nas jogadas de ataque e em testes de Sabedoria (Percepção) relacionados à visão quando você, o alvo do seu ataque, ou o que quer que você esteja tentando perceber, esteja sob luz solar direta."
+            },
+            {
+                "name": "Treinamento de Drow com Armas",
+                "operations": [
+                    { "action": "SET", "property": "proficiency.weapon.Rapieira.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Espada Curta.multiplier", "value": 1 },
+                    { "action": "SET", "property": "proficiency.weapon.Besta de Mão.multiplier", "value": 1 }
+                ]
             }
         ]
     }

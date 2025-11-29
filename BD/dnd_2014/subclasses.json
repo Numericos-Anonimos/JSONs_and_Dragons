@@ -6,7 +6,7 @@
         },
         "level_3": {
             "operations": [
-                { "action": "ADD_SPELL", "name": "Proteção contra o bem e mal", "type": "always_prepared", "spellbook": "Paladino" },
+                { "action": "ADD_SPELL", "name": "Proteção contra o Bem e Mal", "type": "always_prepared", "spellbook": "Paladino" },
                 { "action": "ADD_SPELL", "name": "Santuário", "type": "always_prepared", "spellbook": "Paladino" }
             ],
             "features": [
@@ -36,8 +36,8 @@
         },
         "level_5": {
             "operations": [
-                { "action": "ADD_SPELL", "name": "Restauração menor", "type": "always_prepared", "spellbook": "Paladino" },
-                { "action": "ADD_SPELL", "name": "Zona da verdade", "type": "always_prepared", "spellbook": "Paladino" }
+                { "action": "ADD_SPELL", "name": "Restauração Menor", "type": "always_prepared", "spellbook": "Paladino" },
+                { "action": "ADD_SPELL", "name": "Zona da Verdade", "type": "always_prepared", "spellbook": "Paladino" }
             ]
         },
         "level_7": {
@@ -50,8 +50,8 @@
         },
         "level_9": {
             "operations": [
-                { "action": "ADD_SPELL", "name": "Sinal de esperança", "type": "always_prepared", "spellbook": "Paladino" },
-                { "action": "ADD_SPELL", "name": "Dissipar magia", "type": "always_prepared", "spellbook": "Paladino" }
+                { "action": "ADD_SPELL", "name": "Sinal de Esperança", "type": "always_prepared", "spellbook": "Paladino" },
+                { "action": "ADD_SPELL", "name": "Dissipar Magia", "type": "always_prepared", "spellbook": "Paladino" }
             ]
         }
     }
