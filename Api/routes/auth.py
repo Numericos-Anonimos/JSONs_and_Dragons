@@ -36,7 +36,7 @@ async def login(request: Request):
     if "localhost" in host:
         frontend = "http://localhost:4200/login-success"
     else:
-        frontend = "https://jsons-and-dragons.onrender.com/login-success"
+        frontend = "https://jsons-and-dragons-frontend.onrender.com/login-success"
 
     # Convert state dict to string
     state_dict = {"frontend": frontend}
