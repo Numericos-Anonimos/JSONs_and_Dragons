@@ -1,14 +1,9 @@
-import os
-from datetime import datetime, timedelta
-import requests
-import json
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 from jose import jwt
-from dotenv import load_dotenv
-
-load_dotenv()
+from datetime import datetime, timedelta
+import os
 
 router = APIRouter()
 
@@ -26,36 +21,28 @@ oauth.register(
     client_secret=GOOGLE_CLIENT_SECRET,
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
     client_kwargs={
-        "scope": (
-            "openid email profile "
-            "https://www.googleapis.com/auth/drive.file"
-        ),
-        "access_type": "offline", # enables refresh_token
-        "prompt": "consent", # ensures refresh_token is returned every time
+        "scope": "openid email profile https://www.googleapis.com/auth/drive.file",
+        "access_type": "offline",
+        "prompt": "consent",
     },
 )
 
-
-
-@router.get("/debug")
-def debug():
-    return {
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "jwt_secret": JWT_SECRET,
-        "jwt_algorithm": JWT_ALGORITHM,
-    }
-
 @router.get("/login")
 async def login(request: Request):
-    return await oauth.google.authorize_redirect(request, redirect_uri=REDIRECT_URI)
+    # Determine frontend URL based on host
+    host = request.headers.get("host", "")
+    if "localhost" in host:
+        frontend = "http://localhost:4200/login-success"
+    else:
+        frontend = "https://jsons-and-dragons.onrender.com/login-success"
 
+    state = {"frontend": frontend}
+    return await oauth.google.authorize_redirect(request, redirect_uri=REDIRECT_URI, state=state)
 
 @router.get("/callback")
 async def callback(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
-
         user_info = token.get("userinfo")
         access_token = token.get("access_token")
         refresh_token = token.get("refresh_token")
@@ -68,24 +55,18 @@ async def callback(request: Request):
                 "sub": user_info["email"],
                 "name": user_info.get("name"),
                 "picture": user_info.get("picture"),
-
-                # Tokens used later to call Google Drive API
                 "google_access_token": access_token,
                 "google_refresh_token": refresh_token,
-
                 "exp": datetime.utcnow() + timedelta(hours=24),
             },
             JWT_SECRET,
             algorithm=JWT_ALGORITHM,
         )
 
-        frontend_url = f"http://localhost:4200/login-success?token={jwt_token}"
+        frontend_url = token.get("state", {}).get("frontend", "http://localhost:4200/login-success")
+        frontend_url += f"?token={jwt_token}"
+
         return RedirectResponse(frontend_url)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
-
-
-
-
