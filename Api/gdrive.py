@@ -33,5 +33,23 @@ def upload_or_update(access_token: str, filename: str, content: str):
         url = "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
         r = requests.post(url, headers=headers, files=files)
         return {"status": "created", "google": r.json()}
+    
 
+# Função para baixar o conteúdo JSON de um arquivo pelo nome
+def get_file_content(access_token: str, filename: str):
+    file_id = find_file_by_name(access_token, filename)
+    if not file_id:
+        return None  
+
+    url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    r = requests.get(url, headers=headers)
+
+    if r.status_code == 200:
+        try:
+            return r.json()  
+        except json.JSONDecodeError:
+            return r.text  
+    else:
+        return {"error": r.json()}  
 

@@ -1,12 +1,11 @@
 import os
 import json
 import requests
-from Api.gdrive import upload_or_update, find_file_by_name
+from Api.gdrive import get_file_content
 from fastapi import APIRouter, HTTPException, Header
 from jose import jwt
 
 router_coleta_ficha = APIRouter()
-
 
 @router_coleta_ficha.get("/ficha/")
 def coletar_ficha_completa(nome: str, authorization: str = Header(...)):
@@ -22,9 +21,10 @@ def coletar_ficha_completa(nome: str, authorization: str = Header(...)):
 
 
     filename = f"ficha_rpg.json"
-    resultado_drive = find_file_by_name(access_token, filename)
+    resultado_drive = get_file_content(access_token, filename)
 
     return resultado_drive
+
 
 
 

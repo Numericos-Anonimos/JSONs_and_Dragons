@@ -7,11 +7,12 @@ load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-jwt_token = os.getenv("JWT_TOKEN")
+
+# Para pegar basta acessar o auth/login e pegar o token da URL. Colocar no .env
+jwt_token = os.getenv("JWT_TOKEN") 
 
 data = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 access_token = data["google_access_token"]
 
-
-resultado = upload_or_update(access_token, "teste.json", '{"teste":123}')
+resultado = upload_or_update(access_token, "ficha_rpg.json", '{"teste":123}')
 print(resultado)
