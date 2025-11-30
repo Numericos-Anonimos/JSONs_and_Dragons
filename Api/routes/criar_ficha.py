@@ -25,9 +25,7 @@ def encontrar_escolhas(ops):
 
         action = op.get("action")
 
-        # --------------------------
         # CHOOSE_MAP
-        # --------------------------
         if action == "CHOOSE_MAP":
             options = op.get("options", [])
             relacao = [0] * len(options)
@@ -40,24 +38,22 @@ def encontrar_escolhas(ops):
                 "relacao": relacao
             })
 
-        # --------------------------
+
         # CHOOSE_OPERATIONS
-        # --------------------------
         elif action == "CHOOSE_OPERATIONS":
             lista_opcoes = op.get("options", [])
             relacao = []
             blocos_filho = []
 
-            # 1. Conta apenas os filhos diretos daquela opção
+            #1-Conta apenas os filhos diretos daquela opção
             for opt in lista_opcoes:
                 sub_ops = opt.get("operations", [])
                 filhos = encontrar_escolhas(sub_ops)
                 blocos_filho.append(filhos)
 
-                # se a opção não tem nenhum filho → relação = 0
                 relacao.append(len(filhos))
 
-            # 2. Bloco pai
+            #2-Bloco pai
             resultados.append({
                 "label": op.get("label", ""),
                 "opcoes": [o.get("label","") for o in lista_opcoes],
@@ -66,7 +62,7 @@ def encontrar_escolhas(ops):
                 "relacao": relacao
             })
 
-            # 3. Filhos logo abaixo
+            #3-Filhos logo abaixo
             for filhos in blocos_filho:
                 resultados.extend(filhos)
 
@@ -78,6 +74,18 @@ def encontrar_escolhas(ops):
                 resultados.extend(encontrar_escolhas(feat.get("operations", [])))
 
     return resultados
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -111,7 +119,42 @@ def criar_ficha_classe(classe: str, nivel: int):
 
 
 
+@router_ficha.post("/ficha/") 
+def criar_ficha_base(nome: str, valores_atributos: dict):
+    atributos_esperados = {"Força", "Destreza", "Constituição", "Inteligência", "Sabedoria", "Carisma"}
 
+    if set(valores_atributos.keys()) != atributos_esperados:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Atributos inválidos. Esperado: {atributos_esperados}"
+        )
+
+    ficha_base = {
+        "characterSheetVersion": "0.2",
+        "characterName": nome,
+        "currentState": {
+            "hitPoints": 0,
+            "temporaryHitPoints": 0
+        },
+        "evolution": [
+            {
+             "type": "BASE_CHARACTER",
+             "operations": [
+                    {"action": "SET", "property": "Força_base",        "value": valores_atributos["Força"]},
+                    {"action": "SET", "property": "Destreza_base",     "value": valores_atributos["Destreza"]},
+                    {"action": "SET", "property": "Constituição_base", "value": valores_atributos["Constituição"]},
+                    {"action": "SET", "property": "Inteligência_base", "value": valores_atributos["Inteligência"]},
+                    {"action": "SET", "property": "Sabedoria_base",    "value": valores_atributos["Sabedoria"]},
+                    {"action": "SET", "property": "Carisma_base",      "value": valores_atributos["Carisma"]}
+                ]
+            }
+        ],
+        "inventory": {
+
+        }
+    }
+
+    return ficha_base
 
 
 
