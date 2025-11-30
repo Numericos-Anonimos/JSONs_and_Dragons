@@ -15,8 +15,6 @@ def carregar_json(nome_arquivo):
     with open(caminho, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
-
 # Listas de chaves para seleção no frontend
 @router.get("/classes/keys")
 def list_classes():
@@ -48,11 +46,10 @@ def list_subclasses(raca: str):
     }
     return list(subracas_filtradas.keys())
 
-
-
-
-
-
+@router.get("/backgrounds/keys")
+def list_racas_full():
+    dados = carregar_json("backgrounds.json")
+    return list(dados.keys())
 
 @router.get("/magias/{classe}/{level}/keys")
 def list_magias(classe: str, level: int):

@@ -1,12 +1,10 @@
 import os
 import json
 import requests
-from gdrive import upload_or_update, find_file_by_name
+from Api.gdrive import upload_or_update, find_file_by_name
 from fastapi import APIRouter, HTTPException, Header
 from urllib.parse import unquote
 from jose import jwt
-
-from auth import get_current_user
 
 #   uvicorn Api.main:app --reload
 
@@ -172,11 +170,9 @@ def encontrar_escolhas(ops):
 
 
 @router_ficha.post("/ficha/") 
-def criar_ficha_base(
-    nome: str, 
-    valores_atributos: dict,
-    authorization: str = Header(...)  # JWT enviado pelo frontend
-):
+def criar_ficha_base(nome: str, valores_atributos: dict, authorization: str = Header(...)  # JWT enviado pelo frontend 
+                    ):
+
     # Verifica se os atributos enviados são os esperados
     atributos_esperados = {"Força", "Destreza", "Constituição", "Inteligência", "Sabedoria", "Carisma"}
 
@@ -186,7 +182,6 @@ def criar_ficha_base(
             detail=f"Atributos inválidos. Esperado: {atributos_esperados}"
         )
 
-    # Monta a ficha base
     ficha_base = {
         "characterSheetVersion": "0.2",
         "characterName": nome,
@@ -210,12 +205,10 @@ def criar_ficha_base(
         "inventory": {}
     }
 
-    # -------------------------------
+
     # Integração com Google Drive
-    # -------------------------------
-    # Extrai o access_token do JWT
     try:
-        token_jwt = authorization.split(" ")[1]  # Remove "Bearer "
+        token_jwt = authorization.split(" ")[1]  
         payload = jwt.decode(token_jwt, os.getenv("JWT_SECRET"), algorithms=[os.getenv("JWT_ALGORITHM","HS256")])
         access_token = payload.get("google_access_token")
         if not access_token:
@@ -223,14 +216,12 @@ def criar_ficha_base(
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"JWT inválido: {str(e)}")
 
-    # Define o nome do arquivo
-    filename = f"ficha_{nome}.json"
+
+    filename = f"ficha_rpg.json"
     content = json.dumps(ficha_base)
 
-    # Cria ou atualiza o arquivo no Drive
     resultado_drive = upload_or_update(access_token, filename, content)
 
-    # Retorna ficha e info do Drive
     return {
         "ficha": ficha_base,
         "drive": resultado_drive
@@ -336,47 +327,3 @@ def criar_ficha_raca(background: str):
     escolhas = encontrar_escolhas(operacoes)
 
     return escolhas
-
-
-
-
-
-
-
-#Teste que retorna os atributos selecionados pelo usuário no formato que vai ser acoplado na ficha
-@router_ficha.post("/ficha/atributos")
-def criar_ficha_atributos_selecionado(valores: dict):
-
-    atributos_esperados = {"Força", "Destreza", "Constituição", "Inteligência", "Sabedoria", "Carisma"}
-
-    if set(valores.keys()) != atributos_esperados:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Atributos inválidos. Esperado: {atributos_esperados}"
-        )
-
-    for nome, valor in valores.items():
-        if not isinstance(valor, int):
-            raise HTTPException(
-                status_code=400,
-                detail=f"O atributo '{nome}' deve ser um inteiro."
-            )
-        if not (3 <= valor <= 18):
-            raise HTTPException(
-                status_code=400,
-                detail=f"O atributo '{nome}' deve estar entre 3 e 18. Recebido: {valor}"
-            )
-
-    ficha_atributos = {
-        "type": "BASE_CHARACTER",
-        "operations": [
-            {"action": "SET", "property": "Força_base",        "value": valores["Força"]},
-            {"action": "SET", "property": "Destreza_base",     "value": valores["Destreza"]},
-            {"action": "SET", "property": "Constituição_base", "value": valores["Constituição"]},
-            {"action": "SET", "property": "Inteligência_base", "value": valores["Inteligência"]},
-            {"action": "SET", "property": "Sabedoria_base",    "value": valores["Sabedoria"]},
-            {"action": "SET", "property": "Carisma_base",      "value": valores["Carisma"]}
-        ]
-    }
-
-    return ficha_atributos
