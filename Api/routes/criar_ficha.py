@@ -19,6 +19,18 @@ def carregar_json(nome_arquivo):
     with open(caminho, "r", encoding="utf-8") as f:
         return json.load(f)
 
+class AtributosInput(BaseModel):
+    forca: int
+    destreza: int
+    constituicao: int
+    inteligencia: int
+    sabedoria: int
+    carisma: int
+
+class CriarFichaRequest(BaseModel):
+    nome: str
+    atributos: AtributosInput
+
 
 
 # A lógica abaixo cria uma lista linear (flat) de escolhas, preservando a ordem
@@ -96,77 +108,72 @@ def encontrar_escolhas(ops):
 
     return resultados
 
+@router_ficha.post("/ficha/")
+def criar_ficha_base(dados: CriarFichaRequest):
+    """
+    Inicializa um novo personagem.
+    1. Gera um novo ID baseado nas pastas existentes.
+    2. Cria a pasta do personagem.
+    3. Salva o character.json inicial com o nome e atributos na lista de 'decisions'.
+    """
+    
+    # Garante que o diretório base de personagens existe
+    if not os.path.exists(CHARACTERS_DIR):
+        os.makedirs(CHARACTERS_DIR)
 
-
-
-
-
-
-
-
-
-@router_ficha.post("/ficha/") 
-def criar_ficha_base(nome: str, valores_atributos: dict, authorization: str = Header(...)  # JWT enviado pelo frontend 
-                    ):
-
-    # Verifica se os atributos enviados são os esperados
-    atributos_esperados = {"Força", "Destreza", "Constituição", "Inteligência", "Sabedoria", "Carisma"}
-
-    if set(valores_atributos.keys()) != atributos_esperados:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Atributos inválidos. Esperado: {atributos_esperados}"
-        )
-
-    ficha_base = {
-        "characterSheetVersion": "0.2",
-        "characterName": nome,
-        "currentState": {
-            "hitPoints": 0,
-            "temporaryHitPoints": 0
-        },
-        "evolution": [
-            {
-                "type": "BASE_CHARACTER",
-                "operations": [
-                    {"action": "SET", "property": "Força_base",        "value": valores_atributos["Força"]},
-                    {"action": "SET", "property": "Destreza_base",     "value": valores_atributos["Destreza"]},
-                    {"action": "SET", "property": "Constituição_base", "value": valores_atributos["Constituição"]},
-                    {"action": "SET", "property": "Inteligência_base", "value": valores_atributos["Inteligência"]},
-                    {"action": "SET", "property": "Sabedoria_base",    "value": valores_atributos["Sabedoria"]},
-                    {"action": "SET", "property": "Carisma_base",      "value": valores_atributos["Carisma"]}
-                ]
-            }
-        ],
-        "inventory": {}
-    }
-
-
-    # Integração com Google Drive
+    # 1. Encontrar o próximo ID disponível
+    # Lista todas as pastas que são números inteiros
+    existing_ids = []
     try:
-        token_jwt = authorization.split(" ")[1]  
-        payload = jwt.decode(token_jwt, os.getenv("JWT_SECRET"), algorithms=[os.getenv("JWT_ALGORITHM","HS256")])
-        access_token = payload.get("google_access_token")
-        if not access_token:
-            raise HTTPException(status_code=401, detail="Token do Google não encontrado no JWT")
+        for nome_pasta in os.listdir(CHARACTERS_DIR):
+            caminho_completo = os.path.join(CHARACTERS_DIR, nome_pasta)
+            if os.path.isdir(caminho_completo) and nome_pasta.isdigit():
+                existing_ids.append(int(nome_pasta))
     except Exception as e:
-        raise HTTPException(status_code=401, detail=f"JWT inválido: {str(e)}")
-
-
-    filename = f"ficha_rpg.json"
-    content = json.dumps(ficha_base)
-
-    resultado_drive = upload_or_update(access_token, filename, content)
-
-    return {
-        "ficha": ficha_base,
-        "drive": resultado_drive
+        raise HTTPException(status_code=500, detail=f"Erro ao ler banco de dados de personagens: {str(e)}")
+    
+    next_id = max(existing_ids) + 1 if existing_ids else 0
+    
+    # 2. Criar o diretório do novo personagem
+    character_folder = os.path.join(CHARACTERS_DIR, str(next_id))
+    try:
+        os.makedirs(character_folder, exist_ok=True)
+    except OSError as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao criar diretório do personagem: {str(e)}")
+    
+    # 3. Montar a lista de decisões (decisions)
+    # IMPORTANTE: A ordem deve bater com a ordem de INPUTs do parser (metadata/character.json)
+    # 1º Input: personal.name
+    # Loop de Atributos: str, dex, con, int, wis, cha
+    decisions = [
+        dados.nome,
+        dados.atributos.forca,
+        dados.atributos.destreza,
+        dados.atributos.constituicao,
+        dados.atributos.inteligencia,
+        dados.atributos.sabedoria,
+        dados.atributos.carisma
+    ]
+    
+    character_data = {
+        "decisions": decisions
     }
-
-
-
-
-
+    
+    # 4. Salvar o arquivo character.json
+    character_file = os.path.join(character_folder, "character.json")
+    try:
+        with open(character_file, "w", encoding="utf-8") as f:
+            json.dump(character_data, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        # Se falhar ao salvar o arquivo, tenta limpar a pasta criada para não deixar lixo
+        os.rmdir(character_folder)
+        raise HTTPException(status_code=500, detail=f"Erro ao salvar ficha: {str(e)}")
+        
+    return {
+        "id": next_id,
+        "message": "Personagem criado com sucesso!",
+        "decisions_saved": decisions
+    }
 
 @router_ficha.get("/ficha/classe/{classe}/{nivel}")
 def criar_ficha_classe(classe: str, nivel: int):
@@ -193,8 +200,6 @@ def criar_ficha_classe(classe: str, nivel: int):
 
     return escolhas
 
-
-
 @router_ficha.get("/ficha/raca/{raca}")
 def criar_ficha_raca(raca: str):
     dados = carregar_json("races.json")
@@ -217,7 +222,6 @@ def criar_ficha_raca(raca: str):
 
     return escolhas
 
-
 @router_ficha.get("/ficha/subraca/{subraca}")
 def criar_ficha_raca(subraca: str):
     dados = carregar_json("subraces.json")
@@ -239,8 +243,6 @@ def criar_ficha_raca(subraca: str):
     escolhas = encontrar_escolhas(operacoes)
 
     return escolhas
-
-
 
 @router_ficha.get("/ficha/backgrounds/{background}")
 def criar_ficha_raca(background: str):
