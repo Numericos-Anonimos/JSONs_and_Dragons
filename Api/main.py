@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 from Api.routes.dados_base import router as base_router
 from Api.routes.criar_ficha import router_ficha
-from Api.routes.auth import router as auth_router  # <--- add this
+from Api.routes.auth import router as auth_router
 
 app = FastAPI()
 
@@ -20,6 +21,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET"))
 
 app.include_router(base_router, prefix="/base")
 app.include_router(router_ficha, prefix="/criar")
