@@ -38,28 +38,72 @@ def list_racas():
     dados = carregar_json("races.json")
     return list(dados.keys())
 
-@router.get("/magias/{classe}/keys")
-def list_magias(classe: str):
+@router.get("/subraca/{raca}/keys")
+def list_subclasses(raca: str):
+    dados = carregar_json("subclasses.json")
+    subracas_filtradas = {
+        nome: info
+        for nome, info in dados.items()
+        if info.get("metadata", {}).get("race") == raca
+    }
+    return list(subracas_filtradas.keys())
+
+
+
+
+
+
+
+
+@router.get("/magias/{classe}/{level}/keys")
+def list_magias(classe: str, level: int):
     dados = carregar_json("spells.json")
 
     magias_filtradas = {
         nome: info
         for nome, info in dados.items()
-        if classe in info.get("metadata", {}).get("class", [])
+        if classe in info.get("metadata", {}).get("class", []) and level == int(info.get("metadata", {}).get("level", ""))
     }
     return list(magias_filtradas.keys())
+
 
 @router.get("/itens/armaduras/keys")
 def list_armaduras_keys():
     dados = carregar_json("items.json")
-    armaduras = dados.get("Armaduras", {})
-    return list(armaduras.keys())
+    armaduras_filtradas = {
+        nome: info
+        for nome, info in dados.items()
+        if "armor" in info.get("metadata", {}).get("type", [])
+    }
+    return list(armaduras_filtradas.keys())
+
 
 @router.get("/itens/armas/keys")
 def list_armas_keys():
     dados = carregar_json("items.json")
-    armas = dados.get("Armas", {})
+
+    armas = {
+        nome: info
+        for nome, info in dados.items()
+        if "weapon" in info.get("metadata", {}).get("type", [])
+    }
     return list(armas.keys())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Endpoints completos de cada categoria
@@ -78,36 +122,3 @@ def list_racas_full():
     return carregar_json("races.json")
 
 
-@router.get("/itens/armaduras")
-def list_armaduras():
-    dados = carregar_json("items.json")
-    return dados.get("Armaduras", [])
-
-@router.get("/itens/armaduras/{nome}")
-def pegar_armadura(nome: str):
-    dados = carregar_json("items.json")
-    armaduras = dados.get("Armaduras", {})
-
-    if nome not in armaduras:
-        raise HTTPException(status_code=404, detail="Armadura não encontrada")
-
-    return armaduras[nome]
-
-@router.get("/itens/armas")
-def list_armas():
-    dados = carregar_json("items.json")
-    return dados.get("Armas", [])
-
-
-@router.get("/armas/{nome}")
-def pegar_arma(nome: str):
-    dados = carregar_json("items.json")
-    armas = dados.get("Armas", {})
-
-    return armas.get(nome, {"erro": "Arma não encontrada"})
-
-
-@router.get("/itens/equipamentosaventura")
-def list_equipamentos_aventura():
-    dados = carregar_json("items.json")
-    return dados.get("Equipamento de Aventura", [])

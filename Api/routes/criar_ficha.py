@@ -3,6 +3,8 @@ import json
 from fastapi import APIRouter, HTTPException
 from urllib.parse import unquote
 
+#uvicorn Api.main:app --reload
+
 router_ficha = APIRouter()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,8 +16,82 @@ def carregar_json(nome_arquivo):
     with open(caminho, "r", encoding="utf-8") as f:
         return json.load(f)
 
+def encontrar_escolhas(ops):
+    resultados = []
 
-@router_ficha.post("/ficha/classe/{classe}/{nivel}")
+    for op in ops:
+        if not isinstance(op, dict):
+            continue
+
+        action = op.get("action")
+
+        # --------------------------
+        # CHOOSE_MAP
+        # --------------------------
+        if action == "CHOOSE_MAP":
+            options = op.get("options", [])
+
+            # CHOOSE_MAP nunca tem filhos → sempre 0
+            relacao = [0] * len(options)
+
+            resultados.append({
+                "label": op.get("label", ""),
+                "opcoes": options,
+                "n": op.get("n"),
+                "tam": len(options),
+                "relacao": relacao
+            })
+
+        # --------------------------
+        # CHOOSE_OPERATIONS
+        # --------------------------
+        elif action == "CHOOSE_OPERATIONS":
+            lista_opcoes = op.get("options", [])
+            relacao = []
+            blocos_filho = []
+
+            # 1. Conta apenas os filhos diretos daquela opção
+            for opt in lista_opcoes:
+                sub_ops = opt.get("operations", [])
+                filhos = encontrar_escolhas(sub_ops)
+                blocos_filho.append(filhos)
+
+                # se a opção não tem nenhum filho → relação = 0
+                relacao.append(len(filhos))
+
+            # 2. Bloco pai
+            resultados.append({
+                "label": op.get("label", ""),
+                "opcoes": [o.get("label","") for o in lista_opcoes],
+                "n": op.get("n"),
+                "tam": len(lista_opcoes),
+                "relacao": relacao
+            })
+
+            # 3. Filhos logo abaixo
+            for filhos in blocos_filho:
+                resultados.extend(filhos)
+
+        # --------------------------
+        # Operações comuns
+        # --------------------------
+        if "operations" in op:
+            resultados.extend(encontrar_escolhas(op["operations"]))
+
+        if "features" in op:
+            for feat in op.get("features", []):
+                resultados.extend(encontrar_escolhas(feat.get("operations", [])))
+
+    return resultados
+
+
+
+
+
+
+
+
+@router_ficha.get("/ficha/classe/{classe}/{nivel}")
 def criar_ficha_classe(classe: str, nivel: int):
     dados = carregar_json("classes.json")
     classe_decodificada = unquote(classe)
@@ -27,7 +103,19 @@ def criar_ficha_classe(classe: str, nivel: int):
     if level not in dados[classe_decodificada]:
         raise HTTPException(status_code=400, detail="Nível inválido para a classe")
 
-    return dados[classe_decodificada][level]
+    bloco = dados[classe_decodificada][level]
+
+    operacoes = []
+
+    operacoes.extend(bloco.get("operations", []))
+
+    for feat in bloco.get("features", []):
+        if "operations" in feat:
+            operacoes.extend(feat["operations"])
+
+    escolhas = encontrar_escolhas(operacoes)
+    return escolhas
+
 
 
 

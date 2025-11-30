@@ -109,7 +109,7 @@
                     "description": "Você adota um estilo de combate particular que será sua especialidade.",
                     "operations": [
                         { 
-                            "action": "CHOOSE_MAP", "n": 1, "name": "Estilo de Luta",
+                            "action": "CHOOSE_MAP", "n": 1, "label": "Estilo de Luta",
                             "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/name"},
                             "operations": [{ "action": "IMPORT", "query": "features/name = '{THIS}'"}]
                         }
