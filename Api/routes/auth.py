@@ -4,6 +4,8 @@ from authlib.integrations.starlette_client import OAuth
 from jose import jwt
 from datetime import datetime, timedelta
 import os
+import json
+import base64
 
 router = APIRouter()
 
@@ -36,8 +38,17 @@ async def login(request: Request):
     else:
         frontend = "https://jsons-and-dragons.onrender.com/login-success"
 
-    state = {"frontend": frontend}
-    return await oauth.google.authorize_redirect(request, redirect_uri=REDIRECT_URI, state=state)
+    # Convert state dict to string
+    state_dict = {"frontend": frontend}
+    state_string = base64.urlsafe_b64encode(
+        json.dumps(state_dict).encode()
+    ).decode()
+    
+    return await oauth.google.authorize_redirect(
+        request, 
+        redirect_uri=REDIRECT_URI, 
+        state=state_string
+    )
 
 @router.get("/callback")
 async def callback(request: Request):
@@ -63,7 +74,16 @@ async def callback(request: Request):
             algorithm=JWT_ALGORITHM,
         )
 
-        frontend_url = token.get("state", {}).get("frontend", "http://localhost:4200/login-success")
+        state_param = request.query_params.get("state", "")
+        try:
+            state_dict = json.loads(
+                base64.urlsafe_b64decode(state_param.encode()).decode()
+            )
+            frontend_url = state_dict.get("frontend", "http://localhost:4200/login-success")
+        except Exception:
+            # Fallback if state decoding fails
+            frontend_url = "http://localhost:4200/login-success"
+
         frontend_url += f"?token={jwt_token}"
 
         return RedirectResponse(frontend_url)
