@@ -4,7 +4,7 @@
             { "action": "SET", "property": "personal.race", "value": "Humano" },
             {
                 "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Humano'/name"},
+                "options": {"action": "REQUEST", "query": "/subraca/Humano/keys"},
                 "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
             },
             {"action": "SET", "property": "attributes.speed", "value": "9"},
@@ -12,7 +12,7 @@
             {"action": "IMPORT", "query": "features/name == 'Comum'"},
             {
                 "action": "CHOOSE_MAP", "n": 1, "label": "Idioma Adicional", 
-                "options": {"action": "REQUEST", "query": "features/metadata.type == 'language'/name"},
+                "options": {"action": "REQUEST", "query": "base/idiomas/keys"},
                 "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
             }
         ]
@@ -58,7 +58,7 @@
             },
             {
                 "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Anão'/name"},
+                "options": {"action": "REQUEST", "query": "/subraca/Anão/keys"},
                 "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
             }
         ]
@@ -89,7 +89,7 @@
             },
             {
                 "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Elfo'/name"},
+                "options": {"action": "REQUEST", "query": "/subraca/Elfo/keys"},
                 "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
             }
         ]

@@ -67,7 +67,7 @@ def list_magias(classe: str, level: int):
 
 @router.get("/idiomas/keys")
 def list_armas_keys():
-    dados = carregar_json("items.json")
+    dados = carregar_json("features.json")
 
     idiomas = {
         nome: info
@@ -170,7 +170,6 @@ def list_armas_keys():
 def list_itens():
     return carregar_json("items.json")
 
-
 @router.get("/classes/")
 def list_classes_full():
     return carregar_json("classes.json")
@@ -187,3 +186,14 @@ def list_racas_full():
 @router.get("/backgrounds/")
 def list_racas_full():
     return carregar_json("backgrounds.json")
+
+@router.get("/idiomas/")
+def list_armas_keys():
+    dados = carregar_json("features.json")
+
+    idiomas = {
+        nome: info
+        for nome, info in dados.items()
+        if "language" in info.get("metadata", {}).get("type", [])
+    }
+    return list(idiomas)

@@ -22,7 +22,7 @@
                             "operations": [
                                 { "action": "ADD_ITEM", "query": "items/name == 'Escudo'" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "/itens/armas/marcial/keys"},
+                                    "options": {"action": "REQUEST", "query": "base/itens/armas/marcial/keys"},
                                     "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]
@@ -31,7 +31,7 @@
                             "label": "Duas Armas Marciais",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "/itens/armas/marcial/keys"},
+                                    "options": {"action": "REQUEST", "query": "base/itens/armas/marcial/keys"},
                                     "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]

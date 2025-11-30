@@ -238,13 +238,13 @@ def criar_ficha_classe(classe: str, nivel: int):
 
 @router_ficha.get("/ficha/raca/{raca}")
 def criar_ficha_raca(raca: str):
-    dados = carregar_json("classes.json")
-    classe_decodificada = unquote(raca)
+    dados = carregar_json("races.json")
+    raca_decodificada = unquote(raca)
 
-    if classe_decodificada not in dados:
+    if raca_decodificada not in dados:
         raise HTTPException(status_code=404, detail="Classe não encontrada")
 
-    bloco = dados[classe_decodificada][raca]
+    bloco = dados[raca_decodificada][raca]
 
     #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
     operacoes = []
@@ -258,6 +258,29 @@ def criar_ficha_raca(raca: str):
 
     return escolhas
 
+
+
+@router_ficha.get("/ficha/backgrounds/{background}")
+def criar_ficha_raca(background: str):
+    dados = carregar_json("backgrounds.json")
+    background_decodificada = unquote(background)
+
+    if background_decodificada not in dados:
+        raise HTTPException(status_code=404, detail="Classe não encontrada")
+
+    bloco = dados[background_decodificada][background]
+
+    #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
+    operacoes = []
+    operacoes.extend(bloco.get("operations", []))
+
+    for feat in bloco.get("features", []):
+        if "operations" in feat:
+            operacoes.extend(feat["operations"])
+
+    escolhas = encontrar_escolhas(operacoes)
+
+    return escolhas
 
 
 
