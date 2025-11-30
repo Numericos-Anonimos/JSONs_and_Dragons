@@ -214,8 +214,10 @@ class Character:
         self.access_token = access_token
         
         self.db: db_handler = db_handler(self.access_token)
-        char_folder_id = ensure_path(self.access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(self.id)])        
+        char_folder_id = ensure_path(self.access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(self.id)])
+        print(f"ccccccc {char_folder_id}")
         dados_carregados = get_file_content(self.access_token, filename="character.json", parent_id=char_folder_id)
+        print(f"ddddddd {dados_carregados}")
 
         if dados_carregados:
             self.data: Dict[str, Any] = dados_carregados
@@ -282,8 +284,7 @@ def main():
         15, 12, 14, 8, 8, 14 # atributos
     ]
     personagem = Character(0, access_token=google_access_token, decisions=decisoes_mock)
-    print(personagem.data)
-    return
+    #print(personagem.data)
    
     print("\n=== Teste de Reatividade ===")
     str_mod_original = personagem.get_stat("attributes.str.modifier")
