@@ -1,123 +1,81 @@
 import json
-import os
 import re
 import math
-from typing import List, Dict, Any, Union, Callable
+from typing import List, Dict, Any
 from dataclasses import dataclass
 from pprint import pprint
+# Importa o gdrive atualizado
+from Api.gdrive import get_file_content, ensure_path
 
-# Configuração de Caminhos =============================================================
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(CURRENT_DIR) 
-BD_DIR = os.path.join(PROJECT_ROOT, "BD")
+# Configuração de Caminhos Virtuais
+ROOT_FOLDER = "JSONs_and_Dragons"
+DB_FOLDER = "BD"
+CHARACTERS_FOLDER = "Characters"
 
-# Utils ================================================================================
-
+# Utils (Mantidos iguais: get_nested, set_nested, resolve_value, interpolate_and_eval)
 def get_nested(data: Dict, path: str, default: Any = None) -> Any:
-    """Busca valor em dicionário aninhado usando notação de ponto: 'key.subkey'"""
     keys = path.split('.')
     curr = data
     try:
         for key in keys:
-            if isinstance(curr, dict):
-                curr = curr.get(key)
-            elif isinstance(curr, list) and key.isdigit():
-                 curr = curr[int(key)]
-            else:
-                return default
-            
-            if curr is None:
-                return default
+            if isinstance(curr, dict): curr = curr.get(key)
+            elif isinstance(curr, list) and key.isdigit(): curr = curr[int(key)]
+            else: return default
+            if curr is None: return default
         return curr
-    except Exception:
-        return default
+    except Exception: return default
 
 def set_nested(data: Dict, path: str, value: Any) -> None:
-    """Define valor em dicionário aninhado, criando caminhos se necessário"""
     keys = path.split('.')
     curr = data
     for i, key in enumerate(keys[:-1]):
-        if key not in curr:
-            curr[key] = {}
+        if key not in curr: curr[key] = {}
         curr = curr[key]
     curr[keys[-1]] = value
 
 def resolve_value(value: Any, context: Dict) -> Any:
-    """
-    Se o valor for uma função, executa ela passando o contexto.
-    Caso contrário, retorna o valor bruto.
-    Isso permite 'lazy evaluation' de propriedades.
-    """
     if callable(value):
-        try:
-            return value(context)
-        except RecursionError:
-            return 0
+        try: return value(context)
+        except RecursionError: return 0
     return value
 
 def interpolate_and_eval(text: str, context: Dict) -> Any:
-    """
-    1. Substitui {caminho.variavel} pelo valor no context.
-    2. Se o valor for uma função, resolve ela.
-    3. Se o resultado for puramente numérico/matemático, avalia.
-    """
-    if not isinstance(text, str):
-        return resolve_value(text, context)
-
-    # Regex para encontrar padrões {algo}
+    if not isinstance(text, str): return resolve_value(text, context)
     pattern = re.compile(r'\{([a-zA-Z0-9_.]+)\}')
-    
     def replacer(match):
         path = match.group(1)
-        # Pega o valor bruto (pode ser func ou valor)
         raw_val = get_nested(context, path)
-        # Resolve (se for func, executa)
         val = resolve_value(raw_val, context)
-        
-        if val is None:
-            return "0" 
-        return str(val)
-
-    # Substituição
+        return "0" if val is None else str(val)
     interpolated = pattern.sub(replacer, text)
-
-    # Tenta avaliar matematicamente se parecer uma fórmula
     if any(c in interpolated for c in "+-*/") or "floor" in interpolated:
         try:
-            safe_dict = {
-                "floor": math.floor,
-                "ceil": math.ceil,
-                "max": max,
-                "min": min,
-                "abs": abs
-            }
+            safe_dict = {"floor": math.floor, "ceil": math.ceil, "max": max, "min": min, "abs": abs}
             return eval(interpolated, {"__builtins__": None}, safe_dict)
-        except Exception:
-            pass
-    
-    # Tenta converter para int ou float
+        except Exception: pass
     try:
-        if "." in interpolated:
-            return float(interpolated)
+        if "." in interpolated: return float(interpolated)
         return int(interpolated)
-    except ValueError:
-        return interpolated
+    except ValueError: return interpolated
 
 # Banco de Dados ========================================================================
 
 @dataclass
 class db_homebrew: 
-    def __init__(self, endereço: str):
+    def __init__(self, endereço: str, access_token: str):
         self.endereço = endereço
+        self.token = access_token
+        # Cache simples do ID da pasta para não buscar toda vez
+        self.folder_id = ensure_path(self.token, [ROOT_FOLDER, DB_FOLDER, self.endereço])
 
     def query(self, query: str) -> Dict[str, Any]:
         parts = query.split("/")
-        file_path = os.path.join(BD_DIR, self.endereço, f"{parts[0]}.json")
+        filename = f"{parts[0]}.json"
         
-        if os.path.exists(file_path):
-            with open(file_path, "r", encoding="utf-8") as f:
-                dados = json.load(f)
-        else:
+        # Busca arquivo dentro da pasta do módulo (ex: dnd_2014)
+        dados = get_file_content(self.token, filename=filename, parent_id=self.folder_id)
+        
+        if not dados:
             return {}
 
         for i in range(1, len(parts)):
@@ -127,26 +85,29 @@ class db_homebrew:
                 return {}
                 
         return dados if isinstance(dados, dict) else {}
-             
 
 class db_handler(db_homebrew):
-    def __init__(self):
-        meta_path = os.path.join(BD_DIR, "metadata.json")
-        if os.path.exists(meta_path):
-            with open(meta_path, "r", encoding="utf-8") as f:
-                list_endereços = json.load(f).get('modules', [])
-        else:
-            list_endereços = []
+    def __init__(self, access_token: str):
+        self.token = access_token
+        
+        # Busca metadata.json na raiz do BD (JSONs_and_Dragons/BD/metadata.json)
+        bd_root_id = ensure_path(self.token, [ROOT_FOLDER, DB_FOLDER])
+        meta_content = get_file_content(self.token, filename="metadata.json", parent_id=bd_root_id)
+        
+        list_endereços = []
+        if meta_content:
+            list_endereços = meta_content.get('modules', [])
 
         self.db_list = []
         for endereço in list_endereços:
-            self.db_list.append(db_homebrew(endereço))
+            # Instancia db_homebrew passando o token
+            self.db_list.append(db_homebrew(endereço, self.token))
 
+    # O init do db_homebrew original não era chamado aqui, corrigido para loop acima
     def query(self, query: str):
         response = {}
         for db in self.db_list:
             resultado_parcial = db.query(query)
-            
             for key, value in resultado_parcial.items():
                 if key not in response:
                     response[key] = value
@@ -159,8 +120,7 @@ class db_handler(db_homebrew):
                         response[key] = value
         return response
 
-# Operações ========================================================================
-            
+# Operações (Operation, ImportOperation, etc - Mantidas iguais, apenas ImportOperation ajustada)
 @dataclass
 class Operation:
     def __init__(self, **kwargs: dict[str, Any]):
@@ -168,70 +128,47 @@ class Operation:
             self.personagem: 'Character' = kwargs.pop("personagem")
         for key, value in kwargs.items():
             setattr(self, key, value)
-
-    def run(self):
-        pass
+    def run(self): pass
 
 class ImportOperation(Operation):
     query: str
     def run(self):
+        # db agora já tem o token via personagem.db
         dados = self.personagem.db.query(self.query)
         novas_ops = dados.get("operations", [])
         if novas_ops:
             self.personagem.ficha.extend(novas_ops)
 
+# ... (InputOperation, SetOperation, ForEachOperation, InitProficiencyOperation permanecem iguais)
 class InputOperation(Operation):
     property: str
-    
     def run(self):
         decisions = self.personagem.data.get("decisions", [])
-        
-        if not decisions:
-            print(f"ERRO: Input solicitado para '{self.property}', mas não há decisões disponíveis.")
-            return
-
+        if not decisions: return
         valor = decisions.pop(0)
         print(f"-> INPUT '{self.property}': {valor}")
-        
-        # O input sempre sobrescreve qualquer fórmula anterior com um valor estático
         set_nested(self.personagem.data, self.property, valor)
 
 class SetOperation(Operation):
     property: str
     value: Any = None
     formula: str = None
-
     def run(self):
         if self.formula is not None:
-            # LÓGICA REATIVA:
-            # Se temos uma fórmula, armazenamos uma função (closure) que calcula 
-            # o valor dinamicamente sempre que for chamada.
             formula_str = self.formula
-            
-            def computed_property(context):
-                # O context será passado quando alguém tentar ler esse valor
-                return interpolate_and_eval(formula_str, context)
-            
-            print(f"   SET '{self.property}' = [Fórmula Dinâmica: {self.formula}]")
+            def computed_property(context): return interpolate_and_eval(formula_str, context)
             set_nested(self.personagem.data, self.property, computed_property)
         else:
-            # Valor estático
-            print(f"   SET '{self.property}' = {self.value}")
             set_nested(self.personagem.data, self.property, self.value)
 
 class ForEachOperation(Operation):
     list: List[str]
     operations: List[Dict]
-
     def run(self):
         items = self.list
-        # Se a lista for uma string com chaves {}, tenta interpolar
         if isinstance(items, str):
-            # Resolve a lista do contexto (pode ser uma função que retorna lista)
             items = interpolate_and_eval(items, self.personagem.data)
-            if not isinstance(items, list):
-                items = [] # Fallback
-
+            if not isinstance(items, list): items = []
         expanded_ops = []
         for item in items:
             for op_template in self.operations:
@@ -239,7 +176,6 @@ class ForEachOperation(Operation):
                 op_str = op_str.replace("{THIS}", str(item))
                 new_op = json.loads(op_str)
                 expanded_ops.append(new_op)
-        
         for op in reversed(expanded_ops):
             self.personagem.ficha.insert(self.personagem.n + 1, op)
 
@@ -248,37 +184,32 @@ class InitProficiencyOperation(Operation):
     name: str
     attributes: str = None
     multiplier: int = 0
-    roll: str = "N"
-
     def run(self):
-        # Resolve o nome usando resolve_value caso venha de fórmula
         nome_resolvido = interpolate_and_eval(self.name, self.personagem.data)
-        
-        prof_entry = {
-            "name": nome_resolvido,
-            "category": self.category,
-            "multiplier": self.multiplier
-        }
-        if self.attributes:
-            prof_entry["attribute"] = self.attributes
-
+        prof_entry = {"name": nome_resolvido, "category": self.category, "multiplier": self.multiplier}
+        if self.attributes: prof_entry["attribute"] = self.attributes
         current_profs = self.personagem.data.get("proficiencies", [])
         current_profs.append(prof_entry)
         self.personagem.data["proficiencies"] = current_profs
-        print(f"   PROFICIENCY: {nome_resolvido} ({self.category})")
-
 
 # Personagem ========================================================================
 class Character:
-    def __init__(self, id: int, decisions: List[Any] = None):
+    def __init__(self, id: int, access_token: str, decisions: List[Any] = None):
         self.id: int = id
-        self.db: db_handler = db_handler()
+        self.access_token = access_token
+        
+        # Instancia o DB Handler passando o token
+        self.db: db_handler = db_handler(self.access_token)
 
-        path_char = os.path.join(BD_DIR, "characters", str(self.id), "character.json")
+        # Localiza a pasta do personagem: JSONs_and_Dragons/Characters/{id}
+        # Isso pode demorar, ideal seria passar o folder_id se já souber
+        char_folder_id = ensure_path(self.access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(self.id)])
+        
+        # Tenta carregar character.json
+        dados_carregados = get_file_content(self.access_token, filename="character.json", parent_id=char_folder_id)
 
-        if os.path.exists(path_char):
-            with open(path_char, "r", encoding="utf-8") as f:
-                self.data: Dict[str, Any] = json.load(f)
+        if dados_carregados:
+            self.data: Dict[str, Any] = dados_carregados
         else:
             self.data: Dict[str, Any] = {
                 "decisions": decisions if decisions else [],
@@ -294,7 +225,7 @@ class Character:
             {"action": "IMPORT", "query": "metadata/character"}
         ]
 
-        print("--- Iniciando processamento ---")
+        print(f"--- Iniciando processamento Character ID {id} ---")
         while self.n < len(self.ficha):
             self.run_operation()
     
@@ -305,78 +236,24 @@ class Character:
 
         op_instance = None
         match action:
-            case "IMPORT":
-                op_instance = ImportOperation(personagem=self, **op_args)
-            case "INPUT":
-                op_instance = InputOperation(personagem=self, **op_args)
-            case "SET":
-                op_instance = SetOperation(personagem=self, **op_args)
-            case "FOR_EACH":
-                op_instance = ForEachOperation(personagem=self, **op_args)
-            case "INIT_PROFICIENCY":
-                op_instance = InitProficiencyOperation(personagem=self, **op_args)
-            case _:
-                print(f"Aviso: Ação desconhecida '{action}'")
+            case "IMPORT": op_instance = ImportOperation(personagem=self, **op_args)
+            case "INPUT": op_instance = InputOperation(personagem=self, **op_args)
+            case "SET": op_instance = SetOperation(personagem=self, **op_args)
+            case "FOR_EACH": op_instance = ForEachOperation(personagem=self, **op_args)
+            case "INIT_PROFICIENCY": op_instance = InitProficiencyOperation(personagem=self, **op_args)
+            case _: print(f"Aviso: Ação desconhecida '{action}'")
 
-        if op_instance:
-            op_instance.run()
-
+        if op_instance: op_instance.run()
         self.n += 1
 
     def get_stat(self, path: str) -> Any:
-        """
-        Método público para pegar uma estatística.
-        Ele garante que se for uma fórmula, ela será calculada agora.
-        """
         raw = get_nested(self.data, path)
         return resolve_value(raw, self.data)
 
     def export_data(self) -> Dict:
-        """
-        Gera uma versão 'limpa' do data onde todas as funções/fórmulas
-        são resolvidas para seus valores atuais. Ideal para salvar JSON.
-        """
         def resolve_recursive(d):
-            if isinstance(d, dict):
-                return {k: resolve_recursive(v) for k, v in d.items()}
-            elif isinstance(d, list):
-                return [resolve_recursive(v) for v in d]
-            elif callable(d):
-                return d(self.data)
-            else:
-                return d
-        
+            if isinstance(d, dict): return {k: resolve_recursive(v) for k, v in d.items()}
+            elif isinstance(d, list): return [resolve_recursive(v) for v in d]
+            elif callable(d): return d(self.data)
+            else: return d
         return resolve_recursive(self.data)
-        
-def main():
-    decisoes_mock = [
-        "Tony Starforge",    # nome
-        15, 12, 14, 8, 8, 14 # atributos
-    ]
-
-    personagem = Character(0, decisions=decisoes_mock)
-    
-    # TESTE DE REATIVIDADE
-    print("\n=== Teste de Reatividade ===")
-    
-    # 1. Pega valor original
-    str_mod_original = personagem.get_stat("attributes.str.modifier")
-    print(f"Modificador de Força (Score 15): {str_mod_original}") # Esperado: 2
-
-    # 2. Altera o atributo base (simulando aumento de atributo)
-    print("-> Aumentando Força para 18...")
-    personagem.data['attributes']['str']['score'] = 18
-
-    # 3. Verifica se o modificador e o save mudaram sozinhos
-    str_mod_novo = personagem.get_stat("attributes.str.modifier")
-    str_save_novo = personagem.get_stat("attributes.str.save")
-    
-    print(f"Modificador de Força (Score 18): {str_mod_novo}") # Esperado: 4
-    print(f"Save de Força (Baseado no mod): {str_save_novo}")   # Esperado: 4
-
-    print("\n=== Exportação JSON (Preview) ===")
-    final_json = personagem.export_data()
-    pprint(personagem.data)
-
-if __name__ == "__main__":
-    main()
