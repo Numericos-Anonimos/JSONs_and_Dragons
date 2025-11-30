@@ -2,7 +2,7 @@ import json
 import os
 import re
 import math
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Callable
 from dataclasses import dataclass
 from pprint import pprint
 
@@ -42,23 +42,39 @@ def set_nested(data: Dict, path: str, value: Any) -> None:
         curr = curr[key]
     curr[keys[-1]] = value
 
+def resolve_value(value: Any, context: Dict) -> Any:
+    """
+    Se o valor for uma função, executa ela passando o contexto.
+    Caso contrário, retorna o valor bruto.
+    Isso permite 'lazy evaluation' de propriedades.
+    """
+    if callable(value):
+        try:
+            return value(context)
+        except RecursionError:
+            return 0
+    return value
+
 def interpolate_and_eval(text: str, context: Dict) -> Any:
     """
     1. Substitui {caminho.variavel} pelo valor no context.
-    2. Se o resultado for puramente numérico/matemático, avalia.
+    2. Se o valor for uma função, resolve ela.
+    3. Se o resultado for puramente numérico/matemático, avalia.
     """
     if not isinstance(text, str):
-        return text
+        return resolve_value(text, context)
 
     # Regex para encontrar padrões {algo}
     pattern = re.compile(r'\{([a-zA-Z0-9_.]+)\}')
     
     def replacer(match):
         path = match.group(1)
-        val = get_nested(context, path)
+        # Pega o valor bruto (pode ser func ou valor)
+        raw_val = get_nested(context, path)
+        # Resolve (se for func, executa)
+        val = resolve_value(raw_val, context)
+        
         if val is None:
-            # Se não achar, retorna 0 para evitar quebra de matemática, 
-            # ou mantém a string se for texto.
             return "0" 
         return str(val)
 
@@ -66,14 +82,8 @@ def interpolate_and_eval(text: str, context: Dict) -> Any:
     interpolated = pattern.sub(replacer, text)
 
     # Tenta avaliar matematicamente se parecer uma fórmula
-    # Permitimos caracteres matemáticos básicos e funções seguras
-    allowed_math = set("0123456789+-*/()., ")
-    
-    # Verifica se a string contém apenas caracteres matemáticos ou chamadas de função simples
-    # Hack simples: se tem 'floor', 'ceil' ou operadores, tentamos eval
     if any(c in interpolated for c in "+-*/") or "floor" in interpolated:
         try:
-            # Contexto seguro para o eval
             safe_dict = {
                 "floor": math.floor,
                 "ceil": math.ceil,
@@ -83,10 +93,9 @@ def interpolate_and_eval(text: str, context: Dict) -> Any:
             }
             return eval(interpolated, {"__builtins__": None}, safe_dict)
         except Exception:
-            # Se der erro no eval, retorna a string interpolada (pode ser texto normal)
             pass
     
-    # Tenta converter para int ou float se possível
+    # Tenta converter para int ou float
     try:
         if "." in interpolated:
             return float(interpolated)
@@ -138,7 +147,6 @@ class db_handler(db_homebrew):
         for db in self.db_list:
             resultado_parcial = db.query(query)
             
-            # Merge Recursivo Simplificado
             for key, value in resultado_parcial.items():
                 if key not in response:
                     response[key] = value
@@ -167,19 +175,15 @@ class Operation:
 class ImportOperation(Operation):
     query: str
     def run(self):
-        # print(f"--- IMPORT: {self.query} ---")
         dados = self.personagem.db.query(self.query)
-        
         novas_ops = dados.get("operations", [])
         if novas_ops:
-            # Adiciona ao final da fila
             self.personagem.ficha.extend(novas_ops)
 
 class InputOperation(Operation):
     property: str
     
     def run(self):
-        # Simula frontend: consome da lista de decisões
         decisions = self.personagem.data.get("decisions", [])
         
         if not decisions:
@@ -189,6 +193,7 @@ class InputOperation(Operation):
         valor = decisions.pop(0)
         print(f"-> INPUT '{self.property}': {valor}")
         
+        # O input sempre sobrescreve qualquer fórmula anterior com um valor estático
         set_nested(self.personagem.data, self.property, valor)
 
 class SetOperation(Operation):
@@ -197,40 +202,44 @@ class SetOperation(Operation):
     formula: str = None
 
     def run(self):
-        final_value = self.value
-        
-        # Se tiver fórmula, calcula
         if self.formula is not None:
-            final_value = interpolate_and_eval(self.formula, self.personagem.data)
+            # LÓGICA REATIVA:
+            # Se temos uma fórmula, armazenamos uma função (closure) que calcula 
+            # o valor dinamicamente sempre que for chamada.
+            formula_str = self.formula
             
-        print(f"   SET '{self.property}' = {final_value}")
-        set_nested(self.personagem.data, self.property, final_value)
+            def computed_property(context):
+                # O context será passado quando alguém tentar ler esse valor
+                return interpolate_and_eval(formula_str, context)
+            
+            print(f"   SET '{self.property}' = [Fórmula Dinâmica: {self.formula}]")
+            set_nested(self.personagem.data, self.property, computed_property)
+        else:
+            # Valor estático
+            print(f"   SET '{self.property}' = {self.value}")
+            set_nested(self.personagem.data, self.property, self.value)
 
 class ForEachOperation(Operation):
     list: List[str]
     operations: List[Dict]
 
     def run(self):
-        # A lista pode ser estática ou vir de uma variável {path}
         items = self.list
-        if isinstance(items, str) and "{" in items:
-            # Lógica simples para pegar lista de variável se necessário
-            pass 
+        # Se a lista for uma string com chaves {}, tenta interpolar
+        if isinstance(items, str):
+            # Resolve a lista do contexto (pode ser uma função que retorna lista)
+            items = interpolate_and_eval(items, self.personagem.data)
+            if not isinstance(items, list):
+                items = [] # Fallback
 
-        # Para cada item na lista, cria cópias das operações substituindo {THIS}
         expanded_ops = []
         for item in items:
             for op_template in self.operations:
-                # Serializa e deserializa para garantir cópia profunda simples
                 op_str = json.dumps(op_template)
-                # Substituição literal de {THIS}
                 op_str = op_str.replace("{THIS}", str(item))
                 new_op = json.loads(op_str)
                 expanded_ops.append(new_op)
         
-        # Injeta as novas operações IMEDIATAMENTE após a atual
-        # para manter a ordem lógica (Depth-first)
-        # Inserimos em ordem reversa para que fiquem na ordem certa na pilha
         for op in reversed(expanded_ops):
             self.personagem.ficha.insert(self.personagem.n + 1, op)
 
@@ -242,7 +251,7 @@ class InitProficiencyOperation(Operation):
     roll: str = "N"
 
     def run(self):
-        # Resolve o nome (pode ter vindo de um {THIS})
+        # Resolve o nome usando resolve_value caso venha de fórmula
         nome_resolvido = interpolate_and_eval(self.name, self.personagem.data)
         
         prof_entry = {
@@ -253,7 +262,6 @@ class InitProficiencyOperation(Operation):
         if self.attributes:
             prof_entry["attribute"] = self.attributes
 
-        # Salva em uma lista de proficiências no data
         current_profs = self.personagem.data.get("proficiencies", [])
         current_profs.append(prof_entry)
         self.personagem.data["proficiencies"] = current_profs
@@ -275,9 +283,9 @@ class Character:
             self.data: Dict[str, Any] = {
                 "decisions": decisions if decisions else [],
                 "state": {"hp": 0},
-                "proficiencies": [], # Armazena resultado do INIT_PROFICIENCY
-                "attributes": {},    # Necessário para os SETs de atributo
-                "properties": {},    # Necessário para level, etc
+                "proficiencies": [],
+                "attributes": {}, 
+                "properties": {},
                 "personal": {}
             }
 
@@ -314,21 +322,61 @@ class Character:
             op_instance.run()
 
         self.n += 1
+
+    def get_stat(self, path: str) -> Any:
+        """
+        Método público para pegar uma estatística.
+        Ele garante que se for uma fórmula, ela será calculada agora.
+        """
+        raw = get_nested(self.data, path)
+        return resolve_value(raw, self.data)
+
+    def export_data(self) -> Dict:
+        """
+        Gera uma versão 'limpa' do data onde todas as funções/fórmulas
+        são resolvidas para seus valores atuais. Ideal para salvar JSON.
+        """
+        def resolve_recursive(d):
+            if isinstance(d, dict):
+                return {k: resolve_recursive(v) for k, v in d.items()}
+            elif isinstance(d, list):
+                return [resolve_recursive(v) for v in d]
+            elif callable(d):
+                return d(self.data)
+            else:
+                return d
+        
+        return resolve_recursive(self.data)
         
 def main():
-    # Simulando as decisões vindas do Front-end para o exemplo do Paladino Humano
     decisoes_mock = [
         "Tony Starforge",    # nome
-        15, 12, 14, 8, 8, 14 # atributos (str, dex, con, int, wis, cha)
-        # O resto das decisões viriam aqui conforme o fluxo progride...
+        15, 12, 14, 8, 8, 14 # atributos
     ]
 
     personagem = Character(0, decisions=decisoes_mock)
     
-    print("\n=== Estado Final (Parcial) ===")
-    pprint(personagem.data.get("attributes"))
-    pprint(personagem.data.get("properties"))
-    print("Proficiências:", len(personagem.data.get("proficiencies", [])))
+    # TESTE DE REATIVIDADE
+    print("\n=== Teste de Reatividade ===")
+    
+    # 1. Pega valor original
+    str_mod_original = personagem.get_stat("attributes.str.modifier")
+    print(f"Modificador de Força (Score 15): {str_mod_original}") # Esperado: 2
+
+    # 2. Altera o atributo base (simulando aumento de atributo)
+    print("-> Aumentando Força para 18...")
+    personagem.data['attributes']['str']['score'] = 20
+
+    # 3. Verifica se o modificador e o save mudaram sozinhos
+    str_mod_novo = personagem.get_stat("attributes.str.modifier")
+    str_save_novo = personagem.get_stat("attributes.str.save")
+    
+    print(f"Modificador de Força (Score 18): {str_mod_novo}") # Esperado: 4
+    print(f"Save de Força (Baseado no mod): {str_save_novo}")   # Esperado: 4
+
+    print("\n=== Exportação JSON (Preview) ===")
+    final_json = personagem.export_data()
+    pprint(personagem.data)
 
 if __name__ == "__main__":
     main()
