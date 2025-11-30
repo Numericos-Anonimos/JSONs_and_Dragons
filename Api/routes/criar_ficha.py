@@ -16,6 +16,8 @@ def carregar_json(nome_arquivo):
     with open(caminho, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
+
 def encontrar_escolhas(ops):
     resultados = []
 
@@ -94,29 +96,6 @@ def encontrar_escolhas(ops):
 
 
 
-@router_ficha.get("/ficha/classe/{classe}/{nivel}")
-def criar_ficha_classe(classe: str, nivel: int):
-    dados = carregar_json("classes.json")
-    classe_decodificada = unquote(classe)
-
-    if classe_decodificada not in dados:
-        raise HTTPException(status_code=404, detail="Classe não encontrada")
-    level = f"level_{nivel}"
-    if level not in dados[classe_decodificada]:
-        raise HTTPException(status_code=400, detail="Nível inválido para a classe")
-
-    bloco = dados[classe_decodificada][level]
-    operacoes = []
-    operacoes.extend(bloco.get("operations", []))
-
-    for feat in bloco.get("features", []):
-        if "operations" in feat:
-            operacoes.extend(feat["operations"])
-
-    escolhas = encontrar_escolhas(operacoes)
-
-    return escolhas
-
 
 
 @router_ficha.post("/ficha/") 
@@ -154,11 +133,67 @@ def criar_ficha_base(nome: str, valores_atributos: dict):
         }
     }
 
+    # Essa pasrte vai ser substituida pela integração com o BD no Drive
     return ficha_base
 
 
+@router_ficha.get("/ficha/classe/{classe}/{nivel}")
+def criar_ficha_classe(classe: str, nivel: int):
+    dados = carregar_json("classes.json")
+    classe_decodificada = unquote(classe)
+
+    if classe_decodificada not in dados:
+        raise HTTPException(status_code=404, detail="Classe não encontrada")
+    level = f"level_{nivel}"
+    if level not in dados[classe_decodificada]:
+        raise HTTPException(status_code=400, detail="Nível inválido para a classe")
+
+    bloco = dados[classe_decodificada][level]
+
+    #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
+    operacoes = []
+    operacoes.extend(bloco.get("operations", []))
+
+    for feat in bloco.get("features", []):
+        if "operations" in feat:
+            operacoes.extend(feat["operations"])
+
+    escolhas = encontrar_escolhas(operacoes)
+
+    return escolhas
 
 
+
+@router_ficha.get("/ficha/raca/{raca}")
+def criar_ficha_raca(raca: str):
+    dados = carregar_json("classes.json")
+    classe_decodificada = unquote(raca)
+
+    if classe_decodificada not in dados:
+        raise HTTPException(status_code=404, detail="Classe não encontrada")
+
+    bloco = dados[classe_decodificada][raca]
+
+    #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
+    operacoes = []
+    operacoes.extend(bloco.get("operations", []))
+
+    for feat in bloco.get("features", []):
+        if "operations" in feat:
+            operacoes.extend(feat["operations"])
+
+    escolhas = encontrar_escolhas(operacoes)
+
+    return escolhas
+
+
+
+
+
+
+
+
+#Teste que retorna os atributos selecionados pelo usuário no formato que vai ser acoplado na ficha
 @router_ficha.post("/ficha/atributos")
 def criar_ficha_atributos_selecionado(valores: dict):
 
