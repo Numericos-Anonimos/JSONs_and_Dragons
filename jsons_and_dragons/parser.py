@@ -365,7 +365,7 @@ def main():
 
     # 2. Altera o atributo base (simulando aumento de atributo)
     print("-> Aumentando Força para 18...")
-    personagem.data['attributes']['str']['score'] = 20
+    personagem.data['attributes']['str']['score'] = 18
 
     # 3. Verifica se o modificador e o save mudaram sozinhos
     str_mod_novo = personagem.get_stat("attributes.str.modifier")
