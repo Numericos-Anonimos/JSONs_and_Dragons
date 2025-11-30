@@ -1,10 +1,21 @@
 import json
+import os
+import sys
 import re
 import math
 from typing import List, Dict, Any
 from dataclasses import dataclass
 from pprint import pprint
-# Importa o gdrive atualizado
+from jose import jwt
+from dotenv import load_dotenv
+load_dotenv()
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# Agora a importação funcionará
 from Api.gdrive import get_file_content, ensure_path
 
 # Configuração de Caminhos Virtuais
@@ -92,11 +103,14 @@ class db_handler(db_homebrew):
         
         # Busca metadata.json na raiz do BD (JSONs_and_Dragons/BD/metadata.json)
         bd_root_id = ensure_path(self.token, [ROOT_FOLDER, DB_FOLDER])
+        print(f"aaaaaaaa {bd_root_id}")
         meta_content = get_file_content(self.token, filename="metadata.json", parent_id=bd_root_id)
+        print(f"bbbbbbbb {meta_content}")
         
         list_endereços = []
         if meta_content:
             list_endereços = meta_content.get('modules', [])
+            print(f"aaaaaaaa{list_endereços}")
 
         self.db_list = []
         for endereço in list_endereços:
@@ -136,6 +150,7 @@ class ImportOperation(Operation):
         # db agora já tem o token via personagem.db
         dados = self.personagem.db.query(self.query)
         novas_ops = dados.get("operations", [])
+        print(f"\n{novas_ops}")
         if novas_ops:
             self.personagem.ficha.extend(novas_ops)
 
@@ -198,14 +213,8 @@ class Character:
         self.id: int = id
         self.access_token = access_token
         
-        # Instancia o DB Handler passando o token
         self.db: db_handler = db_handler(self.access_token)
-
-        # Localiza a pasta do personagem: JSONs_and_Dragons/Characters/{id}
-        # Isso pode demorar, ideal seria passar o folder_id se já souber
-        char_folder_id = ensure_path(self.access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(self.id)])
-        
-        # Tenta carregar character.json
+        char_folder_id = ensure_path(self.access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(self.id)])        
         dados_carregados = get_file_content(self.access_token, filename="character.json", parent_id=char_folder_id)
 
         if dados_carregados:
@@ -234,16 +243,18 @@ class Character:
         op_args = op_data.copy()
         action = op_args.pop("action", None)
 
-        op_instance = None
+        print(f"\n{op_data}")
+
         match action:
             case "IMPORT": op_instance = ImportOperation(personagem=self, **op_args)
             case "INPUT": op_instance = InputOperation(personagem=self, **op_args)
             case "SET": op_instance = SetOperation(personagem=self, **op_args)
             case "FOR_EACH": op_instance = ForEachOperation(personagem=self, **op_args)
             case "INIT_PROFICIENCY": op_instance = InitProficiencyOperation(personagem=self, **op_args)
-            case _: print(f"Aviso: Ação desconhecida '{action}'")
-
-        if op_instance: op_instance.run()
+            case _: 
+                print(f"Aviso: Ação desconhecida '{action}'")
+                return
+        op_instance.run()
         self.n += 1
 
     def get_stat(self, path: str) -> Any:
@@ -257,3 +268,37 @@ class Character:
             elif callable(d): return d(self.data)
             else: return d
         return resolve_recursive(self.data)
+
+# Main para Testes Independentes =======================================================
+def main():
+    env_token = os.getenv("JWT_TOKEN")
+    env_secret = os.getenv("JWT_SECRET")
+    payload = jwt.decode(env_token, env_secret, algorithms=[os.getenv("JWT_ALGORITHM", "HS256")])
+    google_access_token = payload.get("google_access_token")
+
+
+    decisoes_mock = [
+        "Tony Starforge",    # nome
+        15, 12, 14, 8, 8, 14 # atributos
+    ]
+    personagem = Character(0, access_token=google_access_token, decisions=decisoes_mock)
+    print(personagem.data)
+    return
+   
+    print("\n=== Teste de Reatividade ===")
+    str_mod_original = personagem.get_stat("attributes.str.modifier")
+    print(f"Modificador de Força (Score 15): {str_mod_original}")
+
+    print("-> Aumentando Força para 18...")
+    personagem.data['attributes']['str']['score'] = 18
+
+    str_mod_novo = personagem.get_stat("attributes.str.modifier")
+    str_save_novo = personagem.get_stat("attributes.str.save")
+    
+    print(f"Modificador de Força (Score 18): {str_mod_novo}")
+    print(f"Save de Força (Baseado no mod): {str_save_novo}")
+
+    pprint(personagem.data)
+
+if __name__ == "__main__":
+    main()
