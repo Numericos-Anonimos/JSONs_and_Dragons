@@ -68,7 +68,15 @@ def detect_environment(request: Request) -> tuple[str, str]:
 @router.get("/login")
 async def login(request: Request):
     redirect_uri, frontend_url = detect_environment(request)
-
+    
+    # Debug
+    print(f"debug")
+    print(f"  Host: {request.headers.get('host', '')}")
+    print(f"  Redirect URI: {redirect_uri}")
+    print(f"  Frontend URL: {frontend_url}")
+    print(f"  Client ID: {GOOGLE_CLIENT_ID[:20]}..." if GOOGLE_CLIENT_ID else "None")
+    print(f"  Client Secret: {'Client secret ok' if GOOGLE_CLIENT_SECRET else 'None'}")
+    
     state_data = {
         "frontend": f"{frontend_url}/login-success",
         "timestamp": datetime.utcnow().isoformat()
