@@ -40,7 +40,7 @@ def list_racas():
 
 @router.get("/subraca/{raca}/keys")
 def list_subclasses(raca: str):
-    dados = carregar_json("subclasses.json")
+    dados = carregar_json("subraces.json")
     subracas_filtradas = {
         nome: info
         for nome, info in dados.items()
@@ -173,7 +173,6 @@ def list_itens():
 @router.get("/classes/")
 def list_classes_full():
     return carregar_json("classes.json")
-
 
 @router.get("/racas/")
 def list_racas_full():

@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
-
+import requests
+import json
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
@@ -34,6 +35,8 @@ oauth.register(
     },
 )
 
+
+
 @router.get("/debug")
 def debug():
     return {
@@ -42,8 +45,6 @@ def debug():
         "jwt_secret": JWT_SECRET,
         "jwt_algorithm": JWT_ALGORITHM,
     }
-
-
 
 @router.get("/login")
 async def login(request: Request):
@@ -83,3 +84,8 @@ async def callback(request: Request):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+
+
+
+

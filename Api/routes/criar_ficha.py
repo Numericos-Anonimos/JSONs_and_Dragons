@@ -3,7 +3,7 @@ import json
 from fastapi import APIRouter, HTTPException
 from urllib.parse import unquote
 
-#uvicorn Api.main:app --reload
+#   uvicorn Api.main:app --reload
 
 router_ficha = APIRouter()
 
@@ -242,11 +242,11 @@ def criar_ficha_raca(raca: str):
     raca_decodificada = unquote(raca)
 
     if raca_decodificada not in dados:
-        raise HTTPException(status_code=404, detail="Classe não encontrada")
+        raise HTTPException(status_code=404, detail="Raça não encontrada")
 
-    bloco = dados[raca_decodificada][raca]
+    bloco = dados[raca_decodificada]
 
-    #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
+    # Pegando todas as operações que serão retornadas para o frontend
     operacoes = []
     operacoes.extend(bloco.get("operations", []))
 
