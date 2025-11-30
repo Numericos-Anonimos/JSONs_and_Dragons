@@ -74,18 +74,13 @@ async def callback(request: Request):
             algorithm=JWT_ALGORITHM,
         )
 
-        state_param = request.query_params.get("state", "")
-        try:
-            state_dict = json.loads(
-                base64.urlsafe_b64decode(state_param.encode()).decode()
-            )
-            frontend_url = state_dict.get("frontend", "http://localhost:4200/login-success")
-        except Exception:
-            # Fallback if state decoding fails
+        host = request.headers.get("host", "")
+        if "localhost" in host:
             frontend_url = "http://localhost:4200/login-success"
+        else:
+            frontend_url = "https://jsons-and-dragons-frontend.onrender.com/login-success"
 
         frontend_url += f"?token={jwt_token}"
-
         return RedirectResponse(frontend_url)
 
     except Exception as e:
