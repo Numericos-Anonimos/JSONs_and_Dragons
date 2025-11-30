@@ -1,7 +1,7 @@
 from jose import jwt
 import os
 from dotenv import load_dotenv
-from gdrive import upload_or_update, find_file_by_name
+from gdrive import upload_or_update, find_file_by_name, setup_drive_structure, get_file_content
 
 load_dotenv()
 
@@ -14,5 +14,5 @@ jwt_token = os.getenv("JWT_TOKEN")
 data = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 access_token = data["google_access_token"]
 
-resultado = upload_or_update(access_token, "ficha_rpg.json", '{"teste":123}')
+resultado = get_file_content(access_token, "teste.json")
 print(resultado)
