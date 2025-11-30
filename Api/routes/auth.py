@@ -38,8 +38,8 @@ oauth.register(
 def debug():
     return {
         "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": True if GOOGLE_CLIENT_SECRET else False,
-        "jwt_secret": True if JWT_SECRET else False,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "jwt_secret": JWT_SECRET,
         "jwt_algorithm": JWT_ALGORITHM,
     }
 

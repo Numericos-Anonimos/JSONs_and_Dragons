@@ -30,8 +30,6 @@ def encontrar_escolhas(ops):
         # --------------------------
         if action == "CHOOSE_MAP":
             options = op.get("options", [])
-
-            # CHOOSE_MAP nunca tem filhos → sempre 0
             relacao = [0] * len(options)
 
             resultados.append({
@@ -72,9 +70,6 @@ def encontrar_escolhas(ops):
             for filhos in blocos_filho:
                 resultados.extend(filhos)
 
-        # --------------------------
-        # Operações comuns
-        # --------------------------
         if "operations" in op:
             resultados.extend(encontrar_escolhas(op["operations"]))
 
@@ -98,15 +93,12 @@ def criar_ficha_classe(classe: str, nivel: int):
 
     if classe_decodificada not in dados:
         raise HTTPException(status_code=404, detail="Classe não encontrada")
-    
     level = f"level_{nivel}"
     if level not in dados[classe_decodificada]:
         raise HTTPException(status_code=400, detail="Nível inválido para a classe")
 
     bloco = dados[classe_decodificada][level]
-
     operacoes = []
-
     operacoes.extend(bloco.get("operations", []))
 
     for feat in bloco.get("features", []):
@@ -114,6 +106,7 @@ def criar_ficha_classe(classe: str, nivel: int):
             operacoes.extend(feat["operations"])
 
     escolhas = encontrar_escolhas(operacoes)
+
     return escolhas
 
 
