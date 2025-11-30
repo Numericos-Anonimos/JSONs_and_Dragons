@@ -14,7 +14,16 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
-REDIRECT_URI = "https://jsons-and-dragons.onrender.com/auth/callback"
+REDIRECT_URIS = {
+    "prod": "https://jsons-and-dragons.onrender.com/auth/callback",
+    "localhost": "http://localhost:8000/auth/callback",
+    "127.0.0.1": "http://127.0.0.1:8000/auth/callback"
+}
+
+FRONTEND_URLS = {
+    "prod": "https://jsons-and-dragons-frontend.onrender.com",
+    "local": "http://localhost:4200"
+}
 
 oauth = OAuth()
 oauth.register(
@@ -29,24 +38,49 @@ oauth.register(
     },
 )
 
+def detect_environment(request: Request) -> tuple[str, str]:
+    host = request.headers.get("host", "")
+    
+    host_without_port = host.split(":")[0]
+    
+    # Verifica localhost
+    if host_without_port == "localhost":
+        return REDIRECT_URIS["localhost"], FRONTEND_URLS["local"]
+    
+    # Verifica 127.0.0.1
+    if host_without_port == "127.0.0.1":
+        return REDIRECT_URIS["127.0.0.1"], FRONTEND_URLS["local"]
+    
+    # Verifica produção
+    if "jsons-and-dragons.onrender.com" in host:
+        return REDIRECT_URIS["prod"], FRONTEND_URLS["prod"]
+    
+    # Fallback
+    referer = request.headers.get("referer", "")
+    if "localhost" in referer or "127.0.0.1" in referer:
+        if "127.0.0.1" in referer:
+            return REDIRECT_URIS["127.0.0.1"], FRONTEND_URLS["local"]
+        return REDIRECT_URIS["localhost"], FRONTEND_URLS["local"]
+    
+    # Padrão: produção
+    return REDIRECT_URIS["prod"], FRONTEND_URLS["prod"]
+
 @router.get("/login")
 async def login(request: Request):
-    # Determine frontend URL based on host
-    host = request.headers.get("host", "")
-    if "localhost" in host:
-        frontend = "http://localhost:4200/login-success"
-    else:
-        frontend = "https://jsons-and-dragons-frontend.onrender.com/login-success"
+    redirect_uri, frontend_url = detect_environment(request)
 
-    # Convert state dict to string
-    state_dict = {"frontend": frontend}
-    state_string = base64.urlsafe_b64encode(
-        json.dumps(state_dict).encode()
-    ).decode()
+    state_data = {
+        "frontend": f"{frontend_url}/login-success",
+        "timestamp": datetime.utcnow().isoformat()
+    }
     
+    state_string = base64.urlsafe_b64encode(
+        json.dumps(state_data).encode()
+    ).decode()
+
     return await oauth.google.authorize_redirect(
-        request, 
-        redirect_uri=REDIRECT_URI, 
+        request,
+        redirect_uri=redirect_uri,
         state=state_string
     )
 
@@ -74,14 +108,30 @@ async def callback(request: Request):
             algorithm=JWT_ALGORITHM,
         )
 
-        host = request.headers.get("host", "")
-        if "localhost" in host:
-            frontend_url = "http://localhost:4200/login-success"
-        else:
-            frontend_url = "https://jsons-and-dragons-frontend.onrender.com/login-success"
+        # Recupera o frontend URL do state
+        state_string = request.query_params.get("state", "")
+        frontend_url = None
+        
+        if state_string:
+            try:
+                state_data = json.loads(
+                    base64.urlsafe_b64decode(state_string.encode()).decode()
+                )
+                frontend_url = state_data.get("frontend")
+            except Exception as e:
+                print(f"Erro ao decodificar state: {e}")
 
-        frontend_url += f"?token={jwt_token}"
-        return RedirectResponse(frontend_url)
+        # Fallback
+        if not frontend_url:
+            _, frontend_base = detect_environment(request)
+            frontend_url = f"{frontend_base}/login-success"
+
+        # Adiciona o token à URL
+        redirect_url = f"{frontend_url}?token={jwt_token}"
+        return RedirectResponse(redirect_url)
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        print(f"Erro no callback: {str(e)}")
+        _, frontend_base = detect_environment(request)
+        error_url = f"{frontend_base}/login-error?error={str(e)}"
+        return RedirectResponse(error_url)
