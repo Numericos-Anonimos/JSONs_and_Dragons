@@ -5,6 +5,7 @@ from Api.gdrive import upload_or_update, find_file_by_name
 from fastapi import APIRouter, HTTPException, Header
 from urllib.parse import unquote
 from jose import jwt
+from pydantic import BaseModel
 
 #   uvicorn Api.main:app --reload
 
@@ -13,6 +14,7 @@ router_ficha = APIRouter()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 BD_DIR = os.path.join(ROOT_DIR, "BD", "dnd_2014")
+CHARACTERS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), r"BD\characters")
 
 def carregar_json(nome_arquivo):
     caminho = os.path.join(BD_DIR, nome_arquivo)
@@ -265,3 +267,8 @@ def criar_ficha_raca(background: str):
     escolhas = encontrar_escolhas(operacoes)
 
     return escolhas
+
+
+if __name__ == "__main__":
+    atributos = AtributosInput(forca=15, destreza=14, constituicao=16, inteligencia=12, sabedoria=13, carisma=14)
+    criar_ficha_base(CriarFichaRequest(nome="Teste", atributos=atributos))
