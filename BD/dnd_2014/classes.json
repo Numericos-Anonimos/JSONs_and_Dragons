@@ -22,7 +22,7 @@
                             "operations": [
                                 { "action": "ADD_ITEM", "query": "items/name == 'Escudo'" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
+                                    "options": {"action": "REQUEST", "query": "/itens/armas/marcial/keys"},
                                     "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]
@@ -31,7 +31,7 @@
                             "label": "Duas Armas Marciais",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
+                                    "options": {"action": "REQUEST", "query": "/itens/armas/marcial/keys"},
                                     "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                                 }
                             ]
@@ -49,7 +49,7 @@
                             "label": "Arma Simples Corpo-a-Corpo",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples Corpo-a-Corpo",
-                                    "options": {"action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == 'simple' AND metadata.melee == true/name"},
+                                    "options": {"action": "REQUEST", "query": "/itens/armas/simples/keys"},
                                     "operations": [{"action": "ADD_ITEM", "name": "{THIS}", "query": "items/name == '{THIS}'"}]
                                 }
                             ]
@@ -179,7 +179,7 @@
                     "operations": [
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
-                            "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'/name" },
+                            "options": { "action": "REQUEST", "query": "/subclasses/Paladino/keys" },
                             "operations": [{ "action": "SET", "property": "properties.Paladino.subclass", "formula": "{THIS}" }]
                         }
                     ]

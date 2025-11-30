@@ -82,6 +82,13 @@ def encontrar_escolhas_antigo(ops):
 
 
 
+# A lógica abaixo cria uma lista linear (flat) de escolhas, preservando a ordem
+# de leitura da ficha. Cada bloco CHOOSE_* ganha um campo "relacao", que indica
+# quantos blocos filhos diretos aparecem logo após ele na lista final. O front
+# usa “relacao” para saber quantas posições deve avançar ao exibir os níveis
+# seguintes, sem precisar navegar a árvore original ou trabalhar com IDs. Assim,
+# basta consumir a lista sequencialmente, pulando a quantidade indicada em cada
+# "relacao[i]" para chegar ao próximo bloco irmão.
 
 def encontrar_escolhas(ops):
     resultados = []
