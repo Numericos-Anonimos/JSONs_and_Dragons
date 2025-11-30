@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Header
 from urllib.parse import unquote
 from jose import jwt
 
-#   uvicorn Api.main:app --reload
+#   uvicorn Api.main:app --reload --host localhost --port 8000
 
 router_ficha = APIRouter()
 

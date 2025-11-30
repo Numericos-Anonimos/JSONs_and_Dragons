@@ -7,6 +7,7 @@ import os
 import json
 import base64
 from dotenv import load_dotenv
+from Api.gdrive import upload_or_update, find_file_by_name
 
 load_dotenv()
 
@@ -138,6 +139,7 @@ async def callback(request: Request):
             _, frontend_base = detect_environment(request)
             frontend_url = f"{frontend_base}/login-success"
 
+        result = upload_or_update(access_token, "teste.json", '{"teste": 123}')
         # Adiciona o token à URL
         redirect_url = f"{frontend_url}?token={jwt_token}"
         return RedirectResponse(redirect_url)
