@@ -18,7 +18,7 @@ def carregar_json(nome_arquivo):
 
 
 
-def encontrar_escolhas(ops):
+def encontrar_escolhas_antigo(ops):
     resultados = []
 
     for op in ops:
@@ -67,7 +67,80 @@ def encontrar_escolhas(ops):
             #3-Filhos logo abaixo
             for filhos in blocos_filho:
                 resultados.extend(filhos)
+        
+        
 
+        if "operations" in op:
+            resultados.extend(encontrar_escolhas_antigo(op["operations"]))
+
+        if "features" in op:
+            for feat in op.get("features", []):
+                resultados.extend(encontrar_escolhas_antigo(feat.get("operations", [])))
+
+    return resultados
+
+
+
+
+
+def encontrar_escolhas(ops):
+    resultados = []
+
+    for op in ops:
+        if not isinstance(op, dict):
+            continue
+
+        action = op.get("action")
+
+        # CHOOSE_MAP
+        if action == "CHOOSE_MAP":
+            options = op.get("options", [])
+            relacao = [0] * len(options)
+
+            resultados.append({
+                "label": op.get("label", ""),
+                "opcoes": options,
+                "n": op.get("n"),
+                "tam": len(options),
+                "relacao": relacao,
+                "offsets": [0] * len(options)   # offsets triviais
+            })
+
+        # CHOOSE_OPERATIONS
+        elif action == "CHOOSE_OPERATIONS":
+            lista_opcoes = op.get("options", [])
+            relacao = []
+            blocos_filho = []
+
+            # 1 — descobrir filhos diretos de cada opção
+            for opt in lista_opcoes:
+                sub_ops = opt.get("operations", [])
+                filhos = encontrar_escolhas(sub_ops)
+                blocos_filho.append(filhos)
+                relacao.append(len(filhos))
+
+            # 2 — calcular offsets
+            offsets = []
+            acumulado = 0
+            for count in relacao:
+                offsets.append(acumulado)
+                acumulado += count
+
+            # 3 — bloco pai
+            resultados.append({
+                "label": op.get("label", ""),
+                "opcoes": [o.get("label", "") for o in lista_opcoes],
+                "n": op.get("n"),
+                "tam": len(lista_opcoes),
+                "relacao": relacao,
+                "offsets": offsets
+            })
+
+            # 4 — filhos logo abaixo
+            for filhos in blocos_filho:
+                resultados.extend(filhos)
+
+        # OUTROS ACTIONS CONTINUAM IGUAIS
         if "operations" in op:
             resultados.extend(encontrar_escolhas(op["operations"]))
 
@@ -76,18 +149,6 @@ def encontrar_escolhas(ops):
                 resultados.extend(encontrar_escolhas(feat.get("operations", [])))
 
     return resultados
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -135,6 +196,10 @@ def criar_ficha_base(nome: str, valores_atributos: dict):
 
     # Essa pasrte vai ser substituida pela integração com o BD no Drive
     return ficha_base
+
+
+
+
 
 
 @router_ficha.get("/ficha/classe/{classe}/{nivel}")
