@@ -1,0 +1,32 @@
+{
+    "decisions": [
+        "Tony Starforge",
+        "Humano", // Chama lingua e subclasses
+        "Élfico",
+        "Humano (Variante)", // chama decisões
+        ["str", "dex"],
+        "Arcanismo",
+        "Agarrador",
+        "Acólito", // Background vai ter que vir pra antes
+        ["Anão", "Dracônico"],
+        "Livro de Orações",
+        "Paladino", // Primeira classe, chama nivel 0 e 1.
+        ["Atletismo", "Intuição"],
+        "Escudo e Arma Marcial",
+        "Espada Longa",
+        "Cinco Azagaias",
+        "Pacote de Sacerdote", // Fim do nivel 0
+        "Paladino", // Adicionando nivel 2, nivel 1 não tem escolhas.
+        "Defesa",
+        "Paladino", // Adicionando nivel 3
+        "Juramento da Devoção", // Importa a subclasse
+        "Paladino", // Adicionando nivel 4
+        "Aumento no Valor de Habilidade",
+        ["str", "str"]
+    ],
+    "state": {
+        "hp": 12,
+        "cura_pelas_maos": 5,
+        "sentido_divino": 1
+    }
+}
