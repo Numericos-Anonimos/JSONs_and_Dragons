@@ -14,5 +14,5 @@ jwt_token = os.getenv("JWT_TOKEN")
 data = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 access_token = data["google_access_token"]
 
-resultado = get_file_content(access_token, "teste.json")
+resultado = setup_drive_structure(access_token)
 print(resultado)

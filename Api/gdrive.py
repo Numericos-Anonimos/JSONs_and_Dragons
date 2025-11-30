@@ -89,6 +89,8 @@ def upload_specific_folders(access_token: str, local_bd_path: str, drive_bd_id: 
                     content = f.read()
                 upload_or_update(access_token, file, content, current_parent_id)
 
+
+
 def setup_drive_structure(access_token: str):
     """
     Cria pasta raiz e subpastas principais.
