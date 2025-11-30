@@ -1,7 +1,6 @@
 import requests
 import json
 
-
 def find_file_by_name(access_token: str, filename: str):
     url = "https://www.googleapis.com/drive/v3/files"
     params = {
@@ -44,5 +43,5 @@ def upload_or_update(access_token: str, filename: str, content: str):
     # Se não existe(cria o arquivo)
     url = "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
     r = requests.post(url, headers=headers, files=files)
-    
+
     return {"status": "created", "google": r.json()}
