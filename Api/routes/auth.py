@@ -139,7 +139,6 @@ async def callback(request: Request):
             _, frontend_base = detect_environment(request)
             frontend_url = f"{frontend_base}/login-success"
 
-        result = upload_or_update(access_token, "teste.json", '{"teste": 123}')
         # Adiciona o token à URL
         redirect_url = f"{frontend_url}?token={jwt_token}"
         return RedirectResponse(redirect_url)
