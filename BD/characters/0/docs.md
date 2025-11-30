@@ -1,6 +1,8 @@
+```json
 {
     "decisions": [
         "Tony Starforge",
+        []
         "Humano", // Chama lingua e subclasses
         "Élfico",
         "Humano (Variante)", // chama decisões
@@ -30,3 +32,4 @@
         "sentido_divino": 1
     }
 }
+```

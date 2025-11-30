@@ -1,0 +1,33 @@
+{
+    "decisions": [
+        "Tony Starforge",
+        [15, 12, 14, 8, 8, 14],
+        "Humano",
+        "Élfico",
+        "Humano (Variante)",
+        ["str", "dex"],
+        "Arcanismo",
+        "Agarrador",
+        "Acólito",
+        ["Anão", "Dracônico"],
+        "Livro de Orações",
+        "Paladino",
+        ["Atletismo", "Intuição"],
+        "Escudo e Arma Marcial",
+        "Espada Longa",
+        "Cinco Azagaias",
+        "Pacote de Sacerdote",
+        "Paladino",
+        "Defesa",
+        "Paladino",
+        "Juramento da Devoção",
+        "Paladino",
+        "Aumento no Valor de Habilidade",
+        ["str", "str"]
+    ],
+    "state": {
+        "hp": 12,
+        "cura_pelas_maos": 5,
+        "sentido_divino": 1
+    }
+}
