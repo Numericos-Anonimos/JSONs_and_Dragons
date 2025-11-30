@@ -6,6 +6,10 @@ from datetime import datetime, timedelta
 import os
 import json
 import base64
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 router = APIRouter()
 
