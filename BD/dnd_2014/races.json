@@ -2,18 +2,29 @@
     "Humano": {
         "features": [
             { "action": "SET", "property": "personal.race", "value": "Humano" },
-            {
-                "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                "options": {"action": "REQUEST", "query": "/subraca/Humano/keys"},
-                "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
-            },
             {"action": "SET", "property": "attributes.speed", "value": "9"},
             {"action": "SET", "property": "attributes.size", "value": "Médio"},  
             {"action": "IMPORT", "query": "features/name == 'Comum'"},
             {
-                "action": "CHOOSE_MAP", "n": 1, "label": "Idioma Adicional", 
-                "options": {"action": "REQUEST", "query": "base/idiomas/keys"},
-                "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
+                "name": "Idioma Adicional",
+                "operations":[
+                    {
+                        "action": "CHOOSE_MAP", "n": 1, "label": "Idioma Adicional", 
+                        "options": {"action": "REQUEST", "query": "base/idiomas/keys"},
+                        "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
+                    }
+                ]
+            },
+            {      
+                "name": "Subraça",
+                "operations":[
+                    {
+
+                        "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
+                        "options": {"action": "REQUEST", "query": "/subraca/Humano/keys"},
+                        "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+                    }
+                ]
             }
         ]
     },
@@ -56,10 +67,16 @@
                 "name": "Especialização em Rochas",
                 "description": "Sempre que você realizar um teste de Inteligência (História) relacionado à origem de um trabalho em pedra, você é considerado proficiente na perícia História e adiciona o dobro do seu bônus de proficiência ao teste, ao invés do seu bônus de proficiência normal."
             },
-            {
-                "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                "options": {"action": "REQUEST", "query": "/subraca/Anão/keys"},
-                "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+            {      
+                "name": "Subraça",
+                "operations":[
+                    {
+
+                        "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
+                        "options": {"action": "REQUEST", "query": "/subraca/Anão/keys"},
+                        "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+                    }
+                ]
             }
         ]
     },
@@ -87,10 +104,15 @@
                 "name": "Transe",
                 "description": "Elfos não precisam dormir. Em vez disso, eles meditam profundamente, permanecendo semiconscientes, durante 4 horas por dia."
             },
-            {
-                "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                "options": {"action": "REQUEST", "query": "/subraca/Elfo/keys"},
-                "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+            {   
+                "name": "Subraça",
+                "operations":[
+                    {
+                        "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
+                        "options": {"action": "REQUEST", "query": "/subraca/Elfo/keys"},
+                        "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+                    }
+                ]
             }
         ]
     }

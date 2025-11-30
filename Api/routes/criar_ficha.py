@@ -1,7 +1,12 @@
 import os
 import json
-from fastapi import APIRouter, HTTPException
+import requests
+from gdrive import upload_or_update, find_file_by_name
+from fastapi import APIRouter, HTTPException, Header
 from urllib.parse import unquote
+from jose import jwt
+
+from auth import get_current_user
 
 #   uvicorn Api.main:app --reload
 
@@ -167,7 +172,12 @@ def encontrar_escolhas(ops):
 
 
 @router_ficha.post("/ficha/") 
-def criar_ficha_base(nome: str, valores_atributos: dict):
+def criar_ficha_base(
+    nome: str, 
+    valores_atributos: dict,
+    authorization: str = Header(...)  # JWT enviado pelo frontend
+):
+    # Verifica se os atributos enviados são os esperados
     atributos_esperados = {"Força", "Destreza", "Constituição", "Inteligência", "Sabedoria", "Carisma"}
 
     if set(valores_atributos.keys()) != atributos_esperados:
@@ -176,6 +186,7 @@ def criar_ficha_base(nome: str, valores_atributos: dict):
             detail=f"Atributos inválidos. Esperado: {atributos_esperados}"
         )
 
+    # Monta a ficha base
     ficha_base = {
         "characterSheetVersion": "0.2",
         "characterName": nome,
@@ -185,8 +196,8 @@ def criar_ficha_base(nome: str, valores_atributos: dict):
         },
         "evolution": [
             {
-             "type": "BASE_CHARACTER",
-             "operations": [
+                "type": "BASE_CHARACTER",
+                "operations": [
                     {"action": "SET", "property": "Força_base",        "value": valores_atributos["Força"]},
                     {"action": "SET", "property": "Destreza_base",     "value": valores_atributos["Destreza"]},
                     {"action": "SET", "property": "Constituição_base", "value": valores_atributos["Constituição"]},
@@ -196,13 +207,34 @@ def criar_ficha_base(nome: str, valores_atributos: dict):
                 ]
             }
         ],
-        "inventory": {
-
-        }
+        "inventory": {}
     }
 
-    # Essa pasrte vai ser substituida pela integração com o BD no Drive
-    return ficha_base
+    # -------------------------------
+    # Integração com Google Drive
+    # -------------------------------
+    # Extrai o access_token do JWT
+    try:
+        token_jwt = authorization.split(" ")[1]  # Remove "Bearer "
+        payload = jwt.decode(token_jwt, os.getenv("JWT_SECRET"), algorithms=[os.getenv("JWT_ALGORITHM","HS256")])
+        access_token = payload.get("google_access_token")
+        if not access_token:
+            raise HTTPException(status_code=401, detail="Token do Google não encontrado no JWT")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"JWT inválido: {str(e)}")
+
+    # Define o nome do arquivo
+    filename = f"ficha_{nome}.json"
+    content = json.dumps(ficha_base)
+
+    # Cria ou atualiza o arquivo no Drive
+    resultado_drive = upload_or_update(access_token, filename, content)
+
+    # Retorna ficha e info do Drive
+    return {
+        "ficha": ficha_base,
+        "drive": resultado_drive
+    }
 
 
 
@@ -259,16 +291,39 @@ def criar_ficha_raca(raca: str):
     return escolhas
 
 
+@router_ficha.get("/ficha/subraca/{subraca}")
+def criar_ficha_raca(subraca: str):
+    dados = carregar_json("subraces.json")
+    subraca_decodificada = unquote(subraca)
+
+    if subraca_decodificada not in dados:
+        raise HTTPException(status_code=404, detail="Subraça não encontrada")
+
+    bloco = dados[subraca_decodificada]
+
+    # Pegando todas as operações que serão retornadas para o frontend
+    operacoes = []
+    operacoes.extend(bloco.get("operations", []))
+
+    for feat in bloco.get("features", []):
+        if "operations" in feat:
+            operacoes.extend(feat["operations"])
+
+    escolhas = encontrar_escolhas(operacoes)
+
+    return escolhas
+
+
 
 @router_ficha.get("/ficha/backgrounds/{background}")
 def criar_ficha_raca(background: str):
     dados = carregar_json("backgrounds.json")
-    background_decodificada = unquote(background)
+    background_decodificado = unquote(background)
 
-    if background_decodificada not in dados:
-        raise HTTPException(status_code=404, detail="Classe não encontrada")
+    if background_decodificado not in dados:
+        raise HTTPException(status_code=404, detail="Background não encontrado")
 
-    bloco = dados[background_decodificada][background]
+    bloco = dados[background_decodificado]
 
     #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
     operacoes = []
