@@ -64,7 +64,7 @@
                     ]
                 },
                 { "action": "ADD_ITEM", "query": "items/Cota de malha" },
-                { "action": "ADD_ITEM", "name": "Símbolo sagrado (Foco Arcano)", "query": "items/Símbolo Sagrado" }
+                { "action": "ADD_ITEM", "name": "Símbolo Sagrado (Foco Arcano)", "query": "items/Símbolo Sagrado" }
             ]
         },
         "level_1": {
@@ -80,9 +80,10 @@
                     "operations": [{ "action": "SET", "property": "proficiency.weapon.{THIS}.multiplier", "value": 1 }]
                 },
                 {
-                    "action": "ADD_FEATURE",
+                    "action": "ADD_FEATURE", 
                     "name": "Sentido Divino",
                     "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem...",
+                    "counter": "resources.sentido_divino",
                     "operations": [
                         { "action": "SET", "property": "resources.sentido_divino", "type": "counter", "formula": "max(1, 1 + {attributes.cha.modifier})", "recoversOn": "long_rest" },
                         { "action": "ADD_ACTION", "name": "Sentido Divino", "cost": [{ "resource": "sentido_divino", "amount": 1}, {"action": "action"}]}
@@ -92,6 +93,7 @@
                     "action": "ADD_FEATURE",
                     "name": "Cura pelas Mãos",
                     "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
+                    "counter": "resources.cura_pelas_maos",
                     "operations": [
                         { "action": "SET", "property": "resources.cura_pelas_maos", "type": "counter", "formula": "5 * {properties.level.Paladino}", "recoversOn": "long_rest" },
                         { "action": "ADD_ACTION", "name": "Cura pelas Mãos", "cost": [{"resource": "cura_pelas_maos", "amount": "x"}, {"action": "action"}] }
@@ -102,17 +104,10 @@
         "level_2": {
             "operations": [
                 { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
-                {
-                    "action": "ADD_FEATURE",
-                    "name": "Estilo de Luta",
-                    "description": "Você adota um estilo de combate particular que será sua especialidade.",
-                    "operations": [
-                        { 
-                            "action": "CHOOSE_MAP", "n": 1, "label": "Estilo de Luta",
-                            "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/keys"},
-                            "operations": [{ "action": "IMPORT", "query": "features/{THIS}"}]
-                        }
-                    ]
+                { 
+                    "action": "CHOOSE_MAP", "n": 1, "label": "Estilo de Luta",
+                    "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/keys"},
+                    "operations": [{ "action": "IMPORT", "query": "features/{THIS}"}]
                 },
                 {
                     "action": "ADD_FEATURE",
@@ -168,6 +163,7 @@
                     "action": "ADD_FEATURE",
                     "name": "Canalizar Divindade",
                     "description": "Seu juramento permite que você canalize energia divina.",
+                    "counter": "resources.canalizar_divindade",
                     "operations": [
                         { 
                             "action": "INIT", "property": "resources.canalizar_divindade", 
@@ -192,14 +188,7 @@
         "level_4": {
             "operations": [
                 { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
-                {
-                    "action": "ADD_FEATURE",
-                    "name": "Incremento no Valor de Habilidade",
-                    "description": "Aumente um valor de habilidade em 2 ou dois em 1, ou escolha um talento.",
-                    "operations": [
-                        {"action": "Ability_Score_Improvement"}
-                    ]
-                }
+                {"action": "Ability_Score_Improvement"}
             ]
         },
         "level_5": {
@@ -240,14 +229,7 @@
         "level_8": {
             "operations": [
                 { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
-                {
-                    "action": "ADD_FEATURE",
-                    "name": "Incremento no Valor de Habilidade",
-                    "description": "Aumente um valor de habilidade em 2 ou dois em 1, ou escolha um talento.",
-                    "operations": [
-                        {"action": "Ability_Score_Improvement"}
-                    ]
-                }
+                {"action": "Ability_Score_Improvement"}
             ]
         },
         "level_9": {

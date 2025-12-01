@@ -698,6 +698,18 @@ class Character:
     def add_class(self, class_name: str, level: int):
         print(f"-> Adicionando Classe: {class_name} (Nível {level})")
         self.ficha.append({"action": "IMPORT", "query": f"classes/{class_name}/level_{level}"})
+
+        if level != 0:
+            hit_dice = self.db.query(f"classes/{class_name}/hit_dice")
+            if self.get_stat("properties.level") == 1: # MÁXIMO
+                self.ficha.append({"action": "SET", "property": "properties.hit_dice", "value": hit_dice})
+            else:
+                self.ficha.append({
+                    "action": "CHOOSE_MAP", "n": 1, "label": f"Pontos de Vida (D{hit_dice})",
+                    "options": [i for i in range(1, hit_dice + 1)],
+                    "operations": [{ "action": "INCREMENT", "property": "properties.hit_points", "formula": "{THIS}" }]
+                })
+
         self.required_decision = None 
         self.process_queue()
 
