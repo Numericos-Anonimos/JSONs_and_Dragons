@@ -83,9 +83,7 @@ class db_homebrew:
         return False
         
     def _apply_filter(self, data: Dict[str, Any], filter_str: str) -> Dict[str, Any]:
-        if filter_str == "keys":
-            return {key: key for key in data.keys()}
-        elif " AND " in filter_str:
+        if " AND " in filter_str:
             subparts = filter_str.split(" AND ")
             filtered_data = data
             for subpart in subparts: filtered_data = self._apply_filter(filtered_data, subpart.strip())
@@ -122,6 +120,7 @@ class db_homebrew:
         
         for i in range(1, len(parts)):
             part = parts[i]
+            if part == "keys": return list(current_data.keys())
             current_data = self.query_parts(part, current_data)
             if not current_data and i < len(parts) - 1: return {}
         return current_data if isinstance(current_data, dict) else {}
@@ -188,13 +187,14 @@ class ChooseMapOperation(Operation):
     operations: List[Dict] = []
     
     def _resolve_options(self):
-        print(f"zzzzzz {self.options}")
+        #print(f"zzzzzz {self.options}")
         if isinstance(self.options, list): return self.options
         elif isinstance(self.options, dict) and self.options.get("action") == "REQUEST":
-            print(f"zzzzzz {self.options}")
+            #print(f"zzzzzz {self.options}")
             query = self.options.get("query")
             result = self.personagem.db.query(query)
             if isinstance(result, dict): return list(result.keys())
+            #print(f"yyyyyy {result}")
             return result
         return []
 
@@ -203,9 +203,13 @@ class ChooseMapOperation(Operation):
         idx = self.personagem.n
         
         if idx >= len(decisions):
-            print(f"zzzzzz {self.options}")
+            #print(f"zzzzzz {self.options}")
             opcoes = self._resolve_options()
-            return {"label": self.label, "options": opcoes, "type": "choice", "limit": self.n}
+            return {
+                "label": self.label, 
+                "options": opcoes, 
+                "n": self.n
+            }
 
         escolha = decisions[idx]
         # Se n > 1, espera-se que a escolha seja uma lista de n itens
@@ -228,10 +232,14 @@ class ChooseOperationsOperation(Operation):
     def run(self):
         decisions = self.personagem.data.get("decisions", [])
         idx = self.personagem.n
-        labels = [opt.get("label") for opt in self.options]
+        options = [opt.get("label") for opt in self.options]
 
         if idx >= len(decisions):
-            return {"label": self.label, "options": labels, "type": "choice_ops"}
+            return {
+                "label": self.label, 
+                "options": options, 
+                "n": self.n
+            }
 
         escolha_label = decisions[idx]
         chosen_opt = next((opt for opt in self.options if opt["label"] == escolha_label), None)
@@ -334,9 +342,6 @@ class InitOperation(SetOperation):
         if get_nested(self.personagem.data, self.property) is None:
             super().run()
         return 1
-    
-class RequestOperation(Operation):
-    def run(self): return 1 
 
 class ImportOperation(Operation):
     query: str
@@ -415,16 +420,57 @@ class InitProficiencyOperation(Operation):
         
         return 1
 
+class AddItemOperation(Operation):
+    name: str
+    query: str
+    amount: int = 1
+    
+    def run(self):
+        # Busca o item
+        item = self.personagem.db.query(self.query)
+        item['nickname'] = self.name
+        item['amount'] = self.amount
+
+        return -1
+
+class AddSpellcastingOperation(Operation):
+    name: str
+    can_multiclass: bool = False
+    multiclass_formula: str = ""
+    spellcastig_modifier: str = ""
+    spell_save_dc: str = ""
+    spell_attack_modifier: str = ""
+    spells_prepared: str = ""
+    spells_known: str = ""
+    spellSlotsRecoverOn: str = ""
+    spellbook_query: str = ""
+    spellSlots: list[list[int]] = [[0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    
+    def run(self):
+        return -1
+
+class AddSpellOperation(Operation):
+    name: str
+    type: str
+    spellbook: str
+   
+    def run(self):
+        return -1
+
+class AddActionOperation(Operation):
+    name: str
+    cost: list[dict[str, Any]] = []
+
+    def run(self):
+        return -1
+
 class AddFeatureOperation(Operation):
     name: str
-    operations: list = []
-    def run(self):
-        if self.operations:
-             for op in reversed(self.operations): self.personagem.ficha.insert(0, op)
-        return 1
+    description: str
+    operations: list[dict[str, Any]] = []
 
-class GenericPass(Operation):
-    def run(self): return 1
+    def run(self):
+        return -1
 
 operations = {
     "INPUT": InputOperation,
@@ -432,14 +478,13 @@ operations = {
     "INCREMENT": IncrementOperation,
     "CHOOSE_MAP": ChooseMapOperation,
     "CHOOSE_OPERATIONS": ChooseOperationsOperation,
-    "REQUEST": GenericPass, 
     "IMPORT": ImportOperation,
     "FOR_EACH": ForEachOperation,
     "INIT_PROFICIENCY": InitProficiencyOperation,
-    "ADD_ITEM": GenericPass,
-    "ADD_SPELLCASTING": GenericPass,
-    "ADD_SPELL": GenericPass,
-    "ADD_ACTION": GenericPass,
+    "ADD_ITEM": AddItemOperation,
+    "ADD_SPELLCASTING": AddSpellcastingOperation,
+    "ADD_SPELL": AddSpellOperation,
+    "ADD_ACTION": AddActionOperation,
     "ADD_FEATURE": AddFeatureOperation,
 }
 
@@ -453,10 +498,12 @@ class Character:
         self.data = {
             "decisions": decisions if decisions else [],
             "state": {"hp": 0},
-            "proficiencies": {},
+            "proficiency": {},
             "attributes": {}, 
             "properties": {},
-            "personal": {}
+            "personal": {},
+            "spellbooks": {},
+            "inventory": {}
         }
         self.n = 0
         self.ficha = [{"action": "IMPORT", "query": "metadata/character"}]
@@ -472,9 +519,9 @@ class Character:
         self.process_queue()
 
     def process_queue(self):
-        self.required_decision = None
+        self.required_decision = {}
         while len(self.ficha) > 0:
-            if self.required_decision:
+            if self.required_decision != {}:
                 # print(f"(!) Processamento pausado. Aguardando: {self.required_decision['label']}")
                 break
 
@@ -577,6 +624,7 @@ def main():
     # Atletismo é STR. STR score 16 (+3). Proficiencia (nível 0 -> +2). Multiplicador 0 (inicial).
     # Bônus esperado: 3 + (2 * 0) = 3
     atletismo_bonus = personagem.get_stat("proficiency.skill.Atletismo.bonus")
+    print(f"Bônus de Força: {personagem.get_stat('attributes.str.bonus')}")
     print(f"Bônus Atletismo (Base): {atletismo_bonus}")
     print(f'Bônus de Proficiência: {personagem.get_stat("properties.proficiency")}')
 
