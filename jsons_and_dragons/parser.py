@@ -16,15 +16,14 @@ project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-# Agora a importação funcionará
 from Api.gdrive import get_file_content, ensure_path
 
-# Configuração de Caminhos Virtuais
+# Configuração
 ROOT_FOLDER = "JSONs_and_Dragons"
 DB_FOLDER = "BD"
 CHARACTERS_FOLDER = "Characters"
 
-# Utils (Mantidos iguais: get_nested, set_nested, resolve_value, interpolate_and_eval)
+# Utils (Mantidos)
 def get_nested(data: Dict, path: str, default: Any = None) -> Any:
     keys = path.split('.')
     curr = data
@@ -70,8 +69,7 @@ def interpolate_and_eval(text: str, context: Dict) -> Any:
         return int(interpolated)
     except ValueError: return interpolated
 
-# Banco de Dados ========================================================================
-
+# DB Handler (Mantido com a correção do extend)
 @dataclass
 class db_homebrew: 
     def __init__(self, endereço: str, access_token: str):
@@ -82,11 +80,7 @@ class db_homebrew:
     def _check_in_filter(self, target_value: Any, expected_value: str) -> bool:
         if not target_value: return False
         if isinstance(target_value, list):
-            return any(
-                (isinstance(item, dict) and item.get('name') == expected_value) or
-                (isinstance(item, str) and item == expected_value)
-                for item in target_value
-            )
+            return any((isinstance(item, dict) and item.get('name') == expected_value) or (isinstance(item, str) and item == expected_value) for item in target_value)
         if isinstance(target_value, str): return target_value == expected_value
         return False
         
@@ -94,19 +88,16 @@ class db_homebrew:
         if " AND " in filter_str:
             subparts = filter_str.split(" AND ")
             filtered_data = data
-            for subpart in subparts:
-                filtered_data = self._apply_filter(filtered_data, subpart.strip())
+            for subpart in subparts: filtered_data = self._apply_filter(filtered_data, subpart.strip())
             return filtered_data
         elif " == " in filter_str:
             path, expected_value_raw = filter_str.split(" == ", 1)
             expected_value = expected_value_raw.strip().strip("'")
-            path = path.strip()
-            return {key: value for key, value in data.items() if str(get_nested(value, path)) == expected_value}
+            return {key: value for key, value in data.items() if str(get_nested(value, path.strip())) == expected_value}
         elif " in " in filter_str:
             expected_value_raw, path_raw = filter_str.split(" in ", 1)
             expected_value = expected_value_raw.strip().strip("'")
-            path = path_raw.strip()
-            return {key: value for key, value in data.items() if self._check_in_filter(get_nested(value, path), expected_value)}
+            return {key: value for key, value in data.items() if self._check_in_filter(get_nested(value, path_raw.strip()), expected_value)}
         return data
 
     def query_parts(self, part: str, dados: Dict[str, Any]) -> Dict[str, Any]:
@@ -123,18 +114,12 @@ class db_homebrew:
     def query(self, query: str) -> Dict[str, Any]:
         parts = query.split("/")
         filename = f"{parts[0]}.json"
-        
-        # Tenta pegar o arquivo. Se falhar, retorna vazio silenciosamente para não poluir o log se o módulo não tiver o arquivo.
-        # Nota: O erro "Arquivo não encontrado" ainda pode ser printado pelo `get_file_content` se ele tiver prints internos.
         current_data = get_file_content(self.token, filename=filename, parent_id=self.folder_id)
-        
         if not current_data: return {}
-
         for i in range(1, len(parts)):
             part = parts[i]
             current_data = self.query_parts(part, current_data)
             if not current_data and i < len(parts) - 1: return {}
-        
         return current_data if isinstance(current_data, dict) else {}
 
 class db_handler(db_homebrew):
@@ -142,36 +127,25 @@ class db_handler(db_homebrew):
         self.token = access_token
         bd_root_id = ensure_path(self.token, [ROOT_FOLDER, DB_FOLDER])
         meta_content = get_file_content(self.token, filename="metadata.json", parent_id=bd_root_id)
-        
         list_endereços = meta_content.get('modules', []) if meta_content else []
         self.db_list = []
-        for endereço in list_endereços:
-            self.db_list.append(db_homebrew(endereço, self.token))
+        for endereço in list_endereços: self.db_list.append(db_homebrew(endereço, self.token))
 
     def query(self, query: str):
         response = {}
-        
         for db in self.db_list:
             resultado_parcial = db.query(query)
-            
             if resultado_parcial:
                 if not response:
                     response = resultado_parcial.copy() if isinstance(resultado_parcial, dict) else list(resultado_parcial)
                     continue
-
                 if isinstance(response, dict) and isinstance(resultado_parcial, dict):
-                    # Lógica de Merge Inteligente
                     for k, v in resultado_parcial.items():
-                        # Se a chave for "operations", nós EXTENDEMOS a lista em vez de sobrescrever
                         if k == "operations" and isinstance(v, list) and "operations" in response and isinstance(response["operations"], list):
                             response["operations"].extend(v)
-                        else:
-                            # Para outras chaves, comportamento padrão de update (sobrescreve)
-                            response[k] = v
-                            
+                        else: response[k] = v
                 elif isinstance(response, list) and isinstance(resultado_parcial, list):
                     response.extend(resultado_parcial)
-
         return response
 
 # Operações ========================================================================
@@ -187,12 +161,74 @@ class InputOperation(Operation):
     def run(self):
         decisions = self.personagem.data.get("decisions", [])
         n = self.personagem.n
-        if n >= len(decisions): return -1
+        
+        if n >= len(decisions): 
+            return {"label": self.property, "options": None, "type": "input"}
+            
         valor = decisions[n]
         set_nested(self.personagem.data, self.property, valor)
-        self.personagem.n += 1 # Consumiu uma decisão
+        self.personagem.n += 1 
         return 1
 
+class ChooseMapOperation(Operation):
+    n: int = 1
+    label: str = ""
+    options: Any = []
+    operations: List[Dict] = []
+    
+    def _resolve_options(self):
+        if isinstance(self.options, list): return self.options
+        elif isinstance(self.options, dict) and self.options.get("action") == "REQUEST":
+            query = self.options.get("query")
+            result = self.personagem.db.query(query)
+            if isinstance(result, dict): return list(result.keys())
+            return result
+        return []
+
+    def run(self):
+        decisions = self.personagem.data.get("decisions", [])
+        idx = self.personagem.n
+        
+        if idx >= len(decisions):
+            opcoes = self._resolve_options()
+            return {"label": self.label, "options": opcoes, "type": "choice", "limit": self.n}
+
+        escolha = decisions[idx]
+        itens_escolhidos = escolha if isinstance(escolha, list) else [escolha]
+        
+        novas_ops = []
+        for item in itens_escolhidos:
+            for op_template in self.operations:
+                op_str = json.dumps(op_template).replace("{THIS}", str(item))
+                novas_ops.append(json.loads(op_str))
+        
+        for op in reversed(novas_ops): self.personagem.ficha.insert(0, op)
+        self.personagem.n += 1
+        return 1
+
+class ChooseOperationsOperation(Operation):
+    n: int = 1
+    label: str = ""
+    options: list[Dict[str, Any]] = []
+    def run(self):
+        decisions = self.personagem.data.get("decisions", [])
+        idx = self.personagem.n
+        labels = [opt.get("label") for opt in self.options]
+
+        if idx >= len(decisions):
+            return {"label": self.label, "options": labels, "type": "choice_ops"}
+
+        escolha_label = decisions[idx]
+        chosen_opt = next((opt for opt in self.options if opt["label"] == escolha_label), None)
+        
+        if chosen_opt:
+            novas_ops = chosen_opt.get("operations", [])
+            for op in reversed(novas_ops): self.personagem.ficha.insert(0, op)
+        
+        self.personagem.n += 1
+        return 1
+
+# Operações Standard
 class SetOperation(Operation):
     property: str
     type: str = "value"
@@ -205,65 +241,23 @@ class SetOperation(Operation):
                 formula_str = self.formula
                 def computed_property(context): return interpolate_and_eval(formula_str, context)
                 set_nested(self.personagem.data, self.property, computed_property)
-            else:
-                set_nested(self.personagem.data, self.property, self.value)
-        # (Lógica simplificada para brevidade, mantendo a sua original de counter/list se necessário)
+            else: set_nested(self.personagem.data, self.property, self.value)
         return 1
             
 class IncrementOperation(Operation):
     property: str
     value: int = 1
     def run(self):
-        # Simplificação: Assume que já é int para teste. Expanda conforme sua lógica original.
         curr = get_nested(self.personagem.data, self.property, 0)
-        # Se for função, não dá pra incrementar fácil aqui sem resolver, 
-        # mas no seu caso de uso (atributos) geralmente é valor bruto antes de virar modifier.
-        if isinstance(curr, int) or isinstance(curr, float):
-             set_nested(self.personagem.data, self.property, curr + self.value)
+        if isinstance(curr, (int, float)): set_nested(self.personagem.data, self.property, curr + self.value)
         return 1
-
-class ChooseMapOperation(Operation):
-    n: int = 1
-    label: str = ""
-    options: Any = []
-    operations: List[Dict] = []
-    
-    def run(self):
-        decisions = self.personagem.data.get("decisions", [])
-        idx = self.personagem.n
-        if idx >= len(decisions): return -1
-
-        escolha = decisions[idx]
-        itens_escolhidos = escolha if isinstance(escolha, list) else [escolha]
-        
-        novas_ops = []
-        for item in itens_escolhidos:
-            for op_template in self.operations:
-                op_str = json.dumps(op_template).replace("{THIS}", str(item))
-                novas_ops.append(json.loads(op_str))
-        
-        for op in reversed(novas_ops):
-            self.personagem.ficha.insert(0, op)
-            
-        self.personagem.n += 1
-        return 1
-
-class ChooseOperationsOperation(Operation):
-    def run(self): return 1 # Placeholder
-
-class RequestOperation(Operation):
-    def run(self): return 1 # Placeholder
 
 class ImportOperation(Operation):
     query: str
     def run(self):
         entidade = self.personagem.db.query(self.query)
         novas_ops = entidade.get("operations", [])
-        if novas_ops:
-            # Importante: IMPORT adiciona ao final da fila (extend) ou inicio?
-            # Geralmente imports estruturais (como raça) vão pro final ou são processados na ordem.
-            # No seu design original parecia ser extend.
-            self.personagem.ficha.extend(novas_ops)
+        if novas_ops: self.personagem.ficha.extend(novas_ops)
         return 1
 
 class ForEachOperation(Operation):
@@ -281,9 +275,7 @@ class ForEachOperation(Operation):
                 op_str = json.dumps(op_template).replace("{THIS}", str(item))
                 novas_ops.append(json.loads(op_str))
         
-        # ForEach expande imediatamente
-        for op in reversed(novas_ops):
-            self.personagem.ficha.insert(0, op)
+        for op in reversed(novas_ops): self.personagem.ficha.insert(0, op)
         return 1
 
 class InitProficiencyOperation(Operation):
@@ -303,11 +295,9 @@ class AddFeatureOperation(Operation):
     operations: list = []
     def run(self):
         if self.operations:
-             for op in reversed(self.operations):
-                self.personagem.ficha.insert(0, op)
+             for op in reversed(self.operations): self.personagem.ficha.insert(0, op)
         return 1
 
-# Classes Genéricas para completar o dicionário
 class GenericPass(Operation):
     def run(self): return 1
 
@@ -317,7 +307,7 @@ operations = {
     "INCREMENT": IncrementOperation,
     "CHOOSE_MAP": ChooseMapOperation,
     "CHOOSE_OPERATIONS": ChooseOperationsOperation,
-    "REQUEST": RequestOperation,
+    "REQUEST": GenericPass, # REQUEST puro não faz nada no run, só dentro do Choose
     "IMPORT": ImportOperation,
     "FOR_EACH": ForEachOperation,
     "INIT_PROFICIENCY": InitProficiencyOperation,
@@ -335,7 +325,6 @@ class Character:
         self.access_token = access_token
         self.db = db_handler(self.access_token)
         
-        # Mock de persistência
         self.data = {
             "decisions": decisions if decisions else [],
             "state": {"hp": 0},
@@ -344,30 +333,67 @@ class Character:
             "properties": {},
             "personal": {}
         }
-        self.n = 0
+        self.n = 0 # Ponteiro de decisões
         self.ficha = [{"action": "IMPORT", "query": "metadata/character"}]
+        self.required_decision = None
 
         print(f"--- Iniciando processamento Character ID {id} ---")
-        while len(self.ficha) > 0:
-            if self.run_operation() == -1: break
+        self.process_queue()
 
     def add_race(self, race: str):
-        print(f"-> Adicionando Raça: {race}")
+        print(f"\n-> Adicionando Raça: {race}")
         self.ficha.append({"action": "IMPORT", "query": f"races/{race}"})
+        # Reset da decisão requerida caso estivesse travado antes, pois agora temos uma nova ação
+        self.required_decision = None 
+        self.process_queue()
+
+    def process_queue(self):
+        self.required_decision = None
         while len(self.ficha) > 0:
-            if self.run_operation() == -1: break
+            # Check de segurança para não processar se já estivermos esperando uma decisão
+            if self.required_decision:
+                print(f"(!) Processamento pausado. Aguardando: {self.required_decision['label']}")
+                break
+
+            result = self.run_operation()
+            
+            if isinstance(result, dict):
+                self.required_decision = result
+                print(f"(!) Decisão Necessária detectada: {result['label']}")
+                break 
+            
+            if result == -1:
+                print("(X) Erro fatal na operação.")
+                break
+        
+        if not self.ficha and not self.required_decision:
+            print("(v) Fila vazia. Processamento concluído.")
 
     def run_operation(self):
         if not self.ficha: return 1
+        
         op_data = self.ficha.pop(0)
-        # print(f"Executando: {op_data.get('action')}") # Debug limpo
+        op_args = op_data.copy()
+        action = op_args.pop("action", None)
         
-        action = op_data.get("action")
+        # Debug detalhado
+        param = op_args.get('property') or op_args.get('label') or op_args.get('query') or op_args.get('name') or ''
+        print(f"[N={self.n}] Exec: {action} - {param}")
+
         op_class = operations.get(action)
-        if not op_class: return 1
+        if not op_class: 
+            print(f"AVISO: Operação '{action}' não implementada.")
+            return 1
         
-        op_instance = op_class(personagem=self, **op_data)
-        return op_instance.run()
+        op_instance = op_class(personagem=self, **op_args)
+        result = op_instance.run()
+        
+        if isinstance(result, dict):
+            # Devolve para o topo da fila
+            print(f"    -> Pausando em {action} (Falta decisão {self.n})")
+            self.ficha.insert(0, op_data)
+            
+        return result
 
     def get_stat(self, path: str) -> Any:
         return resolve_value(get_nested(self.data, path), self.data)
@@ -379,33 +405,37 @@ def main():
     payload = jwt.decode(env_token, env_secret, algorithms=[os.getenv("JWT_ALGORITHM", "HS256")])
     google_access_token = payload.get("google_access_token")
 
-    # Ordem de Decisões:
-    # 1. Nome (INPUT)
-    # 2-7. Atributos (FOR_EACH INPUT)
-    # 8. Idioma (CHOOSE Humano)
-    # 9. Subraça (CHOOSE Humano)
-    decisoes = [
+    # MOCK 1: Apenas Nome e Atributos. SEM RAÇA.
+    decisoes_parciais = [
         "Tony Starforge",    
         15, 12, 14, 8, 8, 14,
-        "Humano",
-        "Anão",              
-        "Humano (Variante)",
-        ["str", "cha"],
-        "Arcanismo",
-        "Agarrador",
+        "Anão"
     ]
     
-    personagem = Character(0, access_token=google_access_token, decisions=decisoes)
+    print("\n--- TESTE 1: Inicialização ---")
+    personagem = Character(0, access_token=google_access_token, decisions=decisoes_parciais)
     
-    # Verifica se os atributos foram carregados ANTES de adicionar a raça
-    # Se isso estiver vazio, o IMPORT metadata/character falhou
-    print(f"\nEstado antes da Raça: {personagem.data['attributes']}")
-
-    print("\n=== Adicionando Raça Humano ===")
+    # Aqui o processamento deve terminar com a fila vazia (pois metadata/character foi todo resolvido)
+    
+    print("\n--- TESTE 2: Adicionando Raça (Deve Pausar) ---")
     personagem.add_race("Humano")
     
-    print("\n=== Ficha Final ===")
+    # Esperado: Pausar em "Idioma Adicional"
+    if personagem.required_decision:
+        print(f"\n>> JSON RETORNO: {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
+    else:
+        print("\n>> ERRO: Não pausou onde deveria!")
+
+    print("\n--- TESTE 3: Retomada (Com Subraça) ---")
+    # Simulando o Frontend mandando tudo de novo + a nova escolha
+    personagem.data["decisions"] += ["Humano (Variante)"]
+    personagem.process_queue()
     pprint(personagem.data)
+    
+    # Esperado: Pausar em "Subraça"
+    if personagem.required_decision:
+        print(f"\n>> JSON RETORNO (Passo 2): {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
+        print(f"Decisões consumidas: {personagem.n} de {len(personagem.data['decisions'])}")
 
 if __name__ == "__main__":
     main()
