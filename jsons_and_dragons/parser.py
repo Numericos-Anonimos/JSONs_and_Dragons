@@ -77,39 +77,116 @@ class db_homebrew:
     def __init__(self, endereço: str, access_token: str):
         self.endereço = endereço
         self.token = access_token
-        # Cache simples do ID da pasta para não buscar toda vez
+        # O ID da pasta do módulo é essencial para carregar os JSONs
         self.folder_id = ensure_path(self.token, [ROOT_FOLDER, DB_FOLDER, self.endereço])
 
-    def query_parts(self, part: str, dados: Dict[str, Any]) -> Dict[str, Any]:
-        if "AND" in part:
-            subparts = part.split("AND")
+    # Lógica para verificar se o valor esperado está na lista
+    def _check_in_filter(self, target_value: Any, expected_value: str) -> bool:
+        if not target_value:
+            return False
+            
+        # O valor alvo pode ser uma lista (de strings ou objetos)
+        if isinstance(target_value, list):
+            return any(
+                (isinstance(item, dict) and item.get('name') == expected_value) or
+                (isinstance(item, str) and item == expected_value)
+                for item in target_value
+            )
+        
+        # Caso o alvo seja um valor único (string, int, etc.)
+        if isinstance(target_value, str):
+            return target_value == expected_value
+        
+        return False
+        
+    # Implementa a lógica de filtro complexo para um dicionário de entidades
+    def _apply_filter(self, data: Dict[str, Any], filter_str: str) -> Dict[str, Any]:
+        
+        # 1. Trata operadores AND recursivamente (para encadear filtros)
+        if " AND " in filter_str:
+            subparts = filter_str.split(" AND ")
+            filtered_data = data
             for subpart in subparts:
-                dados = self.query_parts(subpart, dados)
-        elif "=" in part: # Preciso de uma operação em todos os itens:
-            pass
-        elif "in" in part: # Preciso de uma operação em todos os itens:
-            pass
-        else:
-            dados = dados.get(part, {})
-        return dados        
+                filtered_data = self._apply_filter(filtered_data, subpart.strip())
+            return filtered_data
+            
+        # 2. Trata filtro de igualdade (Ex: metadata.type == 'fighting_style')
+        elif " == " in filter_str:
+            path, expected_value_raw = filter_str.split(" == ", 1)
+            expected_value = expected_value_raw.strip().strip("'")
+            path = path.strip()
+            
+            return {
+                key: value for key, value in data.items() 
+                if str(get_nested(value, path)) == expected_value
+            }
+        
+        # 3. Trata filtro de inclusão (Ex: 'paladin' in metadata.classes)
+        elif " in " in filter_str:
+            # Formato: 'valor' in path_do_valor
+            expected_value_raw, path_raw = filter_str.split(" in ", 1)
+            expected_value = expected_value_raw.strip().strip("'")
+            path = path_raw.strip()
+
+            return {
+                key: value for key, value in data.items() 
+                if self._check_in_filter(get_nested(value, path), expected_value)
+            }
+        
+        return data
+
+    # Lida com a aplicação do filtro e a extração do campo de retorno
+    def query_parts(self, part: str, dados: Dict[str, Any]) -> Dict[str, Any]:
+        
+        # Se a parte for um filtro complexo (e.g., com '==', 'in' e opcionalmente '/keys')
+        if "==" in part or " in " in part:
+            
+            # Divide o filtro do campo de retorno (se houver)
+            parts = part.rsplit('/', 1)
+            filter_only = parts[0]
+            return_field = parts[1] if len(parts) > 1 else None
+
+            filtered_data = self._apply_filter(dados, filter_only)
+            
+            # Se houver campo de retorno, mapeia os resultados
+            if return_field == 'keys':
+                # Retorna apenas as chaves (nomes das entidades)
+                return {key: key for key in filtered_data.keys()}
+            
+            # Se for um nome de campo específico, retorna o valor desse campo
+            if return_field:
+                return {key: get_nested(value, return_field.strip()) for key, value in filtered_data.items() if get_nested(value, return_field.strip()) is not None}
+                
+            return filtered_data
+        
+        # Se for um nome de campo simples (e.g., 'level_3') ou a chave de uma entidade (e.g., 'Humano')
+        return dados.get(part, {})
+
 
     def query(self, query: str) -> Dict[str, Any]:
         parts = query.split("/")
-        filename = f"{parts[0]}.json"
+        filename_base = parts[0]
+        filename = f"{filename_base}.json"
         
-        # Busca arquivo dentro da pasta do módulo (ex: dnd_2014)
-        dados = get_file_content(self.token, filename=filename, parent_id=self.folder_id)
+        # 1. Busca o arquivo base dentro da pasta do módulo (self.folder_id)
+        current_data = get_file_content(self.token, filename=filename, parent_id=self.folder_id)
         
-        if not dados:
+        if not current_data: 
+            # print(f"Erro: Arquivo '{filename}' não encontrado no Drive para o módulo '{self.endereço}'.")
             return {}
 
+        # 2. Itera sobre as partes restantes para filtrar ou acessar aninhadamente
         for i in range(1, len(parts)):
-            if isinstance(dados, dict):
-                dados = self.query_parts(parts[i], dados)
-            else:
+            part = parts[i]
+            
+            # A função query_parts lida com o acesso aninhado e a lógica de filtro complexo.
+            current_data = self.query_parts(part, current_data)
+            
+            # Se a query_parts retornar um dict vazio, paramos o processamento
+            if not current_data and i < len(parts) - 1:
                 return {}
-                
-        return dados if isinstance(dados, dict) else {}
+        
+        return current_data if isinstance(current_data, dict) else {}
 
 class db_handler(db_homebrew):
     def __init__(self, access_token: str):
@@ -157,6 +234,7 @@ class Operation:
             self.personagem: 'Character' = kwargs.pop("personagem")
         for key, value in kwargs.items():
             setattr(self, key, value)
+
     def run(self): pass
 
 class InputOperation(Operation):
@@ -164,8 +242,11 @@ class InputOperation(Operation):
 
     def run(self):
         decisions = self.personagem.data.get("decisions", [])
-        if not decisions: return
-        valor = decisions.pop(0)
+        n = self.personagem.data.n
+        if not decisions: return {
+            "label": self.property,
+        }
+        valor = decisions[n]
         #print(f"-> INPUT '{self.property}': {valor}")
         set_nested(self.personagem.data, self.property, valor)
 
@@ -177,12 +258,64 @@ class SetOperation(Operation):
     recoversOn: str = "never"
 
     def run(self):
-        if self.formula is not None:
-            formula_str = self.formula
-            def computed_property(context): return interpolate_and_eval(formula_str, context)
-            set_nested(self.personagem.data, self.property, computed_property)
-        else:
-            set_nested(self.personagem.data, self.property, self.value)
+        if self.type == "value":
+            if self.formula is not None:
+                formula_str = self.formula
+                def computed_property(context): return interpolate_and_eval(formula_str, context)
+                set_nested(self.personagem.data, self.property, computed_property)
+            else:
+                set_nested(self.personagem.data, self.property, self.value)
+        elif self.type == "counter":
+            _used = f'{self.property}_used'
+            _recover = f'{self.property}_recover'
+            set_nested(self.personagem.data, _recover, self.recoversOn)
+            if self.formula is not None:
+                formula_str = self.formula
+                def computed_property(context): return interpolate_and_eval(formula_str, context)
+                set_nested(self.personagem.data, _used, 0)
+                set_nested(self.personagem.data, self.property, computed_property)
+            else:
+                set_nested(self.personagem.data, _used, 0)
+                set_nested(self.personagem.data, self.property, self.value)
+        elif self.type == "list":
+            value = self.value if isinstance(self.value, list) else [self.value]
+            set_nested(self.personagem.data, self.property, value)
+
+            
+class IncrementOperation(Operation):
+    property: str
+    type: str = ""
+    value: int = 1
+    formula: str = None
+    recoversOn: str = "never"
+
+    def run(self):
+        # Se a propriedade existe, pega o type (tem used? ou value é lista)
+        if not hasattr(self.personagem.data, self.property):
+            # Se não existe, mas tem type, cria a propriedade usando o SET
+            if self.type != "":
+                op = SetOperation(property=self.property, type=self.type, value=self.value, formula=self.formula, recoversOn=self.recoversOn)
+                op.run()
+            else: return -1
+        else: # Existe
+            self.type = getattr(self.personagem.data, self.property).type
+            self.recoversOn = getattr(self.personagem.data, self.property).recoversOn
+            value = getattr(self.personagem.data, self.property)
+
+            if not callable(value) and self.formula is None:
+                value += self.value
+                op = SetOperation(personagem=self.personagem, property=self.property, type=self.type, value=value, formula=None, recoversOn=self.recoversOn)
+                op.run()
+            elif callable(value) and self.formula is None:
+                def computed_property(context): return value(context) + self.value
+                set_nested(self.personagem.data, self.property, computed_property)
+            elif not callable(value) and self.formula is not None:
+                formula_str = self.formula
+                def computed_property(context): return value + interpolate_and_eval(formula_str, context)
+                set_nested(self.personagem.data, self.property, computed_property)
+            else: 
+                formula_str = self.formula
+                def computed_property(context): return value(context) + interpolate_and_eval(formula_str, context)
 
 class ChooseMapOperation(Operation):
     n: int = 1
@@ -300,6 +433,7 @@ class AddFeatureOperation(Operation):
 operations = {
     "INPUT": InputOperation,
     "SET": SetOperation,
+    "INCREMENT": IncrementOperation,
     "CHOOSE_MAP": ChooseMapOperation,
     "CHOOSE_OPERATIONS": ChooseOperationsOperation,
     "REQUEST": RequestOperation,
@@ -351,7 +485,7 @@ class Character:
             {"action": "IMPORT", "query": f"races/{race}"}
         )
 
-        while self.n < len(self.ficha):
+        while self.n < len(self.data['decisions']):
             resp = self.run_operation()
             if resp != -1:
                 return resp
@@ -370,7 +504,6 @@ class Character:
         op_instance = op_instance(personagem=self, **op_args)
 
         resp = op_instance.run()
-        self.n += 1
         return resp
 
     def get_stat(self, path: str) -> Any:
