@@ -335,8 +335,6 @@ class InitOperation(SetOperation):
             super().run()
         return 1
     
-# --- DEMAIS OPERAÇÕES ---
-
 class RequestOperation(Operation):
     def run(self): return 1 
 
@@ -382,7 +380,11 @@ class InitProficiencyOperation(Operation):
         InitOperation(personagem=self.personagem, property=path, type="str", value=self.roll).run()
 
         # Agora cria a formula bonus, de forma que caso mude o atributo ou o multiplicador ela atualize automaticamente.
-        def computed_property(context): return 1 # Placeholder
+        def computed_property(context): 
+            atribute = "{" + f"attributes.{interpolate_and_eval(f"{{{path + ".attributes"}}}", context)}.bonus" + "}"
+            multiplier =  "{" + f"{path + ".multiplier"}" + "}"
+            formula_string = f"{atribute} + {{properties.proficiency}} * {multiplier}"
+            return interpolate_and_eval(formula_string, context)    
         set_nested(self.personagem.data, path + ".bonus", computed_property)
 
         return 1
