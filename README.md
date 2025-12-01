@@ -45,11 +45,6 @@ Para entender a estrutura dos JSONs de regras e a DSL (Domain Specific Language)
 - `/BD`: Diretório de dados. Aqui residem os módulos de regras (SRD, Homebrews) em formato JSON.
     
 - `/tests`: Testes unitários para garantir a integridade das regras.
-    
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas, especialmente na criação de novos arquivos JSON para expandir o SRD ou adicionar mecânicas novas ao Parser. Consulte a [Documentação Técnica](https://www.google.com/search?q=bd_docs.md "null") antes de submeter um PR.
 
 ## 📄 Licença
 
