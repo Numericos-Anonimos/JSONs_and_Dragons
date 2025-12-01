@@ -7,7 +7,7 @@ import os
 import json
 import base64
 from dotenv import load_dotenv
-from Api.gdrive import upload_or_update, find_file_by_name
+from Api.gdrive import upload_or_update, find_file_by_name, setup_drive_structure
 
 load_dotenv()
 
@@ -108,6 +108,11 @@ async def callback(request: Request):
         if not user_info:
             raise HTTPException(status_code=400, detail="Failed to fetch user info from Google")
 
+        # Configura a estrutura inicial do Drive
+        if access_token:
+            pastas_ids = setup_drive_structure(access_token)
+
+
         jwt_token = jwt.encode(
             {
                 "sub": user_info["email"],
@@ -116,6 +121,10 @@ async def callback(request: Request):
                 "google_access_token": access_token,
                 "google_refresh_token": refresh_token,
                 "exp": datetime.utcnow() + timedelta(hours=24),
+
+                "root_id": pastas_ids.get("root") if access_token else None,
+                "bd_id": pastas_ids.get("bd") if access_token else None,
+                "characters_id": pastas_ids.get("characters") if access_token else None,
             },
             JWT_SECRET,
             algorithm=JWT_ALGORITHM,
