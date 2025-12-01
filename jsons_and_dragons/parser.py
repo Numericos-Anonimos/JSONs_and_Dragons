@@ -372,21 +372,47 @@ class InitProficiencyOperation(Operation):
     roll: str = "N"
 
     def run(self):
-        path = f'proficiencies.{self.category}.{self.name}'
+        nome = interpolate_and_eval(self.name, self.personagem.data)
+        path = f"proficiency.{self.category}.{nome}"
+        
+        prof_data = {
+            "attribute": self.attributes,
+            "multiplier": self.multiplier,
+            "roll": self.roll
+        }
+        set_nested(self.personagem.data, path, prof_data)
+        
+        cat_cap = self.category
+        name_cap = nome
 
-        # Precisamos dar 3 inits: multiplier, attributes e roll
-        InitOperation(personagem=self.personagem, property=path, type="int", value=self.multiplier).run()
-        InitOperation(personagem=self.personagem, property=path, type="str", value=self.attributes).run()
-        InitOperation(personagem=self.personagem, property=path, type="str", value=self.roll).run()
+        # Função reativa para calcular o bônus
+        def computed_bonus(context):
+            # 1. Recupera o objeto da perícia atual do contexto (para pegar multiplier atualizado)
+            p_data = get_nested(context, f"proficiency.{cat_cap}.{name_cap}")
+            if not p_data: return 0
+            
+            # 2. Descobre qual atributo usar e qual o multiplicador atual
+            attr_key = p_data.get("attribute")
+            mult = p_data.get("multiplier", 0)
+            
+            # 3. Busca o modificador do atributo (resolvendo recursivamente se for função)
+            attr_mod = 0
+            if attr_key:
+                raw_mod = get_nested(context, f"attributes.{attr_key}.modifier")
+                attr_mod = resolve_value(raw_mod, context)
+            
+            # 4. Busca o bônus de proficiência global
+            pb = resolve_value(get_nested(context, "properties.proficiency"), context)
+            
+            # 5. Calcula: Mod + (PB * Multiplier)
+            try:
+                return int(int(attr_mod) + (int(pb) * float(mult)))
+            except (ValueError, TypeError):
+                return 0
 
-        # Agora cria a formula bonus, de forma que caso mude o atributo ou o multiplicador ela atualize automaticamente.
-        def computed_property(context): 
-            atribute = "{" + f"attributes.{interpolate_and_eval(f"{{{path + ".attributes"}}}", context)}.bonus" + "}"
-            multiplier =  "{" + f"{path + ".multiplier"}" + "}"
-            formula_string = f"{atribute} + {{properties.proficiency}} * {multiplier}"
-            return interpolate_and_eval(formula_string, context)    
-        set_nested(self.personagem.data, path + ".bonus", computed_property)
-
+        # Salva a função de bônus no caminho .bonus
+        set_nested(self.personagem.data, f"{path}.bonus", computed_bonus)
+        
         return 1
 
 class AddFeatureOperation(Operation):
@@ -427,7 +453,7 @@ class Character:
         self.data = {
             "decisions": decisions if decisions else [],
             "state": {"hp": 0},
-            "proficiencies": [],
+            "proficiencies": {},
             "attributes": {}, 
             "properties": {},
             "personal": {}
@@ -546,6 +572,18 @@ def main():
         print(f"\n>> JSON RETORNO (Passo 5): {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
     else:
         print("\n>> Não pausou, mas agora finalizado")
+
+    print("\n=== Teste de Bônus de Perícia ===")
+    # Atletismo é STR. STR score 16 (+3). Proficiencia (nível 0 -> +2). Multiplicador 0 (inicial).
+    # Bônus esperado: 3 + (2 * 0) = 3
+    atletismo_bonus = personagem.get_stat("proficiency.skill.Atletismo.bonus")
+    print(f"Bônus Atletismo (Base): {atletismo_bonus}")
+    print(f'Bônus de Proficiência: {personagem.get_stat("properties.proficiency")}')
+
+    print("-> Tornando proficiente em Atletismo...")
+    personagem.data["proficiency"]["skill"]["Atletismo"]["multiplier"] = 1
+    atletismo_bonus_novo = personagem.get_stat("proficiency.skill.Atletismo.bonus")
+    print(f"Bônus Atletismo (Proficiente): {atletismo_bonus_novo}") # Esperado: 3 + 2 = 5
 
 if __name__ == "__main__":
     main()
