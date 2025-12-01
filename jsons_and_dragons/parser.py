@@ -4,9 +4,7 @@ import sys
 import re
 import math
 from typing import List, Dict, Any, Union
-from dataclasses import dataclass
 from pprint import pprint
-from fastapi.param_functions import Query
 from jose import jwt
 from dotenv import load_dotenv
 load_dotenv()
@@ -23,7 +21,7 @@ ROOT_FOLDER = "JSONs_and_Dragons"
 DB_FOLDER = "BD"
 CHARACTERS_FOLDER = "Characters"
 
-# Utils (Originais restaurados)
+# Utils (Originais)
 def get_nested(data: Dict, path: str, default: Any = None) -> Any:
     keys = path.split('.')
     curr = data
@@ -71,7 +69,6 @@ def interpolate_and_eval(text: str, context: Dict) -> Any:
 
 # Banco de Dados ========================================================================
 
-@dataclass
 class db_homebrew: 
     def __init__(self, endereço: str, access_token: str):
         self.endereço = endereço
@@ -104,7 +101,6 @@ class db_homebrew:
         return data
 
     def query_parts(self, part: str, dados: Dict[str, Any]) -> Dict[str, Any]:
-        # Suporte a acesso direto (features/Comum) ou filtro (features/metadata.type == 'language')
         if "==" in part or " in " in part:
             parts = part.rsplit('/', 1)
             filter_only = parts[0]
@@ -118,6 +114,9 @@ class db_homebrew:
     def query(self, query: str) -> Dict[str, Any]:
         parts = query.split("/")
         filename = f"{parts[0]}.json"
+        
+        # Silencia erro de arquivo não encontrado na API se não existir
+        # (Assumindo que get_file_content já trata e retorna None)
         current_data = get_file_content(self.token, filename=filename, parent_id=self.folder_id)
         if not current_data: return {}
         
@@ -146,6 +145,7 @@ class db_handler(db_homebrew):
                     continue
                 if isinstance(response, dict) and isinstance(resultado_parcial, dict):
                     for k, v in resultado_parcial.items():
+                        # Lógica de merge para não perder operações
                         if k == "operations" and isinstance(v, list) and "operations" in response and isinstance(response["operations"], list):
                             response["operations"].extend(v)
                         else: response[k] = v
@@ -154,14 +154,18 @@ class db_handler(db_homebrew):
         return response
 
 # Operações ========================================================================
-@dataclass
+
+# Removido @dataclass para evitar conflito com __init__ customizado e herança
 class Operation:
     def __init__(self, **kwargs: dict[str, Any]):
-        if "personagem" in kwargs: self.personagem: 'Character' = kwargs.pop("personagem")
-        for key, value in kwargs.items(): setattr(self, key, value)
+        if "personagem" in kwargs: 
+            self.personagem: 'Character' = kwargs.pop("personagem")
+        for key, value in kwargs.items(): 
+            setattr(self, key, value)
+            
     def run(self): pass
 
-# --- OPERAÇÕES QUE PAUSAM (RETORNAM DICT) ---
+# --- OPERAÇÕES QUE PAUSAM ---
 
 class InputOperation(Operation):
     property: str
@@ -184,8 +188,10 @@ class ChooseMapOperation(Operation):
     operations: List[Dict] = []
     
     def _resolve_options(self):
+        print(f"zzzzzz {self.options}")
         if isinstance(self.options, list): return self.options
         elif isinstance(self.options, dict) and self.options.get("action") == "REQUEST":
+            print(f"zzzzzz {self.options}")
             query = self.options.get("query")
             result = self.personagem.db.query(query)
             if isinstance(result, dict): return list(result.keys())
@@ -197,10 +203,12 @@ class ChooseMapOperation(Operation):
         idx = self.personagem.n
         
         if idx >= len(decisions):
+            print(f"zzzzzz {self.options}")
             opcoes = self._resolve_options()
             return {"label": self.label, "options": opcoes, "type": "choice", "limit": self.n}
 
         escolha = decisions[idx]
+        # Se n > 1, espera-se que a escolha seja uma lista de n itens
         itens_escolhidos = escolha if isinstance(escolha, list) else [escolha]
         
         novas_ops = []
@@ -234,8 +242,6 @@ class ChooseOperationsOperation(Operation):
         self.personagem.n += 1
         return 1
 
-# --- OPERAÇÕES REATIVAS (SET E INCREMENT ORIGINAIS COM CORREÇÃO) ---
-
 class SetOperation(Operation):
     property: str
     type: str = "value"
@@ -264,8 +270,8 @@ class SetOperation(Operation):
                 set_nested(self.personagem.data, _used, 0)
                 set_nested(self.personagem.data, self.property, self.value)
         elif self.type == "list":
+            # Lógica de lista corrigida: append/extend seguro
             current_val = get_nested(self.personagem.data, self.property)
-            # Garante que seja lista para append, ou cria nova
             lista_atual = current_val if isinstance(current_val, list) else []
             novos_valores = self.value if isinstance(self.value, list) else [self.value]
             lista_atual.extend(novos_valores)
@@ -281,54 +287,54 @@ class IncrementOperation(Operation):
     recoversOn: str = "never"
 
     def run(self):
-        # CORREÇÃO CRÍTICA: Passar self.personagem ao instanciar SetOperation
+        # 1. Busca o valor atual de forma segura
+        curr_obj = get_nested(self.personagem.data, self.property)
         
-        if not hasattr(self.personagem.data, self.property):
-            if self.type != "":
+        # 2. Se não existe, cria (delegando para SetOperation)
+        if curr_obj is None:
+            # Se não tem tipo definido, assume valor simples (0) + incremento
+            if self.type == "": 
+                # Caso de uso: incremento de valor bruto que não existia (ex: atributos se não iniciados)
+                set_nested(self.personagem.data, self.property, self.value)
+            else:
+                # Caso de uso: criar lista ou counter
                 op = SetOperation(
-                    personagem=self.personagem, # <--- AQUI ESTAVA O ERRO
+                    personagem=self.personagem,
                     property=self.property, type=self.type, value=self.value, formula=self.formula, recoversOn=self.recoversOn
                 )
                 op.run()
-            else: return -1
-        else: # Existe
-            curr_obj = get_nested(self.personagem.data, self.property)
-            
-            # Se for um valor simples (int/float) ou string, incrementa direto
-            # Se for função, precisa criar nova closure
-            
-            # Recupera metadados se existirem no objeto (difícil acessar dinamicamente se for int puro, 
-            # assumindo logica simplificada para valores numéricos básicos)
-            
+        else:
+            # 3. Se existe, incrementa
             if not callable(curr_obj) and self.formula is None:
-                # Incremento de valor estático
                 if isinstance(curr_obj, (int, float)):
                     new_val = curr_obj + self.value
-                    op = SetOperation(personagem=self.personagem, property=self.property, type=self.type, value=new_val)
-                    op.run()
+                    set_nested(self.personagem.data, self.property, new_val)
                 elif isinstance(curr_obj, list):
-                    # Increment em lista geralmente é append, mas SetOperation type=list já faz append
+                    # Incremento em lista = adicionar item
                     op = SetOperation(personagem=self.personagem, property=self.property, type="list", value=self.value)
                     op.run()
                     
             elif callable(curr_obj) and self.formula is None:
-                # Incremento sobre valor computado
                 def computed_property(context): return curr_obj(context) + self.value
                 set_nested(self.personagem.data, self.property, computed_property)
                 
             elif not callable(curr_obj) and self.formula is not None:
-                # Valor estático + Fórmula
                 formula_str = self.formula
                 def computed_property(context): return curr_obj + interpolate_and_eval(formula_str, context)
                 set_nested(self.personagem.data, self.property, computed_property)
             else: 
-                # Função + Fórmula
                 formula_str = self.formula
                 def computed_property(context): return curr_obj(context) + interpolate_and_eval(formula_str, context)
                 set_nested(self.personagem.data, self.property, computed_property)
                 
         return 1
 
+class InitOperation(SetOperation):
+    def run(self):
+        if get_nested(self.personagem.data, self.property) is None:
+            super().run()
+        return 1
+    
 # --- DEMAIS OPERAÇÕES ---
 
 class RequestOperation(Operation):
@@ -365,11 +371,20 @@ class InitProficiencyOperation(Operation):
     name: str
     attributes: str = None
     multiplier: int = 0
+    roll: str = "N"
+
     def run(self):
-        nome = interpolate_and_eval(self.name, self.personagem.data)
-        prof = {"name": nome, "category": self.category, "multiplier": self.multiplier}
-        if self.attributes: prof["attribute"] = self.attributes
-        self.personagem.data.setdefault("proficiencies", []).append(prof)
+        path = f'proficiencies.{self.category}.{self.name}'
+
+        # Precisamos dar 3 inits: multiplier, attributes e roll
+        InitOperation(personagem=self.personagem, property=path, type="int", value=self.multiplier).run()
+        InitOperation(personagem=self.personagem, property=path, type="str", value=self.attributes).run()
+        InitOperation(personagem=self.personagem, property=path, type="str", value=self.roll).run()
+
+        # Agora cria a formula bonus, de forma que caso mude o atributo ou o multiplicador ela atualize automaticamente.
+        def computed_property(context): return 1 # Placeholder
+        set_nested(self.personagem.data, path + ".bonus", computed_property)
+
         return 1
 
 class AddFeatureOperation(Operation):
@@ -431,6 +446,10 @@ class Character:
     def process_queue(self):
         self.required_decision = None
         while len(self.ficha) > 0:
+            if self.required_decision:
+                # print(f"(!) Processamento pausado. Aguardando: {self.required_decision['label']}")
+                break
+
             result = self.run_operation()
             
             if isinstance(result, dict):
@@ -456,7 +475,6 @@ class Character:
 
         op_class = operations.get(action)
         if not op_class: 
-            # print(f"AVISO: Operação '{action}' não implementada.")
             return 1
         
         op_instance = op_class(personagem=self, **op_args)
@@ -478,7 +496,6 @@ def main():
     payload = jwt.decode(env_token, env_secret, algorithms=[os.getenv("JWT_ALGORITHM", "HS256")])
     google_access_token = payload.get("google_access_token")
 
-    # MOCK 1: Apenas Nome e Atributos. SEM RAÇA.
     decisoes_parciais = [
         "Tony Starforge",    
         15, 12, 14, 8, 8, 14,
@@ -493,21 +510,40 @@ def main():
     
     if personagem.required_decision:
         print(f"\n>> JSON RETORNO: {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
-    
-    # Debug: Verificar se o idioma "Anão" foi adicionado corretamente
-    # pprint(personagem.data['attributes']) 
+    else:
+        print("\n>> ERRO: Não pausou onde deveria!")
 
     print("\n--- TESTE 3: Retomada (Com Subraça) ---")
     personagem.data["decisions"] += ["Humano (Variante)"]
     personagem.process_queue()
-    #pprint(personagem.data)
+    # pprint(personagem.data)
     
     if personagem.required_decision:
         print(f"\n>> JSON RETORNO (Passo 2): {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
 
+    # O Humano Variante escolhe 2 atributos para aumentar +1. Vamos escolher Str e Cha.
     personagem.data["decisions"] += [["str", "cha"]]
     personagem.process_queue()
-    #pprint(personagem.data)
+    
+    # Debug: Verificar se STR aumentou (era 15)
+    print(f"\nForça Final: {personagem.get_stat('attributes.str.score')}")
+
+    if personagem.required_decision:
+        print(f"\n>> JSON RETORNO (Passo 3): {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
+
+    personagem.data["decisions"] += ["Arcanismo", "Agarrador"]
+    personagem.process_queue()
+
+    if personagem.required_decision:
+        print(f"\n>> JSON RETORNO (Passo 4): {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
+
+    pprint(personagem.data)
+    personagem.process_queue()
+
+    if personagem.required_decision:
+        print(f"\n>> JSON RETORNO (Passo 5): {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
+    else:
+        print("\n>> Não pausou, mas agora finalizado")
 
 if __name__ == "__main__":
     main()
