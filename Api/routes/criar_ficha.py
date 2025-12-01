@@ -1,26 +1,27 @@
 import os
 import json
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Body
 from pydantic import BaseModel
 from jose import jwt
-from urllib.parse import unquote
+from typing import Any, List, Union
 
-# Importamos as funções novas do gdrive
-from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content, find_file_by_name
+# Importamos as funções do gdrive
+from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
+
+# Importamos o parser e a classe Character
+from parser import Character
 
 router_ficha = APIRouter()
 
-# --- Configuração de Caminhos Virtuais ---
-# Não usamos mais caminhos locais para escrita/leitura do Drive.
+# --- Configuração ---
 ROOT_FOLDER = "JSONs_and_Dragons"
-DB_FOLDER = "BD"
 CHARACTERS_FOLDER = "Characters"
+FILENAME_PKL = "character_state.pkl" # Arquivo que guardará a classe Python inteira
 
-# Helpers de Token
+# --- Helpers ---
 def get_access_token(auth_header: str):
     try:
         token_jwt = auth_header.split(" ")[1]
-        # Decodifica sem verificar assinatura ou verifique conforme sua env
         payload = jwt.decode(token_jwt, os.getenv("JWT_SECRET"), algorithms=[os.getenv("JWT_ALGORITHM", "HS256")])
         access_token = payload.get("google_access_token")
         if not access_token:
@@ -29,172 +30,175 @@ def get_access_token(auth_header: str):
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Erro de autenticação: {str(e)}")
 
-# Helper para ler JSON do Drive (simulando o carregar_json antigo)
-def carregar_json_drive(access_token, folder_path_list, filename):
-    # Encontra ID da pasta final
-    folder_id = ensure_path(access_token, folder_path_list)
-    content = get_file_content(access_token, filename=filename, parent_id=folder_id)
-    if content is None:
-        # Fallback ou erro
-        return {} 
-    return content
+def get_character_folder_id(access_token: str, char_id: int):
+    """Busca a pasta do personagem pelo ID numérico"""
+    # Caminho: JSONs_and_Dragons/Characters/{id}
+    # Nota: ensure_path pode ser lento se chamado toda vez. 
+    # Idealmente você guardaria o ID da pasta Characters em cache ou no JWT.
+    return ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(char_id)])
 
-# --- Modelos Pydantic ---
+def save_character_state(access_token: str, char_folder_id: str, character: Character):
+    """Salva a classe Python serializada no Drive"""
+    # Pega a string base64 do objeto (usando dill/pickle)
+    content_str = character.to_pickle_string()
+    
+    # Salva como arquivo de texto (pois é base64)
+    upload_or_update(access_token, FILENAME_PKL, content_str, parent_id=char_folder_id)
+    
+    # Opcional: Salvar também um JSON legível para debug/visualização no frontend
+    json_export = json.dumps(character.data, indent=4, ensure_ascii=False)
+    upload_or_update(access_token, "character_view.json", json_export, parent_id=char_folder_id)
+
+def load_character_state(access_token: str, char_id: int) -> Character:
+    """Baixa e restaura a classe Python do Drive"""
+    folder_id = get_character_folder_id(access_token, char_id)
+    
+    content_base64 = get_file_content(access_token, filename=FILENAME_PKL, parent_id=folder_id)
+    
+    if not content_base64:
+        raise HTTPException(status_code=404, detail=f"Personagem {char_id} não encontrado ou arquivo corrompido.")
+    
+    # Restaura o objeto e atualiza o token (pois o token salvo no arquivo estaria expirado)
+    character = Character.from_pickle_string(content_base64, access_token)
+    return character, folder_id
+
+# --- Modelos de Entrada ---
 class AtributosInput(BaseModel):
-    forca: int
-    destreza: int
-    constituicao: int
-    inteligencia: int
-    sabedoria: int
-    carisma: int
+    str: int
+    dex: int
+    con: int
+    int: int
+    wis: int
+    cha: int
 
 class CriarFichaRequest(BaseModel):
     nome: str
     atributos: AtributosInput
 
+class NextDecisionRequest(BaseModel):
+    decision: Any # Pode ser string, int, ou lista, dependendo do que o parser pede
+
+# --- Endpoints ---
+
 @router_ficha.post("/ficha/")
-def criar_ficha_base(dados: CriarFichaRequest, authorization: str = Header(...)):
+def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Header(...)):
     """
-    Cria a ficha direto no Google Drive do usuário.
+    1. Instancia o parser com nome e atributos.
+    2. Salva o estado atual (pausado na Raça provavelmente).
+    3. Retorna o ID.
     """
     access_token = get_access_token(authorization)
-    # 1. Garante estrutura de pastas: JSONs_and_Dragons/Characters
-    chars_folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER])
-
-    # 2. Encontrar o próximo ID disponível (listando pastas)
-    existing_folders = list_folders_in_parent(access_token, chars_folder_id)
-    ids = []
-    for f in existing_folders:
-        if f["name"].isdigit():
-            ids.append(int(f["name"]))
     
-    next_id = max(ids) + 1 if ids else 0
-
-    # 3. Cria a pasta do novo personagem
-    new_char_folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(next_id)])
-
-    # 4. Montar dados
-    decisions = [
+    # 1. Encontrar próximo ID (lógica simplificada, idealmente viria de um DB SQL)
+    chars_root_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER])
+    existing_folders = list_folders_in_parent(access_token, chars_root_id)
+    ids = [int(f["name"]) for f in existing_folders if f["name"].isdigit()]
+    next_id = max(ids) + 1 if ids else 1
+    
+    # 2. Prepara as decisões iniciais para o Parser
+    # Ordem esperada no seu main(): Nome -> Atributos
+    decisoes_iniciais = [
         dados.nome,
-        dados.atributos.forca, dados.atributos.destreza, dados.atributos.constituicao,
-        dados.atributos.inteligencia, dados.atributos.sabedoria, dados.atributos.carisma
+        dados.atributos.str, dados.atributos.dex, dados.atributos.con,
+        dados.atributos.int, dados.atributos.wis, dados.atributos.cha
     ]
-    character_data = {"decisions": decisions}
-    content_str = json.dumps(character_data, indent=4, ensure_ascii=False)
-
-    # 5. Upload do character.json na pasta recém criada
-    res = upload_or_update(access_token, "character.json", content_str, parent_id=new_char_folder_id)
-
+    
+    # 3. Instancia o Personagem
+    # Ele vai rodar o __init__, importar metadata e pausar quando precisar de algo (ex: Raça)
+    character = Character(id=next_id, access_token=access_token, decisions=decisoes_iniciais)
+    
+    # 4. Cria a pasta e Salva o Estado
+    char_folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(next_id)])
+    save_character_state(access_token, char_folder_id, character)
+    
     return {
         "id": next_id,
-        "message": "Personagem criado com sucesso no Google Drive!",
-        "drive_response": res
+        "message": "Ficha iniciada com sucesso.",
+        "current_status": character.required_decision # Provavelmente estará pedindo nada (fila vazia) ou algo do metadata
     }
 
-@router_ficha.get("/ficha/classe/{classe}/{nivel}")
-def criar_ficha_classe(classe: str, nivel: int):
-    dados = carregar_json("classes.json")
-    classe_decodificada = unquote(classe)
-
-    if classe_decodificada not in dados:
-        raise HTTPException(status_code=404, detail="Classe não encontrada")
-    level = f"level_{nivel}"
-    if level not in dados[classe_decodificada]:
-        raise HTTPException(status_code=400, detail="Nível inválido para a classe")
-
-    bloco = dados[classe_decodificada][level]
-
-    #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
-    operacoes = []
-    operacoes.extend(bloco.get("operations", []))
-
-    for feat in bloco.get("features", []):
-        if "operations" in feat:
-            operacoes.extend(feat["operations"])
-
-    escolhas = encontrar_escolhas(operacoes)
-
-    return escolhas
-
-@router_ficha.post("/ficha/raca/{raca}")
-def criar_ficha_raca(raca: str, personagem_id: int,authorization: str = Header(...)):
-
+@router_ficha.post("/ficha/{char_id}/next")
+def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str = Header(...)):
+    """
+    2. Recebe a resposta pendente, adiciona, processa e salva.
+    """
     access_token = get_access_token(authorization)
-
-    token_jwt = authorization.split(" ")[1]
-    payload = jwt.decode(token_jwt, os.getenv("JWT_SECRET"), algorithms=[os.getenv("JWT_ALGORITHM", "HS256")])
-    bd_id = payload.get("bd_id")
-
-    lista=list_folders_in_parent(access_token, bd_id)
-    id_pasta = next((item["id"] for item in lista if item.get("name") == "dnd_2014"), None)
-
-    dados = get_file_content(access_token, file_id=None, filename="races.json", parent_id=id_pasta)
-
-    raca_decodificada = unquote(raca)
-    if raca_decodificada not in dados:
-        raise HTTPException(status_code=404, detail="Raça não encontrada")
-
-    raca_selecionada = dados[raca_decodificada]
-
+    
+    # 1. Carregar Estado
+    character, folder_id = load_character_state(access_token, char_id)
+    
+    # 2. Adicionar a decisão recebida
+    # O parser consome a lista 'decisions' sequencialmente.
+    character.data["decisions"].append(payload.decision)
+    
+    # 3. Rodar a fila até a próxima pausa
+    character.process_queue()
+    
+    # 4. Salvar
+    save_character_state(access_token, folder_id, character)
+    
     return {
-        "raca": raca_decodificada,
-        "personagem_id": personagem_id,
-        "reposta": raca_selecionada
+        "required_decision": character.required_decision, # Se {}, acabou
+        "logs": "Decisão processada."
     }
 
+@router_ficha.post("/ficha/{char_id}/raca/{raca}")
+def definir_raca(char_id: int, raca: str, authorization: str = Header(...)):
+    """
+    3. Adiciona a Raça e processa.
+    """
+    access_token = get_access_token(authorization)
+    raca_decoded = unquote(raca)
+    
+    character, folder_id = load_character_state(access_token, char_id)
+    
+    # Método do seu parser que adiciona a operação de IMPORT raça na fila
+    character.add_race(raca_decoded)
+    
+    # O add_race chama o process_queue internamente no seu código,
+    # então ele já vai parar se a raça pedir sub-raça (Input/Choose)
+    
+    save_character_state(access_token, folder_id, character)
+    
+    return {
+        "message": f"Raça {raca_decoded} adicionada.",
+        "required_decision": character.required_decision
+    }
 
+@router_ficha.post("/ficha/{char_id}/background/{background}")
+def definir_background(char_id: int, background: str, authorization: str = Header(...)):
+    """
+    4. Adiciona Background e processa.
+    """
+    access_token = get_access_token(authorization)
+    bg_decoded = unquote(background)
+    
+    character, folder_id = load_character_state(access_token, char_id)
+    
+    character.add_background(bg_decoded)
+    
+    save_character_state(access_token, folder_id, character)
+    
+    return {
+        "message": f"Background {bg_decoded} adicionado.",
+        "required_decision": character.required_decision
+    }
 
-
-
-
-
-
-
-@router_ficha.get("/ficha/subraca/{subraca}")
-def criar_ficha_raca(subraca: str):
-    dados = carregar_json("subraces.json")
-    subraca_decodificada = unquote(subraca)
-
-    if subraca_decodificada not in dados:
-        raise HTTPException(status_code=404, detail="Subraça não encontrada")
-
-    bloco = dados[subraca_decodificada]
-
-    # Pegando todas as operações que serão retornadas para o frontend
-    operacoes = []
-    operacoes.extend(bloco.get("operations", []))
-
-    for feat in bloco.get("features", []):
-        if "operations" in feat:
-            operacoes.extend(feat["operations"])
-
-    escolhas = encontrar_escolhas(operacoes)
-
-    return escolhas
-
-@router_ficha.get("/ficha/backgrounds/{background}")
-def criar_ficha_raca(background: str):
-    dados = carregar_json("backgrounds.json")
-    background_decodificado = unquote(background)
-
-    if background_decodificado not in dados:
-        raise HTTPException(status_code=404, detail="Background não encontrado")
-
-    bloco = dados[background_decodificado]
-
-    #Pegando todas as operações que seram retornadas para o frontend(usuário ira escolher)
-    operacoes = []
-    operacoes.extend(bloco.get("operations", []))
-
-    for feat in bloco.get("features", []):
-        if "operations" in feat:
-            operacoes.extend(feat["operations"])
-
-    escolhas = encontrar_escolhas(operacoes)
-
-    return escolhas
-
-
-if __name__ == "__main__":
-    atributos = AtributosInput(forca=15, destreza=14, constituicao=16, inteligencia=12, sabedoria=13, carisma=14)
-    criar_ficha_base(CriarFichaRequest(nome="Teste", atributos=atributos))
+@router_ficha.post("/ficha/{char_id}/classe/{classe}/{nivel}")
+def definir_classe(char_id: int, classe: str, nivel: int, authorization: str = Header(...)):
+    """
+    5. Adiciona Classe/Nível e processa.
+    """
+    access_token = get_access_token(authorization)
+    classe_decoded = unquote(classe)
+    
+    character, folder_id = load_character_state(access_token, char_id)
+    
+    character.add_class(classe_decoded, nivel)
+    
+    save_character_state(access_token, folder_id, character)
+    
+    return {
+        "message": f"Classe {classe_decoded} (Nível {nivel}) adicionada.",
+        "required_decision": character.required_decision
+    }

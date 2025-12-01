@@ -6,6 +6,8 @@ import math
 from typing import List, Dict, Any, Union
 from pprint import pprint
 from jose import jwt
+import dill as pickle # Usamos dill para conseguir salvar as lambdas/funções
+import base64
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -744,6 +746,33 @@ class Character:
 
     def get_stat(self, path: str) -> Any:
         return resolve_value(get_nested(self.data, path), self.data)
+
+    def update_token(self, new_token: str):
+        """
+        Atualiza o token de acesso da instância e do banco de dados.
+        Essencial ao carregar um personagem salvo, pois o token antigo terá expirado.
+        """
+        self.access_token = new_token
+        if self.db:
+            self.db.token = new_token
+            # Atualiza tokens dos sub-bancos também
+            for db in self.db.db_list:
+                db.token = new_token
+
+    def to_pickle_string(self) -> str:
+        """Serializa o personagem inteiro para uma string base64"""
+        # Removemos temporariamente o required_decision para economizar espaço ou evitar recursão, se necessário
+        # mas com dill geralmente é tranquilo.
+        binary_data = pickle.dumps(self)
+        return base64.b64encode(binary_data).decode('utf-8')
+
+    @staticmethod
+    def from_pickle_string(pickle_str: str, new_token: str) -> 'Character':
+        """Recria o personagem a partir da string base64 e atualiza o token"""
+        binary_data = base64.b64decode(pickle_str.encode('utf-8'))
+        char = pickle.loads(binary_data)
+        char.update_token(new_token)
+        return char
 
 # Main =======================================================
 def main():
