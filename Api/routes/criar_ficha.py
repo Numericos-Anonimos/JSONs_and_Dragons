@@ -6,7 +6,7 @@ from jose import jwt
 from urllib.parse import unquote
 
 # Importamos as funções novas do gdrive
-from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
+from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content, find_file_by_name
 
 router_ficha = APIRouter()
 
@@ -58,7 +58,6 @@ def criar_ficha_base(dados: CriarFichaRequest, authorization: str = Header(...))
     Cria a ficha direto no Google Drive do usuário.
     """
     access_token = get_access_token(authorization)
-
     # 1. Garante estrutura de pastas: JSONs_and_Dragons/Characters
     chars_folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER])
 
@@ -117,27 +116,39 @@ def criar_ficha_classe(classe: str, nivel: int):
 
     return escolhas
 
-@router_ficha.get("/ficha/raca/{raca}")
-def criar_ficha_raca(raca: str):
-    dados = carregar_json("races.json")
-    raca_decodificada = unquote(raca)
+@router_ficha.post("/ficha/raca/{raca}")
+def criar_ficha_raca(raca: str, personagem_id: int,authorization: str = Header(...)):
 
+    access_token = get_access_token(authorization)
+
+    token_jwt = authorization.split(" ")[1]
+    payload = jwt.decode(token_jwt, os.getenv("JWT_SECRET"), algorithms=[os.getenv("JWT_ALGORITHM", "HS256")])
+    bd_id = payload.get("bd_id")
+
+    lista=list_folders_in_parent(access_token, bd_id)
+    id_pasta = next((item["id"] for item in lista if item.get("name") == "dnd_2014"), None)
+
+    dados = get_file_content(access_token, file_id=None, filename="races.json", parent_id=id_pasta)
+
+    raca_decodificada = unquote(raca)
     if raca_decodificada not in dados:
         raise HTTPException(status_code=404, detail="Raça não encontrada")
 
-    bloco = dados[raca_decodificada]
+    raca_selecionada = dados[raca_decodificada]
 
-    # Pegando todas as operações que serão retornadas para o frontend
-    operacoes = []
-    operacoes.extend(bloco.get("operations", []))
+    return {
+        "raca": raca_decodificada,
+        "personagem_id": personagem_id,
+        "reposta": raca_selecionada
+    }
 
-    for feat in bloco.get("features", []):
-        if "operations" in feat:
-            operacoes.extend(feat["operations"])
 
-    escolhas = encontrar_escolhas(operacoes)
 
-    return escolhas
+
+
+
+
+
 
 @router_ficha.get("/ficha/subraca/{subraca}")
 def criar_ficha_raca(subraca: str):
