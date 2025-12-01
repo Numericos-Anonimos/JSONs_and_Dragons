@@ -3,9 +3,10 @@ import os
 import sys
 import re
 import math
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from dataclasses import dataclass
 from pprint import pprint
+from fastapi.param_functions import Query
 from jose import jwt
 from dotenv import load_dotenv
 load_dotenv()
@@ -158,19 +159,9 @@ class Operation:
             setattr(self, key, value)
     def run(self): pass
 
-class ImportOperation(Operation):
-    query: str
-    def run(self):
-        # db agora já tem o token via personagem.db
-        dados = self.personagem.db.query(self.query)
-        novas_ops = dados.get("operations", [])
-        if novas_ops:
-            self.personagem.ficha.extend(novas_ops)
-        print(f"\n{novas_ops}")
-
-# ... (InputOperation, SetOperation, ForEachOperation, InitProficiencyOperation permanecem iguais)
 class InputOperation(Operation):
     property: str
+
     def run(self):
         decisions = self.personagem.data.get("decisions", [])
         if not decisions: return
@@ -180,8 +171,11 @@ class InputOperation(Operation):
 
 class SetOperation(Operation):
     property: str
+    type: str = "value"
     value: Any = None
-    formula: str = None
+    formula: str = None,
+    recoversOn: str = "never"
+
     def run(self):
         if self.formula is not None:
             formula_str = self.formula
@@ -190,9 +184,44 @@ class SetOperation(Operation):
         else:
             set_nested(self.personagem.data, self.property, self.value)
 
+class ChooseMapOperation(Operation):
+    n: int = 1
+    label: str = ""
+    options: Union[List[str], Dict[str, Any]] = []
+    operations: List[Dict]
+    
+    def run(self):
+        pass
+
+class ChooseOperationsOperation(Operation):
+    n: int = 1
+    label: str = ""
+    options: list[Dict[str, Any]] = []
+
+    def run(self):
+        pass
+
+class RequestOperation(Operation):
+    query: str
+    
+    def run(self):
+        pass
+
+class ImportOperation(Operation):
+    query: str
+    
+    def run(self):
+        # db agora já tem o token via personagem.db
+        dados = self.personagem.db.query(self.query)
+        novas_ops = dados.get("operations", [])
+        if novas_ops:
+            self.personagem.ficha.extend(novas_ops)
+        print(f"\n{novas_ops}")
+
 class ForEachOperation(Operation):
     list: List[str]
     operations: List[Dict]
+
     def run(self):
         items = self.list
         if isinstance(items, str):
@@ -220,6 +249,69 @@ class InitProficiencyOperation(Operation):
         current_profs = self.personagem.data.get("proficiencies", [])
         current_profs.append(prof_entry)
         self.personagem.data["proficiencies"] = current_profs
+
+class AddItemOperation(Operation):
+    name: str
+    query: str
+    amount: int = 1
+    
+    def run(self):
+        pass
+
+class AddSpellcastingOperation(Operation):
+    name: str
+    can_multiclass: bool = False
+    multiclass_formula: str = ""
+    spellcastig_modifier: str = ""
+    spell_save_dc: str = ""
+    spell_attack_modifier: str = ""
+    spells_prepared: str = ""
+    spells_known: str = ""
+    spellSlotsRecoverOn: str = ""
+    spellbook_query: str = ""
+    spellSlots: list[list[int]] = [[0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    
+    def run(self):
+        pass
+
+class AddSpellOperation(Operation):
+    name: str
+    type: str
+    spellbook: str
+   
+    def run(self):
+        pass
+
+class AddActionOperation(Operation):
+    name: str
+    cost: list[dict[str, Any]] = []
+
+    def run(self):
+        pass
+
+class AddFeatureOperation(Operation):
+    name: str
+    description: str
+    operations: list[dict[str, Any]] = []
+
+    def run(self):
+        pass
+
+operations = {
+    "INPUT": InputOperation,
+    "SET": SetOperation,
+    "CHOOSE_MAP": ChooseMapOperation,
+    "CHOOSE_OPERATIONS": ChooseOperationsOperation,
+    "REQUEST": RequestOperation,
+    "IMPORT": ImportOperation,
+    "FOR_EACH": ForEachOperation,
+    "INIT_PROFICIENCY": InitProficiencyOperation,
+    "ADD_ITEM": AddItemOperation,
+    "ADD_SPELLCASTING": AddSpellcastingOperation,
+    "ADD_SPELL": AddSpellOperation,
+    "ADD_ACTION": AddActionOperation,
+    "ADD_FEATURE": AddFeatureOperation,
+}
 
 # Personagem ========================================================================
 class Character:
@@ -261,6 +353,8 @@ class Character:
 
         while self.n < len(self.ficha):
             resp = self.run_operation()
+            if resp != -1:
+                return resp
         return resp
 
     def run_operation(self):
@@ -268,17 +362,16 @@ class Character:
         op_args = op_data.copy()
         action = op_args.pop("action", None)
 
-        match action:
-            case "IMPORT": op_instance = ImportOperation(personagem=self, **op_args)
-            case "INPUT": op_instance = InputOperation(personagem=self, **op_args)
-            case "SET": op_instance = SetOperation(personagem=self, **op_args)
-            case "FOR_EACH": op_instance = ForEachOperation(personagem=self, **op_args)
-            case "INIT_PROFICIENCY": op_instance = InitProficiencyOperation(personagem=self, **op_args)
-            case _: 
-                print(f"Aviso: Ação desconhecida '{action}'")
-                return
-        op_instance.run()
+        global operations
+        op_instance = operations.get(action, None)
+        if not op_instance:
+            print(f"Aviso: Ação desconhecida '{action}'")
+            return -1
+        op_instance = op_instance(personagem=self, **op_args)
+
+        resp = op_instance.run()
         self.n += 1
+        return resp
 
     def get_stat(self, path: str) -> Any:
         raw = get_nested(self.data, path)
