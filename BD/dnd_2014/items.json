@@ -597,7 +597,7 @@
             {"action": "ADD_ITEM", "query": "items/name == 'Kit de Disfarce'"}
         ]
     },
-    "Símbolo sagrado": {
+    "Símbolo Sagrado": {
         "metadata": { "type": "adventuring_gear", "price": 5 },
         "description": "Um símbolo sagrado é a representação de uma divindade ou um panteão."
     },

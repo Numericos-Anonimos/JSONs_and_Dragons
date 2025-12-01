@@ -20,10 +20,10 @@
                         {
                             "label": "Escudo e Arma Marcial",
                             "operations": [
-                                { "action": "ADD_ITEM", "query": "items/name == 'Escudo'" },
+                                { "action": "ADD_ITEM", "query": "items/Escudo" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "base/itens/armas/marcial/keys"},
-                                    "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
+                                    "options": {"action": "REQUEST", "query": "itens/metadata.category == 'Marcial'/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "itens/{THIS}"}]
                                 }
                             ]
                         },
@@ -31,8 +31,8 @@
                             "label": "Duas Armas Marciais",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "base/itens/armas/marcial/keys"},
-                                    "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
+                                    "options": {"action": "REQUEST", "query": "itens/metadata.category == 'Marcial'/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "itens/{THIS}"}]
                                 }
                             ]
                         }
@@ -43,14 +43,14 @@
                     "options": [
                         {
                             "label": "Cinco Azagaias",
-                            "operations": [{ "action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Azagaia'" }]
+                            "operations": [{ "action": "ADD_ITEM", "amount": 5, "query": "items/Azagaia" }]
                         },
                         {
                             "label": "Arma Simples Corpo-a-Corpo",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples Corpo-a-Corpo",
-                                    "options": {"action": "REQUEST", "query": "/itens/armas/simples/keys"},
-                                    "operations": [{"action": "ADD_ITEM", "name": "{THIS}", "query": "items/name == '{THIS}'"}]
+                                    "options": {"action": "REQUEST", "query": "itens/metadata.category == 'Simples'/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "itens/{THIS}"}]
                                 }
                             ]
                         }
@@ -59,12 +59,12 @@
                 { 
                     "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Equipamento Inicial C",
                     "options": [
-                        { "label": "Pacote de Sacerdote", "operations": [{ "action": "ADD_ITEM", "query": "items/name == 'Pacote de sacerdote'" }] },
-                        { "label": "Pacote de Aventureiro", "operations": [{ "action": "ADD_ITEM", "query": "items/name == 'Pacote de aventureiro'" }] }
+                        { "label": "Pacote de Sacerdote", "operations": [{ "action": "ADD_ITEM", "query": "items/Pacote de Sacerdote" }] },
+                        { "label": "Pacote de Aventureiro", "operations": [{ "action": "ADD_ITEM", "query": "items/Pacote de Aventureiro" }] }
                     ]
                 },
-                { "action": "ADD_ITEM", "query": "items/name == 'Cota de malha'" },
-                { "action": "ADD_ITEM", "name": "Símbolo sagrado (Foco Arcano)", "query": "items/name == 'Símbolo sagrado'" }
+                { "action": "ADD_ITEM", "query": "items/Cota de malha" },
+                { "action": "ADD_ITEM", "name": "Símbolo sagrado (Foco Arcano)", "query": "items/Símbolo Sagrado" }
             ]
         },
         "level_1": {
@@ -109,8 +109,8 @@
                     "operations": [
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Estilo de Luta",
-                            "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/name"},
-                            "operations": [{ "action": "IMPORT", "query": "features/name = '{THIS}'"}]
+                            "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/keys"},
+                            "operations": [{ "action": "IMPORT", "query": "features/{THIS}"}]
                         }
                     ]
                 },
@@ -130,7 +130,7 @@
                             "spells_prepared": "max(1, {attributes.cha.modifier} + floor({properties.level.Paladino} / 2))",
                             "spells_known": "infinity",
                             "spellSlotsRecoverOn": "long_rest",
-                            "spellbook_query": "spells/'Paladino' in metadata.classes",
+                            "spellbook_query": "spells/'Paladino' in metadata.classes/keys",
                             "spellSlots": [
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [2, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -181,12 +181,12 @@
                     "operations": [
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
-                            "options": { "action": "REQUEST", "query": "/subclasses/Paladino/keys" },
-                            "operations": [{ "action": "SET", "property": "properties.Paladino.subclass", "formula": "{THIS}" }]
+                            "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'/keys" },
+                            "operations": [{ "action": "SET", "property": "properties.Paladino.subclass", "value": "{THIS}" }]
                         }
                     ]
                 },
-                { "action": "IMPORT", "query": "subclasses/name = properties.Paladino.subclass/level_3" }
+                { "action": "IMPORT", "query": "subclasses/{properties.Paladino.subclass}/level_3" }
             ]
         },
         "level_4": {

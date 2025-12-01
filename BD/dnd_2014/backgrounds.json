@@ -6,17 +6,17 @@
             {
                 "action": "CHOOSE_MAP", "n": 2, "label": "Idiomas", 
                 "options": {"action": "REQUEST", "query": "base/idiomas/keys"},
-                "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
+                "operations": [{"action": "IMPORT", "query": "features/{THIS}"}]
             },
-            {"action": "ADD_ITEM", "query": "items/name == 'Símbolo sagrado'"},
+            {"action": "ADD_ITEM", "query": "items/Símbolo Sagrado"},
             {
                 "action": "CHOOSE_MAP", "n": 1, "label": "Livro de Orações ou Roda de Oração", 
                 "options": ["Livro de Orações", "Roda de Oração"],
-                "operations": [{"action": "ADD_ITEM", "query": "items/name == '{THIS}'"}]
+                "operations": [{"action": "ADD_ITEM", "query": "items/{THIS}"}]
             },
-            {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Varetas de Incenso'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Roupas Comuns'"},
-            {"action": "ADD_ITEM", "amount": 15, "query": "items/name == 'Moeda de Ouro'"},
+            {"action": "ADD_ITEM", "amount": 5, "query": "items/Varetas de Incenso"},
+            {"action": "ADD_ITEM", "query": "items/Roupas Comuns"},
+            {"action": "ADD_ITEM", "amount": 15, "query": "items/Moeda de Ouro"},
             {
                 "action": "ADD_FEATURE",
                 "name": "Abrigo dos Fiéis",

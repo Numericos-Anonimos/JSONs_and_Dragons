@@ -596,6 +596,50 @@ class AddFeatureOperation(Operation):
 
         return 1
 
+class AbilityScoreImprovementOperation(Operation):
+    def run(self):
+        # Injeta a lógica de decisão no topo da fila de processamento
+        self.personagem.ficha.insert(0, { 
+            "action": "CHOOSE_OPERATIONS", 
+            "n": 1, 
+            "label": "Aumento no Valor de Habilidade ou Talento",
+            "description": "Escolha aumentar seus atributos ou adquirir um novo talento.",
+            "options": [
+                {
+                    "label": "+2 em um Atributo", 
+                    "operations": [
+                        {
+                            "action": "CHOOSE_MAP", "n": 1, "label": "Escolha 1 atributo para receber +2", 
+                            "options": ["str", "dex", "con", "int", "wis", "cha"], 
+                            "operations": [{ "action": "INCREMENT", "property": "attributes.{THIS}.score", "value": 2 }]
+                        }
+                    ]
+                },
+                {
+                    "label": "+1 em dois Atributos", 
+                    "operations": [
+                        {
+                            "action": "CHOOSE_MAP", "n": 2, "label": "Escolha 2 atributos para receber +1", 
+                            "options": ["str", "dex", "con", "int", "wis", "cha"], 
+                            "operations": [{ "action": "INCREMENT", "property": "attributes.{THIS}.score", "value": 1 }]
+                        }
+                    ]
+                },
+                {
+                    "label": "Talento", 
+                    "operations": [
+                        {
+                            "action": "CHOOSE_MAP", "n": 1, "label": "Escolha um Talento", 
+                            "options": { "action": "REQUEST", "query": "feats/keys" },
+                            # MUDANÇA IMPORTANTE: IMPORT carrega as regras do talento (ex: Agarrador)
+                            "operations": [{ "action": "IMPORT", "query": "feats/{THIS}" }]
+                        }
+                    ]
+                }
+            ]
+        })
+        return 1
+
 operations = {
     "INPUT": InputOperation,
     "SET": SetOperation,
@@ -610,6 +654,7 @@ operations = {
     "ADD_SPELL": AddSpellOperation,
     "ADD_ACTION": AddActionOperation,
     "ADD_FEATURE": AddFeatureOperation,
+    "Ability_Score_Improvement": AbilityScoreImprovementOperation
 }
 
 # Personagem ========================================================================
@@ -639,6 +684,18 @@ class Character:
     def add_race(self, race: str):
         print(f"-> Adicionando Raça: {race}")
         self.ficha.append({"action": "IMPORT", "query": f"races/{race}"})
+        self.required_decision = None 
+        self.process_queue()
+
+    def add_background(self, background: str):
+        print(f"-> Adicionando Background: {background}")
+        self.ficha.append({"action": "IMPORT", "query": f"backgrounds/{background}"})
+        self.required_decision = None 
+        self.process_queue()
+
+    def add_class(self, class_name: str, level: int):
+        print(f"-> Adicionando Classe: {class_name} (Nível {level})")
+        self.ficha.append({"action": "IMPORT", "query": f"classes/{class_name}/level_{level}"})
         self.required_decision = None 
         self.process_queue()
 
@@ -755,6 +812,9 @@ def main():
     personagem.data["proficiency"]["skill"]["Atletismo"]["multiplier"] = 1
     atletismo_bonus_novo = personagem.get_stat("proficiency.skill.Atletismo.bonus")
     print(f"Bônus Atletismo (Proficiente): {atletismo_bonus_novo}") # Esperado: 3 + 2 = 5
+
+    personagem.data["decisions"] += [["Elfico", "Dracônico"], "Livro de Orações"]
+    personagem.add_background("Acólito")
 
     print("======== Personagem Finalizado ========")
     pprint(personagem.data)
