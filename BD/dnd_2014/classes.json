@@ -78,10 +78,9 @@
                 { 
                     "action": "FOR_EACH", "list": ["Simples", "Marciais"],
                     "operations": [{ "action": "SET", "property": "proficiency.weapon.{THIS}.multiplier", "value": 1 }]
-                }
-            ],
-            "features": [
+                },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Sentido Divino",
                     "description": "Com uma ação, você pode expandir sua consciência para detectar forças do mal e do bem...",
                     "operations": [
@@ -90,6 +89,7 @@
                     ]
                 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Cura pelas Mãos",
                     "description": "Você tem uma reserva de poder curativo que pode usar para restaurar pontos de vida.",
                     "operations": [
@@ -101,10 +101,9 @@
         },
         "level_2": {
             "operations": [
-                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 }
-            ],
-            "features": [
+                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Estilo de Luta",
                     "description": "Você adota um estilo de combate particular que será sua especialidade.",
                     "operations": [
@@ -116,6 +115,7 @@
                     ]
                 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Conjuração",
                     "description": "Você aprende a extrair magia divina através de meditação e oração.",
                     "operations": [
@@ -147,6 +147,7 @@
                     ]
                 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Destruição Divina",
                     "description": "Quando você atingir uma criatura com um ataque corpo-a-corpo com arma, você pode gastar um espaço de magia...",
                     "operations": [
@@ -157,14 +158,14 @@
         },
         "level_3": {
             "operations": [
-                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 }
-            ],
-            "features": [
+                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Saúde Divina",
                     "description": "A magia divina flui através de você tornando você imune a doenças."
                 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Canalizar Divindade",
                     "description": "Seu juramento permite que você canalize energia divina.",
                     "operations": [
@@ -174,6 +175,7 @@
                     ]
                 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Juramento Sagrado",
                     "description": "Você faz um juramento que torna-o um paladino para sempre.",
                     "operations": [
@@ -185,15 +187,13 @@
                     ]
                 },
                 { "action": "IMPORT", "query": "subclasses/name = properties.Paladino.subclass/level_3" }
-
             ]
         },
         "level_4": {
             "operations": [
-                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 }
-            ],
-            "features": [
+                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Incremento no Valor de Habilidade",
                     "description": "Aumente um valor de habilidade em 2 ou dois em 1, ou escolha um talento.",
                     "operations": [
@@ -204,10 +204,9 @@
         },
         "level_5": {
             "operations": [
-                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 }
-            ],
-            "features": [
+                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Ataque Extra",
                     "description": "Você pode atacar duas vezes, ao invés de uma, sempre que você realizar a ação de Ataque no seu turno.",
                     "operations":[
@@ -224,10 +223,9 @@
         },
         "level_6": {
             "operations": [
-                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 }
-            ],
-            "features": [
+                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Aura de Proteção",
                     "description": "Sempre que você ou uma criatura amigável a até 3 metros de você tiver que fazer um teste de resistência, aquela criatura ganha um bônus igual a seu modificador de Carisma."
                 }
@@ -241,10 +239,9 @@
         },
         "level_8": {
             "operations": [
-                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 }
-            ],
-            "features": [
+                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Incremento no Valor de Habilidade",
                     "description": "Aumente um valor de habilidade em 2 ou dois em 1, ou escolha um talento.",
                     "operations": [
@@ -261,10 +258,9 @@
         },
         "level_10": {
             "operations": [
-                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 }
-            ],
-            "features": [
+                { "action": "INCREMENT", "property": "properties.level.Paladino", "value": 1 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Aura de Coragem",
                     "description": "Você e as criaturas amigáveis dentro de um raio de 3 metros de você não podem ser amedrontadas enquanto você estiver consciente."
                 }

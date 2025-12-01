@@ -79,6 +79,19 @@ class db_homebrew:
         # Cache simples do ID da pasta para não buscar toda vez
         self.folder_id = ensure_path(self.token, [ROOT_FOLDER, DB_FOLDER, self.endereço])
 
+    def query_parts(self, part: str, dados: Dict[str, Any]) -> Dict[str, Any]:
+        if "AND" in part:
+            subparts = part.split("AND")
+            for subpart in subparts:
+                dados = self.query_parts(subpart, dados)
+        elif "=" in part: # Preciso de uma operação em todos os itens:
+            pass
+        elif "in" in part: # Preciso de uma operação em todos os itens:
+            pass
+        else:
+            dados = dados.get(part, {})
+        return dados        
+
     def query(self, query: str) -> Dict[str, Any]:
         parts = query.split("/")
         filename = f"{parts[0]}.json"
@@ -91,7 +104,7 @@ class db_homebrew:
 
         for i in range(1, len(parts)):
             if isinstance(dados, dict):
-                dados = dados.get(parts[i], {})
+                dados = self.query_parts(parts[i], dados)
             else:
                 return {}
                 
@@ -110,7 +123,6 @@ class db_handler(db_homebrew):
         list_endereços = []
         if meta_content:
             list_endereços = meta_content.get('modules', [])
-            print(f"aaaaaaaa{list_endereços}")
 
         self.db_list = []
         for endereço in list_endereços:
@@ -122,6 +134,8 @@ class db_handler(db_homebrew):
         response = {}
         for db in self.db_list:
             resultado_parcial = db.query(query)
+            if query == "races/Humano":
+                print(f"ccccccc {resultado_parcial}")
             for key, value in resultado_parcial.items():
                 if key not in response:
                     response[key] = value
@@ -150,9 +164,9 @@ class ImportOperation(Operation):
         # db agora já tem o token via personagem.db
         dados = self.personagem.db.query(self.query)
         novas_ops = dados.get("operations", [])
-        print(f"\n{novas_ops}")
         if novas_ops:
             self.personagem.ficha.extend(novas_ops)
+        print(f"\n{novas_ops}")
 
 # ... (InputOperation, SetOperation, ForEachOperation, InitProficiencyOperation permanecem iguais)
 class InputOperation(Operation):
@@ -161,7 +175,7 @@ class InputOperation(Operation):
         decisions = self.personagem.data.get("decisions", [])
         if not decisions: return
         valor = decisions.pop(0)
-        print(f"-> INPUT '{self.property}': {valor}")
+        #print(f"-> INPUT '{self.property}': {valor}")
         set_nested(self.personagem.data, self.property, valor)
 
 class SetOperation(Operation):
@@ -239,13 +253,20 @@ class Character:
         print(f"--- Iniciando processamento Character ID {id} ---")
         while self.n < len(self.ficha):
             self.run_operation()
-    
+
+    def add_race(self, race: str):
+        self.ficha.append(
+            {"action": "IMPORT", "query": f"races/{race}"}
+        )
+
+        while self.n < len(self.ficha):
+            resp = self.run_operation()
+        return resp
+
     def run_operation(self):
         op_data: Dict[str, Any] = self.ficha[self.n]
         op_args = op_data.copy()
         action = op_args.pop("action", None)
-
-        print(f"\n{op_data}")
 
         match action:
             case "IMPORT": op_instance = ImportOperation(personagem=self, **op_args)
@@ -286,7 +307,7 @@ def main():
     personagem = Character(0, access_token=google_access_token, decisions=decisoes_mock)
     #print(personagem.data)
    
-    print("\n=== Teste de Reatividade ===")
+    """print("\n=== Teste de Reatividade ===")
     str_mod_original = personagem.get_stat("attributes.str.modifier")
     print(f"Modificador de Força (Score 15): {str_mod_original}")
 
@@ -299,7 +320,10 @@ def main():
     print(f"Modificador de Força (Score 18): {str_mod_novo}")
     print(f"Save de Força (Baseado no mod): {str_save_novo}")
 
-    pprint(personagem.data)
+    pprint(personagem.data)"""
+
+    personagem.add_race("Humano")
+
 
 if __name__ == "__main__":
     main()

@@ -7,10 +7,9 @@
         "level_3": {
             "operations": [
                 { "action": "ADD_SPELL", "name": "Proteção contra o Bem e Mal", "type": "always_prepared", "spellbook": "Paladino" },
-                { "action": "ADD_SPELL", "name": "Santuário", "type": "always_prepared", "spellbook": "Paladino" }
-            ],
-            "features": [
+                { "action": "ADD_SPELL", "name": "Santuário", "type": "always_prepared", "spellbook": "Paladino" },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Canalizar Divindade: Arma Sagrada",
                     "description": "Com uma ação, você pode imbuir uma arma que você esteja empunhando com energia positiva. Por 1 minuto, você adiciona seu modificador de Carisma as jogadas de ataque feitas com essa arma (bônus mínimo de +1). A arma também emite luz plena num raio de 6 metros e penumbra mais 6 metros além. Se a arma ainda não for mágica, ela se torna mágica por essa duração.",
                     "operations": [
@@ -22,6 +21,7 @@
                     ]
                 },
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Canalizar Divindade: Expulsar o Profano",
                     "description": "Com uma ação, você apresenta seu símbolo sagrado e faz uma oração censurando corruptores e mortos-vivos. Cada corruptor ou morto-vivo que puder ver ou ouvir você e esteja a até 9 metros, deve realizar um teste de resistência de Sabedoria. Se a criatura falhar no teste de resistência, ela será expulsa por 1 minuto ou até sofrer dano.",
                     "operations": [
@@ -41,8 +41,9 @@
             ]
         },
         "level_7": {
-            "features": [
+            "operations": [
                 {
+                    "action": "ADD_FEATURE",
                     "name": "Aura de Devoção",
                     "description": "A partir do 7º nível, você e as criaturas amistosas a até 3 metros não podem ser enfeitiçadas enquanto você estiver consciente."
                 }

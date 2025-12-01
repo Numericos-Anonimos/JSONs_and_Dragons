@@ -1,11 +1,12 @@
 {
     "Humano": {
-        "features": [
+        "operations": [
             { "action": "SET", "property": "personal.race", "value": "Humano" },
-            {"action": "SET", "property": "attributes.speed", "value": "9"},
-            {"action": "SET", "property": "attributes.size", "value": "Médio"},  
-            {"action": "IMPORT", "query": "features/name == 'Comum'"},
+            { "action": "SET", "property": "attributes.speed", "value": "9"},
+            { "action": "SET", "property": "attributes.size", "value": "Médio"},  
+            { "action": "IMPORT", "query": "features/name == 'Comum'"},
             {
+                "action": "ADD_FEATURE",
                 "name": "Idioma Adicional",
                 "operations":[
                     {
@@ -16,6 +17,7 @@
                 ]
             },
             {      
+                "action": "ADD_FEATURE",
                 "name": "Subraça",
                 "operations":[
                     {
@@ -29,7 +31,7 @@
         ]
     },
     "Anão": {
-        "features": [
+        "operations": [
             { "action": "SET", "property": "personal.race", "value": "Anão" },
             { "action": "INCREMENT", "property": "attributes.con.score", "formula": 2 },
             { "action": "SET", "property": "attributes.speed", "value": "7.5"},
@@ -37,14 +39,17 @@
             { "action": "IMPORT", "query": "features/name == 'Comum'"},
             { "action": "IMPORT", "query": "features/name == 'Anão'"},
             {
+                "action": "ADD_FEATURE",
                 "name": "Visão no Escuro",
                 "description": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse na penumbra."
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Resiliência Anã",
                 "description": "Você tem vantagem em testes de resistência contra veneno e resistência contra dano de veneno."
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Treinamento de Combate Anão",
                 "operations": [
                     { "action": "SET", "property": "proficiency.weapon.Machado de Batalha.multiplier", "value": 1 },
@@ -54,6 +59,7 @@
                 ]
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Proficiência com Ferramentas",
                 "operations": [
                     {
@@ -64,10 +70,12 @@
                 ]
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Especialização em Rochas",
                 "description": "Sempre que você realizar um teste de Inteligência (História) relacionado à origem de um trabalho em pedra, você é considerado proficiente na perícia História e adiciona o dobro do seu bônus de proficiência ao teste, ao invés do seu bônus de proficiência normal."
             },
             {      
+                "action": "ADD_FEATURE",
                 "name": "Subraça",
                 "operations":[
                     {
@@ -81,7 +89,7 @@
         ]
     },
     "Elfo": {
-        "features": [
+        "operations": [
             { "action": "SET", "property": "personal.race", "value": "Elfo" },
             { "action": "INCREMENT", "property": "attributes.dex.score", "formula": 2 },
             { "action": "SET", "property": "attributes.speed", "value": "9"},
@@ -89,22 +97,27 @@
             { "action": "IMPORT", "query": "features/name == 'Comum'"},
             { "action": "IMPORT", "query": "features/name == 'Elfico'"},
             {
+                "action": "ADD_FEATURE",
                 "name": "Visão no Escuro",
                 "description": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse na penumbra."
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Sentidos Aguçados",
                 "operations": [{ "action": "SET", "property": "proficiency.skill.Percepção.multiplier", "value": 1 }]
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Ancestralidade Feérica",
                 "description": "Você tem vantagem em testes de resistência contra ser enfeitiçado e a magia não pode colocar você para dormir."
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Transe",
                 "description": "Elfos não precisam dormir. Em vez disso, eles meditam profundamente, permanecendo semiconscientes, durante 4 horas por dia."
             },
             {   
+                "action": "ADD_FEATURE",
                 "name": "Subraça",
                 "operations":[
                     {

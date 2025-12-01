@@ -36,10 +36,9 @@
         "metadata": { "race": "Anão" },
         "operations": [
             {"action": "SET", "property": "personal.subrace", "value": "Anão da Colina"},
-            {"action": "INCREMENT", "property": "attributes.wis.score", "formula": 1}
-        ],
-        "features": [
+            {"action": "INCREMENT", "property": "attributes.wis.score", "formula": 1},
             {
+                "action": "ADD_FEATURE",
                 "name": "Tenacidade Anã",
                 "description": "Seu máximo de pontos de vida aumenta em 1, e aumenta em 1 toda vez que você ganha um nível.",
                 "operations": [
@@ -68,6 +67,7 @@
                 "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Treinamento de Elfo com Armas",
                 "operations": [
                     { "action": "SET", "property": "proficiency.weapon.Espada Longa.multiplier", "value": 1 },
@@ -85,6 +85,7 @@
             {"action": "INCREMENT", "property": "attributes.wis.score", "formula": 1},
             {"action": "SET", "property": "attributes.speed", "value": "10.5"},
             {
+                "action": "ADD_FEATURE",
                 "name": "Treinamento de Elfo com Armas",
                 "operations": [
                     { "action": "SET", "property": "proficiency.weapon.Espada Longa.multiplier", "value": 1 },
@@ -94,6 +95,7 @@
                 ]
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Máscara da Natureza",
                 "description": "Você pode tentar se esconder mesmo quando estiver apenas levemente obscurecido por folhagem, chuva forte, neve caindo, névoa ou outro fenômeno natural."
             }
@@ -105,14 +107,17 @@
             {"action": "SET", "property": "personal.subrace", "value": "Elfo Negro (Drow)"},
             {"action": "INCREMENT", "property": "attributes.cha.score", "formula": 1},
             {
+                "action": "ADD_FEATURE",
                 "name": "Visão no Escuro Superior",
                 "description": "Sua visão no escuro tem raio de 36 metros."
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Sensibilidade à Luz Solar",
                 "description": "Você tem desvantagem nas jogadas de ataque e em testes de Sabedoria (Percepção) relacionados à visão quando você, o alvo do seu ataque, ou o que quer que você esteja tentando perceber, esteja sob luz solar direta."
             },
             {
+                "action": "ADD_FEATURE",
                 "name": "Treinamento de Drow com Armas",
                 "operations": [
                     { "action": "SET", "property": "proficiency.weapon.Rapieira.multiplier", "value": 1 },
