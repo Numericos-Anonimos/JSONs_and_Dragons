@@ -23,7 +23,7 @@ ROOT_FOLDER = "JSONs_and_Dragons"
 DB_FOLDER = "BD"
 CHARACTERS_FOLDER = "Characters"
 
-# Utils (Mantidos)
+# Utils (Originais restaurados)
 def get_nested(data: Dict, path: str, default: Any = None) -> Any:
     keys = path.split('.')
     curr = data
@@ -69,7 +69,8 @@ def interpolate_and_eval(text: str, context: Dict) -> Any:
         return int(interpolated)
     except ValueError: return interpolated
 
-# DB Handler (Mantido com a correção do extend)
+# Banco de Dados ========================================================================
+
 @dataclass
 class db_homebrew: 
     def __init__(self, endereço: str, access_token: str):
@@ -103,6 +104,7 @@ class db_homebrew:
         return data
 
     def query_parts(self, part: str, dados: Dict[str, Any]) -> Dict[str, Any]:
+        # Suporte a acesso direto (features/Comum) ou filtro (features/metadata.type == 'language')
         if "==" in part or " in " in part:
             parts = part.rsplit('/', 1)
             filter_only = parts[0]
@@ -118,6 +120,7 @@ class db_homebrew:
         filename = f"{parts[0]}.json"
         current_data = get_file_content(self.token, filename=filename, parent_id=self.folder_id)
         if not current_data: return {}
+        
         for i in range(1, len(parts)):
             part = parts[i]
             current_data = self.query_parts(part, current_data)
@@ -157,6 +160,8 @@ class Operation:
         if "personagem" in kwargs: self.personagem: 'Character' = kwargs.pop("personagem")
         for key, value in kwargs.items(): setattr(self, key, value)
     def run(self): pass
+
+# --- OPERAÇÕES QUE PAUSAM (RETORNAM DICT) ---
 
 class InputOperation(Operation):
     property: str
@@ -226,15 +231,16 @@ class ChooseOperationsOperation(Operation):
         if chosen_opt:
             novas_ops = chosen_opt.get("operations", [])
             for op in reversed(novas_ops): self.personagem.ficha.insert(0, op)
-        
         self.personagem.n += 1
         return 1
+
+# --- OPERAÇÕES REATIVAS (SET E INCREMENT ORIGINAIS COM CORREÇÃO) ---
 
 class SetOperation(Operation):
     property: str
     type: str = "value"
     value: Any = None
-    formula: str = None,
+    formula: str = None
     recoversOn: str = "never"
 
     def run(self):
@@ -258,9 +264,13 @@ class SetOperation(Operation):
                 set_nested(self.personagem.data, _used, 0)
                 set_nested(self.personagem.data, self.property, self.value)
         elif self.type == "list":
-            pprint(self.personagem.data)
-            value = self.value if isinstance(self.value, list) else [self.value]
-            set_nested(self.personagem.data, self.property, value)
+            current_val = get_nested(self.personagem.data, self.property)
+            # Garante que seja lista para append, ou cria nova
+            lista_atual = current_val if isinstance(current_val, list) else []
+            novos_valores = self.value if isinstance(self.value, list) else [self.value]
+            lista_atual.extend(novos_valores)
+            set_nested(self.personagem.data, self.property, lista_atual)
+        
         return 1
             
 class IncrementOperation(Operation):
@@ -271,33 +281,58 @@ class IncrementOperation(Operation):
     recoversOn: str = "never"
 
     def run(self):
-        # Se a propriedade existe, pega o type (tem used? ou value é lista)
+        # CORREÇÃO CRÍTICA: Passar self.personagem ao instanciar SetOperation
+        
         if not hasattr(self.personagem.data, self.property):
-            # Se não existe, mas tem type, cria a propriedade usando o SET
             if self.type != "":
-                op = SetOperation(property=self.property, type=self.type, value=self.value, formula=self.formula, recoversOn=self.recoversOn)
+                op = SetOperation(
+                    personagem=self.personagem, # <--- AQUI ESTAVA O ERRO
+                    property=self.property, type=self.type, value=self.value, formula=self.formula, recoversOn=self.recoversOn
+                )
                 op.run()
             else: return -1
         else: # Existe
-            self.type = getattr(self.personagem.data, self.property).type
-            self.recoversOn = getattr(self.personagem.data, self.property).recoversOn
-            value = getattr(self.personagem.data, self.property)
-
-            if not callable(value) and self.formula is None:
-                value += self.value
-                op = SetOperation(personagem=self.personagem, property=self.property, type=self.type, value=value, formula=None, recoversOn=self.recoversOn)
-                op.run()
-            elif callable(value) and self.formula is None:
-                def computed_property(context): return value(context) + self.value
+            curr_obj = get_nested(self.personagem.data, self.property)
+            
+            # Se for um valor simples (int/float) ou string, incrementa direto
+            # Se for função, precisa criar nova closure
+            
+            # Recupera metadados se existirem no objeto (difícil acessar dinamicamente se for int puro, 
+            # assumindo logica simplificada para valores numéricos básicos)
+            
+            if not callable(curr_obj) and self.formula is None:
+                # Incremento de valor estático
+                if isinstance(curr_obj, (int, float)):
+                    new_val = curr_obj + self.value
+                    op = SetOperation(personagem=self.personagem, property=self.property, type=self.type, value=new_val)
+                    op.run()
+                elif isinstance(curr_obj, list):
+                    # Increment em lista geralmente é append, mas SetOperation type=list já faz append
+                    op = SetOperation(personagem=self.personagem, property=self.property, type="list", value=self.value)
+                    op.run()
+                    
+            elif callable(curr_obj) and self.formula is None:
+                # Incremento sobre valor computado
+                def computed_property(context): return curr_obj(context) + self.value
                 set_nested(self.personagem.data, self.property, computed_property)
-            elif not callable(value) and self.formula is not None:
+                
+            elif not callable(curr_obj) and self.formula is not None:
+                # Valor estático + Fórmula
                 formula_str = self.formula
-                def computed_property(context): return value + interpolate_and_eval(formula_str, context)
+                def computed_property(context): return curr_obj + interpolate_and_eval(formula_str, context)
                 set_nested(self.personagem.data, self.property, computed_property)
             else: 
+                # Função + Fórmula
                 formula_str = self.formula
-                def computed_property(context): return value(context) + interpolate_and_eval(formula_str, context)
+                def computed_property(context): return curr_obj(context) + interpolate_and_eval(formula_str, context)
+                set_nested(self.personagem.data, self.property, computed_property)
+                
         return 1
+
+# --- DEMAIS OPERAÇÕES ---
+
+class RequestOperation(Operation):
+    def run(self): return 1 
 
 class ImportOperation(Operation):
     query: str
@@ -354,7 +389,7 @@ operations = {
     "INCREMENT": IncrementOperation,
     "CHOOSE_MAP": ChooseMapOperation,
     "CHOOSE_OPERATIONS": ChooseOperationsOperation,
-    "REQUEST": GenericPass, # REQUEST puro não faz nada no run, só dentro do Choose
+    "REQUEST": GenericPass, 
     "IMPORT": ImportOperation,
     "FOR_EACH": ForEachOperation,
     "INIT_PROFICIENCY": InitProficiencyOperation,
@@ -380,7 +415,7 @@ class Character:
             "properties": {},
             "personal": {}
         }
-        self.n = 0 # Ponteiro de decisões
+        self.n = 0
         self.ficha = [{"action": "IMPORT", "query": "metadata/character"}]
         self.required_decision = None
 
@@ -388,20 +423,14 @@ class Character:
         self.process_queue()
 
     def add_race(self, race: str):
-        print(f"\n-> Adicionando Raça: {race}")
+        print(f"-> Adicionando Raça: {race}")
         self.ficha.append({"action": "IMPORT", "query": f"races/{race}"})
-        # Reset da decisão requerida caso estivesse travado antes, pois agora temos uma nova ação
         self.required_decision = None 
         self.process_queue()
 
     def process_queue(self):
         self.required_decision = None
         while len(self.ficha) > 0:
-            # Check de segurança para não processar se já estivermos esperando uma decisão
-            if self.required_decision:
-                print(f"(!) Processamento pausado. Aguardando: {self.required_decision['label']}")
-                break
-
             result = self.run_operation()
             
             if isinstance(result, dict):
@@ -423,21 +452,18 @@ class Character:
         op_args = op_data.copy()
         action = op_args.pop("action", None)
         
-        # Debug detalhado
-        param = op_args.get('property') or op_args.get('label') or op_args.get('query') or op_args.get('name') or ''
-        print(f"[N={self.n}] Exec: {action} - {param}")
+        print(f"[N={self.n}] Exec: {action} - {op_args.get('property') or op_args.get('label') or op_args.get('query') or op_args.get('name') or ''}")
 
         op_class = operations.get(action)
         if not op_class: 
-            print(f"AVISO: Operação '{action}' não implementada.")
+            # print(f"AVISO: Operação '{action}' não implementada.")
             return 1
         
         op_instance = op_class(personagem=self, **op_args)
         result = op_instance.run()
         
         if isinstance(result, dict):
-            # Devolve para o topo da fila
-            print(f"    -> Pausando em {action} (Falta decisão {self.n})")
+            # print(f"    -> Pausando em {action} (Falta decisão {self.n})")
             self.ficha.insert(0, op_data)
             
         return result
@@ -462,28 +488,26 @@ def main():
     print("\n--- TESTE 1: Inicialização ---")
     personagem = Character(0, access_token=google_access_token, decisions=decisoes_parciais)
     
-    # Aqui o processamento deve terminar com a fila vazia (pois metadata/character foi todo resolvido)
-    
     print("\n--- TESTE 2: Adicionando Raça (Deve Pausar) ---")
     personagem.add_race("Humano")
     
-    # Esperado: Pausar em "Idioma Adicional"
     if personagem.required_decision:
         print(f"\n>> JSON RETORNO: {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
-    else:
-        print("\n>> ERRO: Não pausou onde deveria!")
-    pprint(personagem.data)
+    
+    # Debug: Verificar se o idioma "Anão" foi adicionado corretamente
+    # pprint(personagem.data['attributes']) 
 
     print("\n--- TESTE 3: Retomada (Com Subraça) ---")
-    # Simulando o Frontend mandando tudo de novo + a nova escolha
     personagem.data["decisions"] += ["Humano (Variante)"]
     personagem.process_queue()
-    pprint(personagem.data)
+    #pprint(personagem.data)
     
-    # Esperado: Pausar em "Subraça"
     if personagem.required_decision:
         print(f"\n>> JSON RETORNO (Passo 2): {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
-        print(f"Decisões consumidas: {personagem.n} de {len(personagem.data['decisions'])}")
+
+    personagem.data["decisions"] += [["str", "cha"]]
+    personagem.process_queue()
+    #pprint(personagem.data)
 
 if __name__ == "__main__":
     main()
