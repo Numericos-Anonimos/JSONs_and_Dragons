@@ -209,21 +209,17 @@ class db_handler(db_homebrew):
 
     # O init do db_homebrew original não era chamado aqui, corrigido para loop acima
     def query(self, query: str):
-        response = {}
-        for db in self.db_list:
+        response = self.db_list[0].query(query)
+        
+        for db in self.db_list[1:]:
             resultado_parcial = db.query(query)
             if query == "races/Humano":
                 print(f"ccccccc {resultado_parcial}")
-            for key, value in resultado_parcial.items():
-                if key not in response:
-                    response[key] = value
-                else:
-                    if isinstance(response[key], list) and isinstance(value, list):
-                        response[key].extend(value)
-                    elif isinstance(response[key], dict) and isinstance(value, dict):
-                        response[key].update(value)
-                    else:
-                        response[key] = value
+            if isinstance(response, dict):
+                response.update(resultado_parcial)
+            elif isinstance(response, list):
+                response.extend(resultado_parcial)
+
         return response
 
 # Operações (Operation, ImportOperation, etc - Mantidas iguais, apenas ImportOperation ajustada)
@@ -242,13 +238,14 @@ class InputOperation(Operation):
 
     def run(self):
         decisions = self.personagem.data.get("decisions", [])
-        n = self.personagem.data.n
+        n = self.personagem.n
         if not decisions: return {
             "label": self.property,
         }
         valor = decisions[n]
         #print(f"-> INPUT '{self.property}': {valor}")
         set_nested(self.personagem.data, self.property, valor)
+        return 1
 
 class SetOperation(Operation):
     property: str
@@ -280,7 +277,8 @@ class SetOperation(Operation):
         elif self.type == "list":
             value = self.value if isinstance(self.value, list) else [self.value]
             set_nested(self.personagem.data, self.property, value)
-
+        
+        return 1
             
 class IncrementOperation(Operation):
     property: str
@@ -316,6 +314,7 @@ class IncrementOperation(Operation):
             else: 
                 formula_str = self.formula
                 def computed_property(context): return value(context) + interpolate_and_eval(formula_str, context)
+        return 1
 
 class ChooseMapOperation(Operation):
     n: int = 1
@@ -324,7 +323,7 @@ class ChooseMapOperation(Operation):
     operations: List[Dict]
     
     def run(self):
-        pass
+        return -1
 
 class ChooseOperationsOperation(Operation):
     n: int = 1
@@ -332,24 +331,24 @@ class ChooseOperationsOperation(Operation):
     options: list[Dict[str, Any]] = []
 
     def run(self):
-        pass
+        return -1
 
 class RequestOperation(Operation):
     query: str
     
     def run(self):
-        pass
+        return -1
 
 class ImportOperation(Operation):
     query: str
     
     def run(self):
-        # db agora já tem o token via personagem.db
-        dados = self.personagem.db.query(self.query)
-        novas_ops = dados.get("operations", [])
+        novas_ops = self.personagem.db.query(self.query)
         if novas_ops:
             self.personagem.ficha.extend(novas_ops)
         print(f"\n{novas_ops}")
+        
+        return 1
 
 class ForEachOperation(Operation):
     list: List[str]
@@ -370,6 +369,8 @@ class ForEachOperation(Operation):
         for op in reversed(expanded_ops):
             self.personagem.ficha.insert(self.personagem.n + 1, op)
 
+        return 1
+
 class InitProficiencyOperation(Operation):
     category: str
     name: str
@@ -383,13 +384,16 @@ class InitProficiencyOperation(Operation):
         current_profs.append(prof_entry)
         self.personagem.data["proficiencies"] = current_profs
 
+        return 1
+        
+
 class AddItemOperation(Operation):
     name: str
     query: str
     amount: int = 1
     
     def run(self):
-        pass
+        return -1
 
 class AddSpellcastingOperation(Operation):
     name: str
@@ -405,7 +409,7 @@ class AddSpellcastingOperation(Operation):
     spellSlots: list[list[int]] = [[0, 0, 0, 0, 0, 0, 0, 0, 0]]
     
     def run(self):
-        pass
+        return -1
 
 class AddSpellOperation(Operation):
     name: str
@@ -413,14 +417,14 @@ class AddSpellOperation(Operation):
     spellbook: str
    
     def run(self):
-        pass
+        return -1
 
 class AddActionOperation(Operation):
     name: str
     cost: list[dict[str, Any]] = []
 
     def run(self):
-        pass
+        return -1
 
 class AddFeatureOperation(Operation):
     name: str
@@ -428,7 +432,7 @@ class AddFeatureOperation(Operation):
     operations: list[dict[str, Any]] = []
 
     def run(self):
-        pass
+        return -1
 
 operations = {
     "INPUT": InputOperation,
@@ -492,7 +496,8 @@ class Character:
         return resp
 
     def run_operation(self):
-        op_data: Dict[str, Any] = self.ficha[self.n]
+        op_data: Dict[str, Any] = self.ficha.pop(0)
+        pprint(f"{op_data}")
         op_args = op_data.copy()
         action = op_args.pop("action", None)
 
