@@ -9,7 +9,7 @@ from typing import Any, List, Union
 from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
 
 # Importamos o parser e a classe Character
-from parser import Character
+from jsons_and_dragons.parser import Character
 
 router_ficha = APIRouter()
 
