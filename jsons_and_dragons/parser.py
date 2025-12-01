@@ -85,7 +85,9 @@ class db_homebrew:
         return False
         
     def _apply_filter(self, data: Dict[str, Any], filter_str: str) -> Dict[str, Any]:
-        if " AND " in filter_str:
+        if filter_str == "keys":
+            return {key: key for key in data.keys()}
+        elif " AND " in filter_str:
             subparts = filter_str.split(" AND ")
             filtered_data = data
             for subpart in subparts: filtered_data = self._apply_filter(filtered_data, subpart.strip())
@@ -228,28 +230,73 @@ class ChooseOperationsOperation(Operation):
         self.personagem.n += 1
         return 1
 
-# Operações Standard
 class SetOperation(Operation):
     property: str
     type: str = "value"
     value: Any = None
-    formula: str = None
+    formula: str = None,
     recoversOn: str = "never"
+
     def run(self):
         if self.type == "value":
             if self.formula is not None:
                 formula_str = self.formula
                 def computed_property(context): return interpolate_and_eval(formula_str, context)
                 set_nested(self.personagem.data, self.property, computed_property)
-            else: set_nested(self.personagem.data, self.property, self.value)
+            else:
+                set_nested(self.personagem.data, self.property, self.value)
+        elif self.type == "counter":
+            _used = f'{self.property}_used'
+            _recover = f'{self.property}_recover'
+            set_nested(self.personagem.data, _recover, self.recoversOn)
+            if self.formula is not None:
+                formula_str = self.formula
+                def computed_property(context): return interpolate_and_eval(formula_str, context)
+                set_nested(self.personagem.data, _used, 0)
+                set_nested(self.personagem.data, self.property, computed_property)
+            else:
+                set_nested(self.personagem.data, _used, 0)
+                set_nested(self.personagem.data, self.property, self.value)
+        elif self.type == "list":
+            pprint(self.personagem.data)
+            value = self.value if isinstance(self.value, list) else [self.value]
+            set_nested(self.personagem.data, self.property, value)
         return 1
             
 class IncrementOperation(Operation):
     property: str
+    type: str = ""
     value: int = 1
+    formula: str = None
+    recoversOn: str = "never"
+
     def run(self):
-        curr = get_nested(self.personagem.data, self.property, 0)
-        if isinstance(curr, (int, float)): set_nested(self.personagem.data, self.property, curr + self.value)
+        # Se a propriedade existe, pega o type (tem used? ou value é lista)
+        if not hasattr(self.personagem.data, self.property):
+            # Se não existe, mas tem type, cria a propriedade usando o SET
+            if self.type != "":
+                op = SetOperation(property=self.property, type=self.type, value=self.value, formula=self.formula, recoversOn=self.recoversOn)
+                op.run()
+            else: return -1
+        else: # Existe
+            self.type = getattr(self.personagem.data, self.property).type
+            self.recoversOn = getattr(self.personagem.data, self.property).recoversOn
+            value = getattr(self.personagem.data, self.property)
+
+            if not callable(value) and self.formula is None:
+                value += self.value
+                op = SetOperation(personagem=self.personagem, property=self.property, type=self.type, value=value, formula=None, recoversOn=self.recoversOn)
+                op.run()
+            elif callable(value) and self.formula is None:
+                def computed_property(context): return value(context) + self.value
+                set_nested(self.personagem.data, self.property, computed_property)
+            elif not callable(value) and self.formula is not None:
+                formula_str = self.formula
+                def computed_property(context): return value + interpolate_and_eval(formula_str, context)
+                set_nested(self.personagem.data, self.property, computed_property)
+            else: 
+                formula_str = self.formula
+                def computed_property(context): return value(context) + interpolate_and_eval(formula_str, context)
         return 1
 
 class ImportOperation(Operation):
@@ -425,6 +472,7 @@ def main():
         print(f"\n>> JSON RETORNO: {json.dumps(personagem.required_decision, indent=2, ensure_ascii=False)}")
     else:
         print("\n>> ERRO: Não pausou onde deveria!")
+    pprint(personagem.data)
 
     print("\n--- TESTE 3: Retomada (Com Subraça) ---")
     # Simulando o Frontend mandando tudo de novo + a nova escolha

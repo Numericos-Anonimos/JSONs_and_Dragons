@@ -27,8 +27,8 @@
             },
             { 
                 "action": "CHOOSE_MAP", "n": 1, "label": "Talento",
-                "options": {"action": "REQUEST", "query": "feats/name"},
-                "operations": [{"action": "IMPORT", "query": "feats/name == '{THIS}'"}]
+                "options": {"action": "REQUEST", "query": "feats/keys"},
+                "operations": [{"action": "IMPORT", "query": "feats/{THIS}"}]
             }
         ]
     },
@@ -63,8 +63,8 @@
             {"action": "INCREMENT", "property": "attributes.int.score", "formula": 1},
             {
                 "action": "CHOOSE_MAP", "n": 1, "label": "Idioma Adicional", 
-                "options": {"action": "REQUEST", "query": "features/metadata.type == 'language'/name"},
-                "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
+                "options": {"action": "REQUEST", "query": "features/metadata.type == 'language'/keys"},
+                "operations": [{"action": "IMPORT", "query": "features/{THIS}"}]
             },
             {
                 "action": "ADD_FEATURE",

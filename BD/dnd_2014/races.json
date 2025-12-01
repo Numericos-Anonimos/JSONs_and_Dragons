@@ -4,15 +4,15 @@
             { "action": "SET", "property": "personal.race", "value": "Humano" },
             { "action": "SET", "property": "attributes.speed", "value": "9"},
             { "action": "SET", "property": "attributes.size", "value": "Médio"},  
-            { "action": "IMPORT", "query": "features/name == 'Comum'"},
+            { "action": "IMPORT", "query": "features/Comum"},
             {
                 "action": "ADD_FEATURE",
                 "name": "Idioma Adicional",
                 "operations":[
                     {
                         "action": "CHOOSE_MAP", "n": 1, "label": "Idioma Adicional", 
-                        "options": {"action": "REQUEST", "query": "base/idiomas/keys"},
-                        "operations": [{"action": "IMPORT", "query": "features/name == '{THIS}'"}]
+                        "options": {"action": "REQUEST", "query": "features/metadata.type == 'language'/keys"},
+                        "operations": [{"action": "IMPORT", "query": "features/{THIS}"}]
                     }
                 ]
             },
@@ -21,10 +21,9 @@
                 "name": "Subraça",
                 "operations":[
                     {
-
                         "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                        "options": {"action": "REQUEST", "query": "/subraca/Humano/keys"},
-                        "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+                        "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Humano'/keys"},
+                        "operations": [{"action": "IMPORT", "query": "subraces/{THIS}"}]
                     }
                 ]
             }
@@ -36,8 +35,8 @@
             { "action": "INCREMENT", "property": "attributes.con.score", "formula": 2 },
             { "action": "SET", "property": "attributes.speed", "value": "7.5"},
             { "action": "SET", "property": "attributes.size", "value": "Médio"},
-            { "action": "IMPORT", "query": "features/name == 'Comum'"},
-            { "action": "IMPORT", "query": "features/name == 'Anão'"},
+            { "action": "IMPORT", "query": "features/Comum"},
+            { "action": "IMPORT", "query": "features/Anão"},
             {
                 "action": "ADD_FEATURE",
                 "name": "Visão no Escuro",
@@ -81,8 +80,8 @@
                     {
 
                         "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                        "options": {"action": "REQUEST", "query": "/subraca/Anão/keys"},
-                        "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+                        "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Anão'/keys"},
+                        "operations": [{"action": "IMPORT", "query": "subraces/{THIS}"}]
                     }
                 ]
             }
@@ -94,8 +93,8 @@
             { "action": "INCREMENT", "property": "attributes.dex.score", "formula": 2 },
             { "action": "SET", "property": "attributes.speed", "value": "9"},
             { "action": "SET", "property": "attributes.size", "value": "Médio"},
-            { "action": "IMPORT", "query": "features/name == 'Comum'"},
-            { "action": "IMPORT", "query": "features/name == 'Elfico'"},
+            { "action": "IMPORT", "query": "features/Comum"},
+            { "action": "IMPORT", "query": "features/Elfico"},
             {
                 "action": "ADD_FEATURE",
                 "name": "Visão no Escuro",
@@ -122,8 +121,8 @@
                 "operations":[
                     {
                         "action": "CHOOSE_MAP", "n": 1, "label": "Subraça",
-                        "options": {"action": "REQUEST", "query": "/subraca/Elfo/keys"},
-                        "operations": [{"action": "IMPORT", "query": "subraces/name == '{THIS}'"}]
+                        "options": {"action": "REQUEST", "query": "subraces/metadata.race == 'Elfo'/keys"},
+                        "operations": [{"action": "IMPORT", "query": "subraces/{THIS}"}]
                     }
                 ]
             }
