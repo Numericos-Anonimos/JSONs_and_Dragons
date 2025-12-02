@@ -210,7 +210,7 @@ def definir_background(char_id: int, background: str, authorization: str = Heade
     save_character_state(access_token, folder_id, character)
     
     return {
-        "message": f"Background {bg_decoded} adicionado.",
+        "message": f"Background {background} adicionado.",
         "required_decision": character.required_decision
     }
 
