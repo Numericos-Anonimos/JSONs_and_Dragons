@@ -668,7 +668,6 @@ class Character:
         
         self.data = {
             "decisions": decisions if decisions else [],
-            "state": {"hp": 0},
             "proficiency": {},
             "attributes": {}, 
             "properties": {},
@@ -771,6 +770,10 @@ class Character:
             for db in self.db.db_list:
                 db.token = new_token
 
+    def to_json(self) -> str:
+        """Serializa as decisões do personagem para uma string JSON"""
+        return json.dumps(self.data['decisions'], indent=4, ensure_ascii=False)
+       
     def to_pickle_string(self) -> str:
         """Serializa o personagem inteiro para uma string base64"""
         # Removemos temporariamente o required_decision para economizar espaço ou evitar recursão, se necessário
