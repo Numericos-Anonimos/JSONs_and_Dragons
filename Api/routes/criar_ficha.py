@@ -64,12 +64,12 @@ def load_character_state(access_token: str, char_id: int) -> Character:
 
 # --- Modelos de Entrada ---
 class AtributosInput(BaseModel):
-    str: int
-    dex: int
-    con: int
-    int: int
-    wis: int
-    cha: int
+    forca: int
+    destreza: int
+    constituicao: int
+    inteligencia: int
+    sabedoria: int
+    carisma: int
 
 class CriarFichaRequest(BaseModel):
     nome: str
