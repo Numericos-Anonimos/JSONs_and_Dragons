@@ -46,6 +46,9 @@ def save_character_state(access_token: str, char_folder_id: str, character: Char
     # Salva como arquivo de texto (pois é base64)
     upload_or_update(access_token, FILENAME_PKL, content_str, parent_id=char_folder_id)
     print("Rodou upload_or_update")
+
+    print(character)
+    # APARENTEMENTE CHARACTER.DECISIONS NÃO EXISTE
     
     # Opcional: Salvar também um JSON legível para debug/visualização no frontend
     json_export = json.dumps(character.data.decisions, indent=4, ensure_ascii=False)
