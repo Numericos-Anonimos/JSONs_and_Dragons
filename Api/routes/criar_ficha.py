@@ -48,7 +48,7 @@ def save_character_state(access_token: str, char_folder_id: str, character: Char
     print("Rodou upload_or_update")
     
     # Opcional: Salvar também um JSON legível para debug/visualização no frontend
-    json_export = json.dumps(character.data, indent=4, ensure_ascii=False)
+    json_export = json.dumps(character.data.decisions, indent=4, ensure_ascii=False)
     print("Rodou json_export")
     upload_or_update(access_token, "character_view.json", json_export, parent_id=char_folder_id)
     print("Rodou upload_or_update denovo (rodou tudo!!)")
