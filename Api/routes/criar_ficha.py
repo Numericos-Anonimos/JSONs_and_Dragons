@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Header, Body
 from pydantic import BaseModel
 from jose import jwt
 from typing import Any, List, Union
+from urllib.parse import unquote
 
 # Importamos as funções do gdrive
 from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
