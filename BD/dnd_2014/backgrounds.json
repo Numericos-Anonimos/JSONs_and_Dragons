@@ -5,7 +5,7 @@
             {"action": "SET", "property": "proficiency.skill.Intuição.multiplier", "value": 1 },
             {
                 "action": "CHOOSE_MAP", "n": 2, "label": "Idiomas", 
-                "options": {"action": "REQUEST", "query": "base/idiomas/keys"},
+                "options": {"action": "REQUEST", "query": "features/metadata.type == language/keys"},
                 "operations": [{"action": "IMPORT", "query": "features/{THIS}"}]
             },
             {"action": "ADD_ITEM", "query": "items/Símbolo Sagrado"},
