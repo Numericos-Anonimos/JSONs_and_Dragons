@@ -99,8 +99,8 @@ def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Header(...)):
     # Ordem esperada no seu main(): Nome -> Atributos
     decisoes_iniciais = [
         dados.nome,
-        dados.atributos.str, dados.atributos.dex, dados.atributos.con,
-        dados.atributos.int, dados.atributos.wis, dados.atributos.cha
+        dados.atributos.forca, dados.atributos.destreza, dados.atributos.constituicao,
+        dados.atributos.inteligencia, dados.atributos.sabedoria, dados.atributos.carisma
     ]
     
     # 3. Instancia o Personagem
