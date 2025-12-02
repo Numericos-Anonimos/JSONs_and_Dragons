@@ -106,10 +106,16 @@ def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Header(...)):
     # 3. Instancia o Personagem
     # Ele vai rodar o __init__, importar metadata e pausar quando precisar de algo (ex: Raça)
     character = Character(id=next_id, access_token=access_token, decisions=decisoes_iniciais)
+
+    print("Rodou character")
     
     # 4. Cria a pasta e Salva o Estado
     char_folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(next_id)])
+    print("Rodou char_folder_id")
     save_character_state(access_token, char_folder_id, character)
+
+    print("Rodou save_character_state (rodou tudo)")
+    print(character)
     
     return {
         "id": next_id,
