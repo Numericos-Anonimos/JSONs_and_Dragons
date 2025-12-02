@@ -41,13 +41,17 @@ def save_character_state(access_token: str, char_folder_id: str, character: Char
     """Salva a classe Python serializada no Drive"""
     # Pega a string base64 do objeto (usando dill/pickle)
     content_str = character.to_pickle_string()
+    print("Rodou content_str")
     
     # Salva como arquivo de texto (pois é base64)
     upload_or_update(access_token, FILENAME_PKL, content_str, parent_id=char_folder_id)
+    print("Rodou upload_or_update")
     
     # Opcional: Salvar também um JSON legível para debug/visualização no frontend
     json_export = json.dumps(character.data, indent=4, ensure_ascii=False)
+    print("Rodou json_export")
     upload_or_update(access_token, "character_view.json", json_export, parent_id=char_folder_id)
+    print("Rodou upload_or_update denovo (rodou tudo!!)")
 
 def load_character_state(access_token: str, char_id: int) -> Character:
     """Baixa e restaura a classe Python do Drive"""
