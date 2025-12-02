@@ -682,19 +682,33 @@ class Character:
         print(f"--- Iniciando processamento Character ID {id} ---")
         self.process_queue()
 
-    def add_race(self, race: str):
+    def add_race(self):
+        self.n += 1 # Consome o Raça
+        race = self.data["decisions"][self.n]
+        self.n += 1 # Consome o nome da raça
+
         print(f"-> Adicionando Raça: {race}")
         self.ficha.append({"action": "IMPORT", "query": f"races/{race}"})
         self.required_decision = None 
         self.process_queue()
 
-    def add_background(self, background: str):
+    def add_background(self):
+        self.n += 1 # Consome o Background
+        background = self.data["decisions"][self.n]
+        self.n += 1 # Consome o nome do background
+
         print(f"-> Adicionando Background: {background}")
         self.ficha.append({"action": "IMPORT", "query": f"backgrounds/{background}"})
         self.required_decision = None 
         self.process_queue()
 
-    def add_class(self, class_name: str, level: int):
+    def add_class(self):
+        self.n += 1 # Consome a Classe
+        class_name = self.data["decisions"][self.n]
+        self.n += 1 # Consome o nome da Classe
+        level = self.data["decisions"][self.n]
+        self.n += 1 # Consome o Nível
+
         print(f"-> Adicionando Classe: {class_name} (Nível {level})")
         self.ficha.append({"action": "IMPORT", "query": f"classes/{class_name}/level_{level}"})
 

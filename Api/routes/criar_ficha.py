@@ -50,15 +50,20 @@ def save_character_state(access_token: str, char_folder_id: str, character: Char
 def load_character_state(access_token: str, char_id: int) -> Character:
     """Baixa e restaura a classe Python do Drive"""
     folder_id = get_character_folder_id(access_token, char_id)
-    
-    content_base64 = get_file_content(access_token, filename=FILENAME_PKL, parent_id=folder_id)
-    
-    if not content_base64:
+
+    try:    
+        try:
+            content_base64 = get_file_content(access_token, filename=FILENAME_PKL, parent_id=folder_id)
+            character = Character.from_pickle_string(content_base64, access_token)
+        except Exception as e:
+            decisoes = get_file_content(access_token, filename="decisions.json", parent_id=folder_id)
+            character = Character(id=char_id, access_token=access_token, decisions=json.loads(decisoes))
+            character.process_queue()
+            save_character_state(access_token, folder_id, character)
+        
+        return character, folder_id
+    except Exception as e:
         raise HTTPException(status_code=404, detail=f"Personagem {char_id} não encontrado ou arquivo corrompido.")
-    
-    # Restaura o objeto e atualiza o token (pois o token salvo no arquivo estaria expirado)
-    character = Character.from_pickle_string(content_base64, access_token)
-    return character, folder_id
 
 # --- Modelos de Entrada ---
 class AtributosInput(BaseModel):
@@ -146,6 +151,32 @@ def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str
         "logs": "Decisão processada."
     }
 
+@router_ficha.post("/ficha/{char_id}/prev/{n}")
+def avancar_ficha(char_id: int, n: int, authorization: str = Header(...)):
+    access_token = get_access_token(authorization)
+    folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(char_id)])
+
+    decisoes = get_file_content(access_token, filename="decisions.json", parent_id=folder_id)
+
+    decisoes = json.loads(decisoes)
+    decisoes = decisoes[:-n]
+    
+    character = Character(id=char_id, access_token=access_token, decisions=decisoes)
+    
+    if decisoes[character.n] == "Raça":
+        character.add_race()
+    if decisoes[character.n] == "Background":
+        character.add_background()
+    if decisoes[character.n] == "Classe":
+        character.add_class()
+    
+    save_character_state(access_token, folder_id, character)
+    
+    return {
+        "required_decision": character.required_decision, # Se {}, acabou
+        "logs": "Decisão processada."
+    }
+
 @router_ficha.post("/ficha/{char_id}/raca/{raca}")
 def definir_raca(char_id: int, raca: str, authorization: str = Header(...)):
     """
@@ -154,8 +185,9 @@ def definir_raca(char_id: int, raca: str, authorization: str = Header(...)):
     access_token = get_access_token(authorization)
     character, folder_id = load_character_state(access_token, char_id)
 
-    character.add_race(raca)
-
+    # Adiciona a lista ["Raça", raca]
+    character.data["decisions"] += ["Raça", raca]
+    character.add_race()
     save_character_state(access_token, folder_id, character)
     
     return {
@@ -169,12 +201,11 @@ def definir_background(char_id: int, background: str, authorization: str = Heade
     4. Adiciona Background e processa.
     """
     access_token = get_access_token(authorization)
-    bg_decoded = unquote(background)
     
     character, folder_id = load_character_state(access_token, char_id)
-    
-    character.add_background(bg_decoded)
-    
+
+    character.data["decisions"] += ["Background", background]
+    character.add_background()
     save_character_state(access_token, folder_id, character)
     
     return {
@@ -188,15 +219,14 @@ def definir_classe(char_id: int, classe: str, nivel: int, authorization: str = H
     5. Adiciona Classe/Nível e processa.
     """
     access_token = get_access_token(authorization)
-    classe_decoded = unquote(classe)
     
     character, folder_id = load_character_state(access_token, char_id)
-    
-    character.add_class(classe_decoded, nivel)
+    character.data["decisions"] += ["Classe", classe, nivel]
+    character.add_class()
     
     save_character_state(access_token, folder_id, character)
     
     return {
-        "message": f"Classe {classe_decoded} (Nível {nivel}) adicionada.",
+        "message": f"Classe {classe} (Nível {nivel}) adicionada.",
         "required_decision": character.required_decision
     }
