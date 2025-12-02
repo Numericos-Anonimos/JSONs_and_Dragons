@@ -152,20 +152,14 @@ def definir_raca(char_id: int, raca: str, authorization: str = Header(...)):
     3. Adiciona a Raça e processa.
     """
     access_token = get_access_token(authorization)
-    raca_decoded = unquote(raca)
-    
     character, folder_id = load_character_state(access_token, char_id)
-    
-    # Método do seu parser que adiciona a operação de IMPORT raça na fila
-    character.add_race(raca_decoded)
-    
-    # O add_race chama o process_queue internamente no seu código,
-    # então ele já vai parar se a raça pedir sub-raça (Input/Choose)
-    
+
+    character.add_race(raca)
+
     save_character_state(access_token, folder_id, character)
     
     return {
-        "message": f"Raça {raca_decoded} adicionada.",
+        "message": f"Raça {raca} adicionada.",
         "required_decision": character.required_decision
     }
 
