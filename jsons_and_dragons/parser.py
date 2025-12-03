@@ -713,8 +713,9 @@ class Character:
         self.ficha.append({"action": "IMPORT", "query": f"classes/{class_name}/level_{level}"})
 
         if level != 0:
-            hit_dice = self.db.query(f"classes/{class_name}/hit_dice")
-            if self.get_stat("properties.level") == 1: # MÁXIMO
+            class_data = self.db.query(f"classes/{class_name}")
+            hit_dice = class_data["hitDiceValue"]
+            if self.get_stat("properties.level") == 0: # MÁXIMO
                 self.ficha.append({"action": "SET", "property": "properties.hit_dice", "value": hit_dice})
             else:
                 self.ficha.append({
@@ -770,7 +771,7 @@ class Character:
         return result
 
     def get_basic_infos(self):
-        classes = self.data["properties"]["level"].items() # [(Classe, Nível)] Para Multiclasses
+        classes = self.data["properties"]["classes"].items() # [(Classe, Nível)] Para Multiclasses
 
         return {
             "name": self.get_stat("personal.name"),
@@ -779,7 +780,6 @@ class Character:
             "class": classes, 
             "level": self.get_stat("level"),
         }
-
 
     def get_stat(self, path: str) -> Any:
         return resolve_value(get_nested(self.data, path), self.data)
