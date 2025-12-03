@@ -10,6 +10,7 @@ from typing import Any, List, Union
 from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
 
 # Importamos o parser e a classe Character
+from jsons_and_dragons import character
 from jsons_and_dragons.parser import Character
 
 router_ficha = APIRouter()
@@ -88,7 +89,9 @@ class CriarFichaRequest(BaseModel):
     atributos: AtributosInput
 
 class NextDecisionRequest(BaseModel):
-    decision: Any # Pode ser string, int, ou lista, dependendo do que o parser pede
+    character_id: int
+    decision: str # Label
+    selected_options: Union[str, int, list] # Pode ser string, int, ou lista, dependendo do que o parser pede
 
 # --- Endpoints ---
 
@@ -144,7 +147,7 @@ def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str
     character, folder_id = load_character_state(access_token, char_id)
     
     # 2. Adicionar a decisão recebida
-    character.data["decisions"].append(payload.decision)
+    character.data["decisions"].append(payload.decision.selected_options)
     
     # 3. Rodar a fila até a próxima pausa
     character.process_queue()
