@@ -6,8 +6,8 @@
         },
         "level_0": {
             "operations": [
-                { "action": "INCREMENT", "property": "proficiency.wis.save", "formula": 1 },
-                { "action": "INCREMENT", "property": "proficiency.cha.save", "formula": 1 },
+                { "action": "INCREMENT", "property": "attributes.wis.save", "formula": "{properties.proficiency}" },
+                { "action": "INCREMENT", "property": "attributes.cha.save", "formula": "{properties.proficiency}" },
                 { "action": "SET", "property": "proficiency.armor.Pesada.multiplier", "value": 1 },
                 { 
                     "action": "CHOOSE_MAP", "n": 2, "label": "Perícias de Paladino",

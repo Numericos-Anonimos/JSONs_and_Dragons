@@ -16,6 +16,7 @@
                     { "action": "SET", "property": "attributes.{THIS}.save", "formula": "{attributes.{THIS}.modifier}"}    
                 ]
             },
+            { "action": "SET", "property": "attributes.initiative", "formula": "{attributes.dex.modifier}"},
             { "action": "SET", "property": "properties.hit_points", "formula": "{properties.level} * {attributes.con.modifier}"},
 
             { "action": "INIT_PROFICIENCY", "category": "skill", "name": "Atletismo", "multiplier": 0, "attributes": "str", "roll": "N" },

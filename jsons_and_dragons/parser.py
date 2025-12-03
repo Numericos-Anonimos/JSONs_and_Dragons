@@ -429,22 +429,28 @@ class AddItemOperation(Operation):
     
     def run(self):
         # 1. Busca o item no Banco de Dados
-        # A query geralmente retorna um dict { "NomeDoItem": { ...dados... } }
         result = self.personagem.db.query(self.query)
         
         if not result:
             print(f"(X) Item não encontrado para query: {self.query}")
             return 1
 
-        # Resolve o nome real e o conteúdo
-        item_key = list(result.keys())[0]
-        item_data = result[item_key]
+        # CORREÇÃO: Detecta se o resultado é o dado do item direto ou um dicionário de itens
+        # Se 'metadata' é uma chave direta, então `result` já é o item (Query direta: items/Escudo)
+        if "metadata" in result:
+            item_data = result
+            # Se não temos um nome definido, tentamos deduzir da query
+            item_key = self.name if self.name else self.query.split('/')[-1]
+        else:
+            # Caso contrário, é um resultado de busca/filtro (Query: items/type == armor)
+            # Retorna { "NomeItem": {dados}, ... }
+            item_key = list(result.keys())[0]
+            item_data = result[item_key]
 
         # 2. Define o nome de exibição (Nickname ou Original)
         display_name = self.name if self.name else item_key
 
         # 3. Adiciona ao Inventário
-        # Verifica se já existe para somar a quantidade
         path = f"inventory.{display_name}"
         existing_item = get_nested(self.personagem.data, path)
         
@@ -455,14 +461,15 @@ class AddItemOperation(Operation):
         # Cria a cópia do item para o inventário
         inventory_item = item_data.copy()
         inventory_item["amount"] = final_amount
+        
         # Limpa operações do item salvo no inventário para não duplicar lógica ao salvar o JSON do char
         if "operations" in inventory_item:
             del inventory_item["operations"]
 
         set_nested(self.personagem.data, path, inventory_item)
 
-        # 4. Injeta as Operações do Item na Fila (ex: Armadura mudando CA)
-        # Itens podem ter operações passivas que devem rodar ao serem adquiridos
+        # 4. Injeta as Operações do Item na Fila
+        # Agora item_data está correto, então ele vai encontrar as operations
         if "operations" in item_data:
             ops = item_data["operations"]
             # Inserimos no início da fila (ordem reversa) para execução imediata
@@ -781,23 +788,137 @@ class Character:
             "level": self.get_stat("properties.level"),
         }
 
+    def _resolve_modifier(self, value):
+        """Formata um modificador numérico para string (ex: 3 vira '+3', -2 vira '-2')"""
+        val = int(value)
+        return f"+{val}" if val >= 0 else str(val)
+
     def get_all(self):
-        base = self.get_basic_infos()
-        stats = {} # Pegar o valor, bônus e salvaguarda dos atributos, mas calcula instantaneamente
-        for stat in self.data["attributes"].keys():
-            stats[stat] = {
-                "value": self.get_stat(f"attributes.{stat}"),
-                "bonus": self.get_stat(f"attributes.{stat}.bonus"),
-                "save": self.get_stat(f"attributes.{stat}.save")
+        # 1. Informações Básicas (Cabeçalho)
+        # Formata classes: "Paladino 2, Bruxo 1"
+        classes_list = self.data["properties"]["classes"].items()
+        class_text = " / ".join([f"{cls} {lvl}" for cls, lvl in classes_list])
+        
+        # 2. Atributos (Stats) e Salvaguardas
+        stats = {}
+        for attr in ["str", "dex", "con", "int", "wis", "cha"]:
+            stats[attr] = {
+                "score": self.get_stat(f"attributes.{attr}.score"),
+                "modifier": self.get_stat(f"attributes.{attr}.modifier"),
+                "save": self.get_stat(f"attributes.{attr}.save") 
             }
-        base["stats"] = stats
-        base["ac"] = self.get_stat("properties.ac")
-        base["hp"] = self.get_stat("properties.hit_points")
+
+        # 3. Proficiência e Perícias (Skills)
+        skills = []
+        proficiency_bonus = self.get_stat("properties.proficiency")
         
-        proficiency = { "bonus": self.get_stat("properties.proficiency_bonus") }
-        for skill in self.data["proficiencies"]["skills"]:
-            pass
+        all_skills = self.data["proficiency"].get("skill", {})
+        for skill_name, data in all_skills.items():
+            total_bonus = self.get_stat(f"proficiency.skill.{skill_name}.bonus")
+            roll = self.get_stat(f"proficiency.skill.{skill_name}.roll")
+            
+            skills.append({
+                "name": skill_name,
+                "attribute": data.get("attribute", "").upper(),
+                "bonus": total_bonus,
+                "roll": roll
+            })
         
+        # Ordena alfabeticamente para o front
+        skills.sort(key=lambda x: x["name"])
+
+        # 4. Combate (AC, HP, Iniciativa, Speed)
+        initiative = self.get_stat("attributes.initiative")
+        ac = self.get_stat("properties.ac")
+
+        combat = {
+            "hp_max": self.get_stat("properties.hit_points"),
+            "temp_hp": 0,
+            "ac": ac,
+            "initiative": initiative,
+            "speed": self.get_stat('attributes.speed'),
+            "proficiency_bonus": proficiency_bonus
+        }
+
+        # 5. Inventário e Ataques
+        # Separa o que é arma para gerar a lista de "Ataques"
+        inventory = []
+        attacks = []
+        
+        raw_inventory = self.data.get("inventory", {})
+        for item_name, item_data in raw_inventory.items():
+            if item_name == "metadata": continue # Pula metadados globais se houver
+            
+            # Formata para lista de inventário
+            qty = item_data.get("amount", 1)
+            inventory.append({
+                "name": item_name,
+                "amount": qty,
+                "description": item_data.get("description", "") # Se tiver no JSON do item
+            })
+
+            # Lógica de Ataques (Detectar se é arma)
+            # Você precisará garantir que o JSON do item tenha "type": "weapon" ou similar
+            item_type = item_data.get("type", "").lower()
+            
+            # Se for arma, calcula To Hit e Dano
+            if "weapon" in item_type or "arma" in item_type: # Fallback simples
+                # Descobre atributo (Finesse não tratado aqui, assumindo STR para Melee)
+                is_ranged = "ranged" in item_type or "distancia" in item_type
+                attr_used = stats["dex"] if is_ranged else stats["str"]
+                
+                # Bônus de Ataque = Mod Atributo + Proficiencia (se tiver)
+                # Verifica proficiência simples pelo nome ou categoria no futuro
+                prof_bonus = proficiency_bonus
+                atk_bonus = attr_used["raw_modifier"] + prof_bonus # Assumindo proficiente
+                
+                # Dano (precisa estar no JSON do item, ex: "1d8")
+                dmg_dice = item_data.get("damage", "1d4") # Valor padrão se não achar
+                dmg_bonus = attr_used["raw_modifier"]
+                
+                attacks.append({
+                    "name": item_name,
+                    "bonus": self._resolve_modifier(atk_bonus),
+                    "damage": f"{dmg_dice} {self._resolve_modifier(dmg_bonus)}",
+                    "type": "Perfurante" # Exemplo, idealmente viria do JSON
+                })
+
+        # 6. Magias (Spellcasting)
+        # TODO: Implementar
+
+        # 7. Features (Características)
+        features_list = []
+        for feat in self.data.get("features", []):
+            # Olha se tem o atributo contador
+            counter = self.get_stat(f"features.{feat['name']}.counter")
+            if counter is None:
+                counter = 0
+
+            features_list.append({
+                "name": feat.get("name"),
+                "description": feat.get("description", "")[:100],
+                "counter": counter
+            })
+
+        race = self.get_stat("personal.subrace")
+        if race is None:
+            race = self.get_stat("personal.race")
+
+        # Monta o JSON Final
+        return {
+            "header": {
+                "name": self.get_stat("personal.name"),
+                "race": race,
+                "class_level": class_text,
+                "background": self.get_stat("personal.background")
+            },
+            "attributes": stats,
+            "skills": skills,
+            "combat": combat,
+            "attacks": attacks,
+            "equipment": inventory,
+            "features": features_list
+        }
 
     def get_stat(self, path: str) -> Any:
         return resolve_value(get_nested(self.data, path), self.data)
