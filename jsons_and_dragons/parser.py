@@ -582,6 +582,7 @@ class AddActionOperation(Operation):
 class AddFeatureOperation(Operation):
     name: str
     description: str = ""
+    counter: str = None
     operations: list[dict[str, Any]] = []
 
     def run(self):
@@ -589,6 +590,9 @@ class AddFeatureOperation(Operation):
             "name": self.name,
             "description": self.description
         }
+
+        if self.counter:
+            feature_data["counter"] = self.counter
         
         # 1. Salva a feature na lista de features do personagem
         path = "features"
