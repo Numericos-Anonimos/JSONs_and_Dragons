@@ -1,11 +1,1 @@
-{
-    "metadata": {
-        "name": "Xanathar's Guide to Everything",
-        "author": "Wizards of the Coast"
-    },
-    "character": {
-        "operations": [
-            {"action": "SET", "property": "TESTE", "value": "TESTE"}
-        ]
-    }
-}
+{"metadata":{"name":"Xanathar's Guide to Everything","author":"Wizards of the Coast"},"character":{"operations":[{"action":"SET","property":"TESTE","value":"TESTE"}]}}
