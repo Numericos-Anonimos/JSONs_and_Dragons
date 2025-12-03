@@ -788,18 +788,12 @@ class Character:
             "level": self.get_stat("properties.level"),
         }
 
-    def _resolve_modifier(self, value):
-        """Formata um modificador numérico para string (ex: 3 vira '+3', -2 vira '-2')"""
-        val = int(value)
-        return f"+{val}" if val >= 0 else str(val)
-
     def get_all(self):
-        # 1. Informações Básicas (Cabeçalho)
-        # Formata classes: "Paladino 2, Bruxo 1"
+        # 1. Informações Básicas
         classes_list = self.data["properties"]["classes"].items()
         class_text = " / ".join([f"{cls} {lvl}" for cls, lvl in classes_list])
         
-        # 2. Atributos (Stats) e Salvaguardas
+        # 2. Atributos e Salvaguardas
         stats = {}
         for attr in ["str", "dex", "con", "int", "wis", "cha"]:
             stats[attr] = {
@@ -808,107 +802,105 @@ class Character:
                 "save": self.get_stat(f"attributes.{attr}.save") 
             }
 
-        # 3. Proficiência e Perícias (Skills)
+        # 3. Skills
         skills = []
         proficiency_bonus = self.get_stat("properties.proficiency")
-        
         all_skills = self.data["proficiency"].get("skill", {})
         for skill_name, data in all_skills.items():
             total_bonus = self.get_stat(f"proficiency.skill.{skill_name}.bonus")
             roll = self.get_stat(f"proficiency.skill.{skill_name}.roll")
-            
             skills.append({
                 "name": skill_name,
                 "attribute": data.get("attribute", "").upper(),
                 "bonus": total_bonus,
                 "roll": roll
             })
-        
-        # Ordena alfabeticamente para o front
         skills.sort(key=lambda x: x["name"])
 
-        # 4. Combate (AC, HP, Iniciativa, Speed)
-        initiative = self.get_stat("attributes.initiative")
-        ac = self.get_stat("properties.ac")
-
+        # 4. Combate
         combat = {
             "hp_max": self.get_stat("properties.hit_points"),
-            "temp_hp": 0,
-            "ac": ac,
-            "initiative": initiative,
+            "ac": self.get_stat("properties.ac"),
+            "initiative": self.get_stat("attributes.initiative"),
             "speed": self.get_stat('attributes.speed'),
             "proficiency_bonus": proficiency_bonus
         }
 
-        # 5. Inventário e Ataques
-        # Separa o que é arma para gerar a lista de "Ataques"
-        inventory = []
+        # 5. Ataques
         attacks = []
+        actions_list = self.data.get("actions", [])
         
-        raw_inventory = self.data.get("inventory", {})
-        for item_name, item_data in raw_inventory.items():
-            if item_name == "metadata": continue # Pula metadados globais se houver
-            
-            # Formata para lista de inventário
-            qty = item_data.get("amount", 1)
-            inventory.append({
-                "name": item_name,
-                "amount": qty,
-                "description": item_data.get("description", "") # Se tiver no JSON do item
-            })
+        for action in actions_list:
+            meta = action.get("metadata", {})
+            # Verifica se é um ataque olhando as categorias ou metadados
+            cats = meta.get("category", [])
+            if "Ataque" in cats or "Combate" in cats:
+                # As fórmulas vêm como string "1d20 + {str}..."
+                # Precisamos resolver os {} usando o parser
+                raw_acerto = meta.get("Acerto", "0")
+                raw_dano = meta.get("Dano", "0")
+                
+                # Resolve valores dinâmicos ({attributes.str.modifier}, etc)
+                val_acerto_str = interpolate_and_eval(raw_acerto, self.data)
+                val_dano = interpolate_and_eval(raw_dano, self.data)
 
-            # Lógica de Ataques (Detectar se é arma)
-            # Você precisará garantir que o JSON do item tenha "type": "weapon" ou similar
-            item_type = item_data.get("type", "").lower()
-            
-            # Se for arma, calcula To Hit e Dano
-            if "weapon" in item_type or "arma" in item_type: # Fallback simples
-                # Descobre atributo (Finesse não tratado aqui, assumindo STR para Melee)
-                is_ranged = "ranged" in item_type or "distancia" in item_type
-                attr_used = stats["dex"] if is_ranged else stats["str"]
-                
-                # Bônus de Ataque = Mod Atributo + Proficiencia (se tiver)
-                # Verifica proficiência simples pelo nome ou categoria no futuro
-                prof_bonus = proficiency_bonus
-                atk_bonus = attr_used["raw_modifier"] + prof_bonus # Assumindo proficiente
-                
-                # Dano (precisa estar no JSON do item, ex: "1d8")
-                dmg_dice = item_data.get("damage", "1d4") # Valor padrão se não achar
-                dmg_bonus = attr_used["raw_modifier"]
-                
+                # Truque: Para pegar o bônus fixo (ex: +5) de uma string "1d20 + 5",
+                # podemos substituir '1d20' por '0' e avaliar a matemática.
+                bonus_attack = 0
+                try:
+                    if isinstance(val_acerto_str, str):
+                        # Remove o dado para calcular só o bônus numérico
+                        formula_limpa = val_acerto_str.lower().replace("1d20", "0")
+                        bonus_attack = eval(formula_limpa, {"__builtins__": None}, {})
+                    else:
+                        bonus_attack = val_acerto_str
+                except:
+                    bonus_attack = 0
+
                 attacks.append({
-                    "name": item_name,
-                    "bonus": self._resolve_modifier(atk_bonus),
-                    "damage": f"{dmg_dice} {self._resolve_modifier(dmg_bonus)}",
-                    "type": "Perfurante" # Exemplo, idealmente viria do JSON
+                    "name": action["name"],
+                    "bonus": bonus_attack,
+                    "damage": f"{val_dano} {meta.get('Tipo de Dano', '')}",
+                    "range": meta.get("Alcance", "-")
                 })
 
-        # 6. Magias (Spellcasting)
-        # TODO: Implementar
+        # 6. Equipamento
+        inventory = []
+        raw_inventory = self.data.get("inventory", {})
+        for item_name, item_data in raw_inventory.items():
+            if item_name == "metadata": continue
+            inventory.append({
+                "name": item_name,
+                "amount": item_data.get("amount", 1),
+                "description": item_data.get("description", "")
+            })
 
-        # 7. Features (Características)
+        # 7. Features e Contadores        
         features_list = []
         for feat in self.data.get("features", []):
-            # Olha se tem o atributo contador
-            counter = self.get_stat(f"features.{feat['name']}.counter")
-            if counter is None:
-                counter = 0
+            counter_val = 0
+            # 'counter' no JSON da feature é o CAMINHO (ex: resources.sentido_divino)
+            resource_path = feat.get("counter", None)
+            
+            if resource_path:
+                print(f"Resource path: {resource_path}")
+                # Precisamos buscar o valor real nesse caminho
+                counter_val = self.get_stat(resource_path)
+                
+                # Se o valor é uma função lambda (comum no seu parser), get_stat já resolve.
+                # Mas se o recurso não foi inicializado corretamente, pode vir None.
+                if counter_val is None: counter_val = 0
 
             features_list.append({
                 "name": feat.get("name"),
-                "description": feat.get("description", "")[:100],
-                "counter": counter
+                "description": feat.get("description", "")[:100] + "...",
+                "counter": counter_val
             })
 
-        race = self.get_stat("personal.subrace")
-        if race is None:
-            race = self.get_stat("personal.race")
-
-        # Monta o JSON Final
         return {
             "header": {
                 "name": self.get_stat("personal.name"),
-                "race": race,
+                "race": self.get_stat("personal.subrace") or self.get_stat("personal.race"),
                 "class_level": class_text,
                 "background": self.get_stat("personal.background")
             },
