@@ -89,9 +89,7 @@ class CriarFichaRequest(BaseModel):
     atributos: AtributosInput
 
 class NextDecisionRequest(BaseModel):
-    character_id: int
-    decision: str # Label
-    selected_options: Union[str, int, list] # Pode ser string, int, ou lista, dependendo do que o parser pede
+    decision:  Union[str, int, list] # Pode ser string, int, ou lista, dependendo do que o parser pede
 
 # --- Endpoints ---
 
@@ -147,7 +145,7 @@ def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str
     character, folder_id = load_character_state(access_token, char_id)
     
     # 2. Adicionar a decisão recebida
-    character.data["decisions"].append(payload.decision.selected_options)
+    character.data["decisions"].append(payload.decision)
     
     # 3. Rodar a fila até a próxima pausa
     character.process_queue()
