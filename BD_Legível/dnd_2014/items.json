@@ -493,108 +493,108 @@
         "metadata": { "type": "pack", "price": 19 },
         "description": "Inclui uma mochila, um cobertor, 10 velas, uma caixa de fogo, uma caixa de esmolas, 2 blocos de incenso, um incensário, vestes, 2 dias de rações e um cantil.",
         "operations": [
-            {"action": "ADD_ITEM", "query": "items/name == 'Mochila'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Cobertor'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Vela'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Caixa de Fogo'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Caixa de Esmolas'"},
-            {"action": "ADD_ITEM", "amount": 2, "query": "items/name == 'Bloco de Incenso'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Incensário'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Vestes'"},
-            {"action": "ADD_ITEM", "amount": 2, "query": "items/name == 'Rações de Viagem'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Cantil'"}
+            {"action": "ADD_ITEM", "query": "items/Mochila"},
+            {"action": "ADD_ITEM", "query": "items/Cobertor"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Vela"},
+            {"action": "ADD_ITEM", "query": "items/Caixa de Fogo"},
+            {"action": "ADD_ITEM", "query": "items/Caixa de Esmolas"},
+            {"action": "ADD_ITEM", "amount": 2, "query": "items/Bloco de Incenso"},
+            {"action": "ADD_ITEM", "query": "items/Incensário"},
+            {"action": "ADD_ITEM", "query": "items/Vestes"},
+            {"action": "ADD_ITEM", "amount": 2, "query": "items/Rações de Viagem"},
+            {"action": "ADD_ITEM", "query": "items/Cantil"}
         ]
     },
     "Pacote de Aventureiro": {
         "metadata": { "type": "pack", "price": 12 },
         "description": "Inclui uma mochila, um pé de cabra, um martelo, 10 pítons, 10 tochas, uma caixa de fogo, 10 dias de rações e um cantil. O kit também tem 15 metros de corda de cânhamo amarrada ao lado dele.",
         "operations": [
-            {"action": "ADD_ITEM", "query": "items/name == 'Mochila'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Pé de Cabra'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Martelo'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Píton'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Tocha'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Caixa de Fogo'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Rações de Viagem'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Cantil'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Corda de Cânhamo'"}
+            {"action": "ADD_ITEM", "query": "items/Mochila"},
+            {"action": "ADD_ITEM", "query": "items/Pé de Cabra"},
+            {"action": "ADD_ITEM", "query": "items/Martelo"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Píton"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Tocha"},
+            {"action": "ADD_ITEM", "query": "items/Caixa de Fogo"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Rações de Viagem"},
+            {"action": "ADD_ITEM", "query": "items/Cantil"},
+            {"action": "ADD_ITEM", "query": "items/Corda de Cânhamo"}
         ]
     },
     "Pacote de Explorador": {
         "metadata": { "type": "pack", "price": 10 },
         "description": "Inclui uma mochila, um saco de dormir, um kit de refeição, uma caixa de fogo, 10 tochas, 10 dias de rações e um cantil. O kit também tem 15 metros de corda de cânhamo amarrada ao lado dele.",
         "operations": [
-            {"action": "ADD_ITEM", "query": "items/name == 'Mochila'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Saco de Dormir'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Kit de Refeição'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Caixa de Fogo'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Tocha'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Rações de Viagem'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Cantil'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Corda de Cânhamo'"}
+            {"action": "ADD_ITEM", "query": "items/Mochila"},
+            {"action": "ADD_ITEM", "query": "items/Saco de Dormir"},
+            {"action": "ADD_ITEM", "query": "items/Kit de Refeição"},
+            {"action": "ADD_ITEM", "query": "items/Caixa de Fogo"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Tocha"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Rações de Viagem"},
+            {"action": "ADD_ITEM", "query": "items/Cantil"},
+            {"action": "ADD_ITEM", "query": "items/Corda de Cânhamo"}
         ]
     },
     "Pacote de Assaltante": {
         "metadata": { "type": "pack", "price": 16 },
         "description": "Inclui uma mochila, um saco com 1.000 esferas de metal, 3 metros de linha, um sino, 5 velas, um pé de cabra, um martelo, 10 pítons, uma lanterna coberta, 2 frascos de óleo, 5 dias de rações, uma caixa de fogo e um cantil. O kit também possui 15 metros de corda de cânhamo amarrada ao lado dele.",
         "operations": [
-            {"action": "ADD_ITEM", "query": "items/name == 'Mochila'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Esferas de Metal (1000)'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Linha (3 metros)'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Sino'"},
-            {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Vela'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Pé de Cabra'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Martelo'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Píton'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Lanterna Coberta'"},
-            {"action": "ADD_ITEM", "amount": 2, "query": "items/name == 'Óleo (frasco)'"},
-            {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Rações de Viagem'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Caixa de Fogo'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Cantil'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Corda de Cânhamo'"}
+            {"action": "ADD_ITEM", "query": "items/Mochila"},
+            {"action": "ADD_ITEM", "query": "items/Esferas de Metal (1000)"},
+            {"action": "ADD_ITEM", "query": "items/Linha (3 metros)"},
+            {"action": "ADD_ITEM", "query": "items/Sino"},
+            {"action": "ADD_ITEM", "amount": 5, "query": "items/Vela"},
+            {"action": "ADD_ITEM", "query": "items/Pé de Cabra"},
+            {"action": "ADD_ITEM", "query": "items/Martelo"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Píton"},
+            {"action": "ADD_ITEM", "query": "items/Lanterna Coberta"},
+            {"action": "ADD_ITEM", "amount": 2, "query": "items/Óleo (frasco)"},
+            {"action": "ADD_ITEM", "amount": 5, "query": "items/Rações de Viagem"},
+            {"action": "ADD_ITEM", "query": "items/Caixa de Fogo"},
+            {"action": "ADD_ITEM", "query": "items/Cantil"},
+            {"action": "ADD_ITEM", "query": "items/Corda de Cânhamo"}
         ]
     },
     "Pacote de Diplomata": {
         "metadata": { "type": "pack", "price": 39 },
         "description": "Inclui um baú, 2 caixas para mapas ou pergaminhos, um conjunto de roupas finas, um vidro de tinta, uma caneta tinteiro, uma lâmpada, 2 frascos de óleo, 5 folhas de papel, um vidro de perfume, parafina e sabão.",
         "operations": [
-             {"action": "ADD_ITEM", "query": "items/name == 'Baú'"},
-             {"action": "ADD_ITEM", "amount": 2, "query": "items/name == 'Caixa para Mapas ou Pergaminhos'"},
-             {"action": "ADD_ITEM", "query": "items/name == 'Roupas Finas'"},
-             {"action": "ADD_ITEM", "query": "items/name == 'Tinta (vidro)'"},
-             {"action": "ADD_ITEM", "query": "items/name == 'Caneta Tinteiro'"},
-             {"action": "ADD_ITEM", "query": "items/name == 'Lâmpada'"},
-             {"action": "ADD_ITEM", "amount": 2, "query": "items/name == 'Óleo (frasco)'"},
-             {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Papel (folha)'"},
-             {"action": "ADD_ITEM", "query": "items/name == 'Perfume (vidro)'"},
-             {"action": "ADD_ITEM", "query": "items/name == 'Parafina'"},
-             {"action": "ADD_ITEM", "query": "items/name == 'Sabão'"}
+             {"action": "ADD_ITEM", "query": "items/Baú"},
+             {"action": "ADD_ITEM", "amount": 2, "query": "items/Caixa para Mapas ou Pergaminhos"},
+             {"action": "ADD_ITEM", "query": "items/Roupas Finas"},
+             {"action": "ADD_ITEM", "query": "items/Tinta (vidro)"},
+             {"action": "ADD_ITEM", "query": "items/Caneta Tinteiro"},
+             {"action": "ADD_ITEM", "query": "items/Lâmpada"},
+             {"action": "ADD_ITEM", "amount": 2, "query": "items/Óleo (frasco)"},
+             {"action": "ADD_ITEM", "amount": 5, "query": "items/Papel (folha)"},
+             {"action": "ADD_ITEM", "query": "items/Perfume (vidro)"},
+             {"action": "ADD_ITEM", "query": "items/Parafina"},
+             {"action": "ADD_ITEM", "query": "items/Sabão"}
         ]
     },
     "Pacote de Estudioso": {
         "metadata": { "type": "pack", "price": 40 },
         "description": "Inclui uma mochila, um livro de estudo, um vidro de tinta, uma caneta tinteiro, 10 folhas de pergaminho, um saquinho de areia e uma pequena faca.",
         "operations": [
-            {"action": "ADD_ITEM", "query": "items/name == 'Mochila'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Livro de Estudo'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Tinta (vidro)'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Caneta Tinteiro'"},
-            {"action": "ADD_ITEM", "amount": 10, "query": "items/name == 'Pergaminho (folha)'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Saquinho de Areia'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Pequena Faca'"}
+            {"action": "ADD_ITEM", "query": "items/Mochila"},
+            {"action": "ADD_ITEM", "query": "items/Livro de Estudo"},
+            {"action": "ADD_ITEM", "query": "items/Tinta (vidro)"},
+            {"action": "ADD_ITEM", "query": "items/Caneta Tinteiro"},
+            {"action": "ADD_ITEM", "amount": 10, "query": "items/Pergaminho (folha)"},
+            {"action": "ADD_ITEM", "query": "items/Saquinho de Areia"},
+            {"action": "ADD_ITEM", "query": "items/Pequena Faca"}
         ]
     },
     "Pacote de Artista": {
         "metadata": { "type": "pack", "price": 40 },
         "description": "Inclui uma mochila, um saco de dormir, duas fantasias, 5 velas, 5 dias de rações, um cantil e um kit de disfarce.",
         "operations": [
-            {"action": "ADD_ITEM", "query": "items/name == 'Mochila'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Saco de Dormir'"},
-            {"action": "ADD_ITEM", "amount": 2, "query": "items/name == 'Fantasia'"},
-            {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Vela'"},
-            {"action": "ADD_ITEM", "amount": 5, "query": "items/name == 'Rações de Viagem'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Cantil'"},
-            {"action": "ADD_ITEM", "query": "items/name == 'Kit de Disfarce'"}
+            {"action": "ADD_ITEM", "query": "items/Mochila"},
+            {"action": "ADD_ITEM", "query": "items/Saco de Dormir"},
+            {"action": "ADD_ITEM", "amount": 2, "query": "items/Fantasia"},
+            {"action": "ADD_ITEM", "amount": 5, "query": "items/Vela"},
+            {"action": "ADD_ITEM", "amount": 5, "query": "items/Rações de Viagem"},
+            {"action": "ADD_ITEM", "query": "items/Cantil"},
+            {"action": "ADD_ITEM", "query": "items/Kit de Disfarce"}
         ]
     },
     "Símbolo Sagrado": {

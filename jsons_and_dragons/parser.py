@@ -778,8 +778,26 @@ class Character:
             "race": self.get_stat("personal.subrace"),
             "background": self.get_stat("personal.background"),
             "class": classes, 
-            "level": self.get_stat("level"),
+            "level": self.get_stat("properties.level"),
         }
+
+    def get_all(self):
+        base = self.get_basic_infos()
+        stats = {} # Pegar o valor, bônus e salvaguarda dos atributos, mas calcula instantaneamente
+        for stat in self.data["attributes"].keys():
+            stats[stat] = {
+                "value": self.get_stat(f"attributes.{stat}"),
+                "bonus": self.get_stat(f"attributes.{stat}.bonus"),
+                "save": self.get_stat(f"attributes.{stat}.save")
+            }
+        base["stats"] = stats
+        base["ac"] = self.get_stat("properties.ac")
+        base["hp"] = self.get_stat("properties.hit_points")
+        
+        proficiency = { "bonus": self.get_stat("properties.proficiency_bonus") }
+        for skill in self.data["proficiencies"]["skills"]:
+            pass
+        
 
     def get_stat(self, path: str) -> Any:
         return resolve_value(get_nested(self.data, path), self.data)

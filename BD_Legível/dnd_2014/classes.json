@@ -63,7 +63,7 @@
                         { "label": "Pacote de Aventureiro", "operations": [{ "action": "ADD_ITEM", "query": "items/Pacote de Aventureiro" }] }
                     ]
                 },
-                { "action": "ADD_ITEM", "query": "items/Cota de malha" },
+                { "action": "ADD_ITEM", "query": "items/Cota de Malha" },
                 { "action": "ADD_ITEM", "name": "Símbolo Sagrado (Foco Arcano)", "query": "items/Símbolo Sagrado" }
             ]
         },
@@ -106,7 +106,7 @@
                 { "action": "INCREMENT", "property": "properties.classes.Paladino", "value": 1 },
                 { 
                     "action": "CHOOSE_MAP", "n": 1, "label": "Estilo de Luta",
-                    "options": { "action": "REQUEST", "query": "features/metadata.type == 'fighting_style' AND 'paladin' in metadata.classes/keys"},
+                    "options": { "action": "REQUEST", "query": "features/metadata.type == fighting_style AND Paladino in metadata.classes/keys"},
                     "operations": [{ "action": "IMPORT", "query": "features/{THIS}"}]
                 },
                 {
@@ -125,7 +125,7 @@
                             "spells_prepared": "max(1, {attributes.cha.modifier} + floor({properties.classes.Paladino} / 2))",
                             "spells_known": "infinity",
                             "spellSlotsRecoverOn": "long_rest",
-                            "spellbook_query": "spells/'Paladino' in metadata.classes/keys",
+                            "spellbook_query": "spells/Paladino in metadata.classes/keys",
                             "spellSlots": [
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [2, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -177,7 +177,7 @@
                     "operations": [
                         { 
                             "action": "CHOOSE_MAP", "n": 1, "label": "Juramento Sagrado",
-                            "options": { "action": "REQUEST", "query": "subclasses/metadata.class == 'Paladino'/keys" },
+                            "options": { "action": "REQUEST", "query": "subclasses/metadata.class == Paladino/keys" },
                             "operations": [{ "action": "SET", "property": "properties.Paladino.subclass", "value": "{THIS}" }]
                         }
                     ]

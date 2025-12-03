@@ -47,3 +47,15 @@ def listar_todas_fichas(authorization: str = Depends(obter_token_auth)):
             continue
     
     return infos
+
+@router_coleta_ficha.get("/fichas/{id}")
+def pegar_ficha(id: int, authorization: str = Depends(obter_token_auth)):
+    access_token = get_access_token(authorization)
+    
+    character, _ = load_character_state(access_token, id)
+
+
+
+
+    
+        
