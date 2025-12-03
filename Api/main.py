@@ -2,7 +2,6 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-
 from Api.routes.dados_base import router as base_router
 from Api.routes.criar_ficha import router_ficha
 from Api.routes.pegar_ficha import router_coleta_ficha
