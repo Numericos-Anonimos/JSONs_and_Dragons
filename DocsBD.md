@@ -114,7 +114,7 @@ Não é uma operação direta da fila, mas usada dentro de `options` em `CHOOSE_
     - `filtro`: Pode usar `==`, `in`, `AND`.
     - `retorno`: `keys` (retorna lista de nomes) ou nome do campo.
 ```json
-"options": { "action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == 'Marcial'/keys" }
+"options": { "action": "REQUEST", "query": "items/metadata.type == 'weapon' AND metadata.category == Marcial/keys" }
 ```
 ### 🟣 Proficiências e Combate
 #### `INIT_PROFICIENCY`

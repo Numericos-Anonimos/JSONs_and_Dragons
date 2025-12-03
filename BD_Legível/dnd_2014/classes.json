@@ -22,8 +22,8 @@
                             "operations": [
                                 { "action": "ADD_ITEM", "query": "items/Escudo" },
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "itens/metadata.category == 'Marcial'/keys"},
-                                    "operations": [{"action": "ADD_ITEM", "query": "itens/{THIS}"}]
+                                    "options": {"action": "REQUEST", "query": "items/metadata.category == Marcial/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "items/{THIS}"}]
                                 }
                             ]
                         },
@@ -31,8 +31,8 @@
                             "label": "Duas Armas Marciais",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
-                                    "options": {"action": "REQUEST", "query": "itens/metadata.category == 'Marcial'/keys"},
-                                    "operations": [{"action": "ADD_ITEM", "query": "itens/{THIS}"}]
+                                    "options": {"action": "REQUEST", "query": "items/metadata.category == Marcial/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "items/{THIS}"}]
                                 }
                             ]
                         }
@@ -49,8 +49,8 @@
                             "label": "Arma Simples Corpo-a-Corpo",
                             "operations": [
                                 { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples Corpo-a-Corpo",
-                                    "options": {"action": "REQUEST", "query": "itens/metadata.category == 'Simples'/keys"},
-                                    "operations": [{"action": "ADD_ITEM", "query": "itens/{THIS}"}]
+                                    "options": {"action": "REQUEST", "query": "items/metadata.category == Simples/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "items/{THIS}"}]
                                 }
                             ]
                         }

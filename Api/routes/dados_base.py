@@ -74,7 +74,7 @@ def list_armas_keys():
     return list(idiomas.keys())
 
 
-@router.get("/itens/armaduras/keys")
+@router.get("/items/armaduras/keys")
 def list_armaduras_keys():
     dados = carregar_json("items.json")
     armaduras_filtradas = {
@@ -84,7 +84,7 @@ def list_armaduras_keys():
     }
     return list(armaduras_filtradas.keys())
 
-@router.get("/itens/armaduras/leve/keys")
+@router.get("/items/armaduras/leve/keys")
 def list_armaduras_keys():
     dados = carregar_json("items.json")
     armaduras_filtradas = {
@@ -94,7 +94,7 @@ def list_armaduras_keys():
     }
     return list(armaduras_filtradas.keys())
 
-@router.get("/itens/armaduras/media/keys")
+@router.get("/items/armaduras/media/keys")
 def list_armaduras_keys():
     dados = carregar_json("items.json")
     armaduras_filtradas = {
@@ -104,7 +104,7 @@ def list_armaduras_keys():
     }
     return list(armaduras_filtradas.keys())
 
-@router.get("/itens/armaduras/pesada/keys")
+@router.get("/items/armaduras/pesada/keys")
 def list_armaduras_keys():
     dados = carregar_json("items.json")
     armaduras_filtradas = {
@@ -115,7 +115,7 @@ def list_armaduras_keys():
     return list(armaduras_filtradas.keys())
 
 
-@router.get("/itens/armas/keys")
+@router.get("/items/armas/keys")
 def list_armas_keys():
     dados = carregar_json("items.json")
 
@@ -126,7 +126,7 @@ def list_armas_keys():
     }
     return list(armas.keys())
 
-@router.get("/itens/armas/marcial/keys")
+@router.get("/items/armas/marcial/keys")
 def list_armas_keys():
     dados = carregar_json("items.json")
 
@@ -138,7 +138,7 @@ def list_armas_keys():
     return list(armas.keys())
 
 
-@router.get("/itens/armas/simples/keys")
+@router.get("/items/armas/simples/keys")
 def list_armas_keys():
     dados = carregar_json("items.json")
 
@@ -163,7 +163,7 @@ def list_armas_keys():
 
 
 # Endpoints completos de cada categoria
-@router.get("/itens/")
+@router.get("/items/")
 def list_itens():
     return carregar_json("items.json")
 

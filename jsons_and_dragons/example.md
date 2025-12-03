@@ -20,7 +20,7 @@ Ponto de partida:
                     "operations": [
                         { "action": "ADD_ITEM", "query": "items/name == 'Escudo'" },
                         { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
-                            "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
+                            "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == Marcial/name"},
                             "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                         }
                     ]
@@ -29,7 +29,7 @@ Ponto de partida:
                     "label": "Duas Armas Marciais",
                     "operations": [
                         { "action": "CHOOSE_MAP", "n": 2, "label": "Arma Marcial",
-                            "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == 'Marcial'/name"},
+                            "options": {"action": "REQUEST", "query": "items/Armas/metadata.category == Marcial/name"},
                             "operations": [{"action": "ADD_ITEM", "query": "items/Armas/name == '{THIS}'"}]
                         }
                     ]

@@ -165,17 +165,18 @@ def retroceder_ficha(char_id: int, n: int, authorization: str = Depends(obter_to
     folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(char_id)])
 
     decisoes = get_file_content(access_token, filename="decisions.json", parent_id=folder_id)
-
-    decisoes = json.loads(decisoes)
+    print(decisoes)
+    #decisoes = json.loads(decisoes)
     decisoes = decisoes[:-n]
     
     character = Character(id=char_id, access_token=access_token, decisions=decisoes)
     
-    if decisoes[character.n] == "Raça":
+
+    if character.n < len(decisoes) and decisoes[character.n] == "Raça":
         character.add_race()
-    if decisoes[character.n] == "Background":
+    if character.n < len(decisoes) and decisoes[character.n] == "Background":
         character.add_background()
-    if decisoes[character.n] == "Classe":
+    while character.n < len(decisoes) and decisoes[character.n] == "Classe":
         character.add_class()
     
     save_character_state(access_token, folder_id, character)
