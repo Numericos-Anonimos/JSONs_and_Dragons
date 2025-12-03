@@ -1,0 +1,47 @@
+[
+    "Full",
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    "Raça",
+    "Humano",
+    "Elfico",
+    "Humano (Variante)",
+    [
+        "str",
+        "con"
+    ],
+    "Adestrar Animais",
+    "Agarrador",
+    "Background",
+    "Acólito",
+    [
+        "Anão",
+        "Dracônico"
+    ],
+    "Livro de Orações",
+    "Classe",
+    "Paladino",
+    0,
+    [
+        "Atletismo",
+        "Intimidação"
+    ],
+    "Duas Armas Marciais",
+    [
+        "Arco Longo",
+        "Machado Grande"
+    ],
+    "Arma Simples Corpo-a-Corpo",
+    "Adaga (Acuidade)",
+    "Pacote de Sacerdote",
+    "Classe",
+    "Paladino",
+    1,
+    "Classe",
+    "Paladino",
+    2
+]

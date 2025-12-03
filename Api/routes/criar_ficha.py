@@ -62,15 +62,18 @@ def load_character_state(access_token: str, char_id: int) -> Character:
     folder_id = get_character_folder_id(access_token, char_id)
 
     try:    
-        try:
-            content_base64 = get_file_content(access_token, filename=FILENAME_PKL, parent_id=folder_id)
-            character = Character.from_pickle_string(content_base64, access_token)
-        except Exception as e:
+        content_base64 = get_file_content(access_token, filename=FILENAME_PKL, parent_id=folder_id)
+        if content_base64: character = Character.from_pickle_string(content_base64, access_token)
+        else:
             decisoes = get_file_content(access_token, filename="decisions.json", parent_id=folder_id)
-            character = Character(id=char_id, access_token=access_token, decisions=json.loads(decisoes))
-            character.process_queue()
+            character = Character(id=char_id, access_token=access_token, decisions=decisoes)
+            if character.n < len(decisoes) and decisoes[character.n] == "Raça":
+                character.add_race()
+            if character.n < len(decisoes) and decisoes[character.n] == "Background":
+                character.add_background()
+            while character.n < len(decisoes) and decisoes[character.n] == "Classe":
+                character.add_class()
             save_character_state(access_token, folder_id, character)
-        
         return character, folder_id
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Personagem {char_id} não encontrado ou arquivo corrompido.")
