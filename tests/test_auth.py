@@ -8,6 +8,7 @@ import json
 
 client = TestClient(app)
 
+# Teste conexão com a api
 def test_detect_environment_localhost():
     request = type("Request", (), {"headers": {"host": "localhost:8000"}})
     redirect, frontend = detect_environment(request)
@@ -24,12 +25,12 @@ async def test_login_redirect(mock_auth_redirect):
     assert response.status_code == 200
     mock_auth_redirect.assert_called_once()
 
-
+# Testa a autenticação do google(retorno certo)
 @pytest.mark.asyncio
 @patch("Api.routes.auth.oauth.google.authorize_access_token", new_callable=AsyncMock)
 @patch("Api.routes.auth.setup_drive_structure")
 async def test_callback_success(mock_drive_setup, mock_authorize):
-    
+
     # Mock do Google
     mock_authorize.return_value = {
         "userinfo": {
@@ -69,6 +70,8 @@ async def test_callback_success(mock_drive_setup, mock_authorize):
     mock_drive_setup.assert_called_once()
 
 
+
+# Testa erro na autenticação do google(retorno de erro)
 @pytest.mark.asyncio
 @patch("Api.routes.auth.oauth.google.authorize_access_token", new_callable=AsyncMock)
 async def test_callback_error(mock_authorize):
