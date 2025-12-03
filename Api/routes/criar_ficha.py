@@ -1,10 +1,10 @@
 import os
 import json
-from fastapi import APIRouter, HTTPException, Header, Body
+from fastapi import APIRouter, HTTPException, Body, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from jose import jwt
 from typing import Any, List, Union
-from urllib.parse import unquote
 
 # Importamos as funções do gdrive
 from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
@@ -19,9 +19,20 @@ ROOT_FOLDER = "JSONs_and_Dragons"
 CHARACTERS_FOLDER = "Characters"
 FILENAME_PKL = "character_state.pkl" # Arquivo que guardará a classe Python inteira
 
+# --- Segurança para o Swagger ---
+security = HTTPBearer()
+
+def obter_token_auth(creds: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Reconstrói o formato 'Bearer <token>' para manter compatibilidade
+    com a função get_access_token existente.
+    """
+    return f"Bearer {creds.credentials}"
+
 # --- Helpers ---
 def get_access_token(auth_header: str):
     try:
+        # Como o wrapper já garante o formato, o split continua funcionando
         token_jwt = auth_header.split(" ")[1]
         payload = jwt.decode(token_jwt, os.getenv("JWT_SECRET"), algorithms=[os.getenv("JWT_ALGORITHM", "HS256")])
         access_token = payload.get("google_access_token")
@@ -33,9 +44,6 @@ def get_access_token(auth_header: str):
 
 def get_character_folder_id(access_token: str, char_id: int):
     """Busca a pasta do personagem pelo ID numérico"""
-    # Caminho: JSONs_and_Dragons/Characters/{id}
-    # Nota: ensure_path pode ser lento se chamado toda vez. 
-    # Idealmente você guardaria o ID da pasta Characters em cache ou no JWT.
     return ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(char_id)])
 
 def save_character_state(access_token: str, char_folder_id: str, character: Character):
@@ -85,7 +93,7 @@ class NextDecisionRequest(BaseModel):
 # --- Endpoints ---
 
 @router_ficha.post("/ficha/")
-def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Header(...)):
+def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Depends(obter_token_auth)):
     """
     1. Instancia o parser com nome e atributos.
     2. Salva o estado atual (pausado na Raça provavelmente).
@@ -93,14 +101,13 @@ def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Header(...)):
     """
     access_token = get_access_token(authorization)
     
-    # 1. Encontrar próximo ID (lógica simplificada, idealmente viria de um DB SQL)
+    # 1. Encontrar próximo ID
     chars_root_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER])
     existing_folders = list_folders_in_parent(access_token, chars_root_id)
     ids = [int(f["name"]) for f in existing_folders if f["name"].isdigit()]
     next_id = max(ids) + 1 if ids else 1
     
     # 2. Prepara as decisões iniciais para o Parser
-    # Ordem esperada no seu main(): Nome -> Atributos
     decisoes_iniciais = [
         dados.nome,
         dados.atributos.forca, dados.atributos.destreza, dados.atributos.constituicao,
@@ -108,7 +115,6 @@ def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Header(...)):
     ]
     
     # 3. Instancia o Personagem
-    # Ele vai rodar o __init__, importar metadata e pausar quando precisar de algo (ex: Raça)
     character = Character(id=next_id, access_token=access_token, decisions=decisoes_iniciais)
 
     print("Rodou character")
@@ -128,7 +134,7 @@ def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Header(...)):
     }
 
 @router_ficha.post("/ficha/{char_id}/next")
-def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str = Header(...)):
+def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str = Depends(obter_token_auth)):
     """
     2. Recebe a resposta pendente, adiciona, processa e salva.
     """
@@ -138,7 +144,6 @@ def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str
     character, folder_id = load_character_state(access_token, char_id)
     
     # 2. Adicionar a decisão recebida
-    # O parser consome a lista 'decisions' sequencialmente.
     character.data["decisions"].append(payload.decision)
     
     # 3. Rodar a fila até a próxima pausa
@@ -153,7 +158,8 @@ def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str
     }
 
 @router_ficha.post("/ficha/{char_id}/prev/{n}")
-def avancar_ficha(char_id: int, n: int, authorization: str = Header(...)):
+def retroceder_ficha(char_id: int, n: int, authorization: str = Depends(obter_token_auth)):
+    # CORREÇÃO: Renomeado de 'avancar_ficha' para 'retroceder_ficha' para evitar conflito
     access_token = get_access_token(authorization)
     folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(char_id)])
 
@@ -179,7 +185,7 @@ def avancar_ficha(char_id: int, n: int, authorization: str = Header(...)):
     }
 
 @router_ficha.post("/ficha/{char_id}/raca/{raca}")
-def definir_raca(char_id: int, raca: str, authorization: str = Header(...)):
+def definir_raca(char_id: int, raca: str, authorization: str = Depends(obter_token_auth)):
     """
     3. Adiciona a Raça e processa.
     """
@@ -197,7 +203,7 @@ def definir_raca(char_id: int, raca: str, authorization: str = Header(...)):
     }
 
 @router_ficha.post("/ficha/{char_id}/background/{background}")
-def definir_background(char_id: int, background: str, authorization: str = Header(...)):
+def definir_background(char_id: int, background: str, authorization: str = Depends(obter_token_auth)):
     """
     4. Adiciona Background e processa.
     """
@@ -215,7 +221,7 @@ def definir_background(char_id: int, background: str, authorization: str = Heade
     }
 
 @router_ficha.post("/ficha/{char_id}/classe/{classe}/{nivel}")
-def definir_classe(char_id: int, classe: str, nivel: int, authorization: str = Header(...)):
+def definir_classe(char_id: int, classe: str, nivel: int, authorization: str = Depends(obter_token_auth)):
     """
     5. Adiciona Classe/Nível e processa.
     """

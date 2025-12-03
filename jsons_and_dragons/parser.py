@@ -769,6 +769,18 @@ class Character:
             
         return result
 
+    def get_basic_infos(self):
+        classes = self.data["properties"]["level"].items() # [(Classe, Nível)] Para Multiclasses
+
+        return {
+            "name": self.get_stat("personal.name"),
+            "race": self.get_stat("personal.subrace"),
+            "background": self.get_stat("personal.background"),
+            "class": classes, 
+            "level": self.get_stat("level"),
+        }
+
+
     def get_stat(self, path: str) -> Any:
         return resolve_value(get_nested(self.data, path), self.data)
 

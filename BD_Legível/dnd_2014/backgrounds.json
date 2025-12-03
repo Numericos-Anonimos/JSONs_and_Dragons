@@ -1,6 +1,7 @@
 {
     "Acólito": {
         "operations": [
+            {"action": "SET", "property": "personal.background", "value": "Acólito"},
             {"action": "SET", "property": "proficiency.skill.Religião.multiplier", "value": 1 },
             {"action": "SET", "property": "proficiency.skill.Intuição.multiplier", "value": 1 },
             {
