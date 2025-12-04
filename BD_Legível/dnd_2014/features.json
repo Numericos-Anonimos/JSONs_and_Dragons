@@ -31,6 +31,34 @@
             {"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Dracônico"}
         ]
     },
+    "Gigante": {
+        "metadata": { "type": "language" },
+        "operations": [{"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Gigante"}]
+    },
+    "Gnômico": {
+        "metadata": { "type": "language" },
+        "operations": [{"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Gnômico"}]
+    },
+    "Goblin": {
+        "metadata": { "type": "language" },
+        "operations": [{"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Goblin"}]
+    },
+    "Halfling": {
+        "metadata": { "type": "language" },
+        "operations": [{"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Halfling"}]
+    },
+    "Orc": {
+        "metadata": { "type": "language" },
+        "operations": [{"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Orc"}]
+    },
+    "Abissal": {
+        "metadata": { "type": "language" },
+        "operations": [{"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Abissal"}]
+    },
+    "Celestial": {
+        "metadata": { "type": "language" },
+        "operations": [{"action": "INCREMENT", "property": "attributes.languages", "type": "list", "value": "Celestial"}]
+    },
     "Combate com Armas Grandes": {
         "metadata": {
             "type": "fighting_style",

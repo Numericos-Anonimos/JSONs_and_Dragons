@@ -55,5 +55,69 @@
                 { "action": "ADD_SPELL", "name": "Dissipar Magia", "type": "always_prepared", "spellbook": "Paladino" }
             ]
         }
+    },
+        "Caminho do Furioso": {
+        "metadata": {
+            "class": "Bárbaro",
+            "source": "Livro do Jogador"
+        },
+        "level_3": {
+            "operations": [
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Frenesi",
+                    "description": "Você pode entrar num frenesi quando estiver em fúria. Pela duração da sua fúria, você pode realizar um único ataque corpo a corpo com arma com uma ação bônus em cada um de seus turnos. Quando sua fúria acabar, você sofrerá um nível de exaustão.",
+                    "operations": [
+                        {
+                            "action": "ADD_ACTION", 
+                            "name": "Ataque com Frenesi",
+                            "cost": [{ "action": "bonus_action" }],
+                            "description": "Realiza um ataque corpo a corpo adicional (Requer estar em Fúria Frenética)."
+                        }
+                    ]
+                }
+            ]
+        },
+        "level_6": {
+            "operations": [
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Fúria Inconsciente",
+                    "description": "Você não pode ser enfeitiçado ou amedrontado enquanto estiver em fúria."
+                }
+            ]
+        },
+        "level_10": {
+            "operations": [
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Presença Intimidante",
+                    "description": "Com uma ação, você pode usar sua presença para amedrontar alguém a até 9 metros de você (CD 8 + prof + Carisma).",
+                    "operations": [
+                        {
+                            "action": "ADD_ACTION", 
+                            "name": "Presença Intimidante",
+                            "cost": [{ "action": "action" }]
+                        }
+                    ]
+                }
+            ]
+        },
+        "level_14": {
+            "operations": [
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Retaliação",
+                    "description": "Quando você sofrer dano de uma criatura a até 1,5 metro de você, você pode usar sua reação para realizar um ataque corpo a corpo com arma contra ela.",
+                    "operations": [
+                        {
+                            "action": "ADD_ACTION", 
+                            "name": "Retaliação",
+                            "cost": [{ "action": "reaction" }]
+                        }
+                    ]
+                }
+            ]
+        }
     }
 }

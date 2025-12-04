@@ -248,5 +248,278 @@
                 }
             ]
         }
+    },
+        "Bárbaro": {
+        "hitDiceValue": 12,
+        "metadata": {
+            "subclass_features_levels": [3, 6, 10, 14]
+        },
+        "level_0": {
+            "operations": [
+                { "action": "INCREMENT", "property": "attributes.str.save", "formula": "{properties.proficiency}" },
+                { "action": "INCREMENT", "property": "attributes.con.save", "formula": "{properties.proficiency}" },
+                { 
+                    "action": "CHOOSE_MAP", "n": 2, "label": "Perícias de Bárbaro",
+                    "options": ["Adestrar Animais", "Atletismo", "Intimidação", "Natureza", "Percepção", "Sobrevivência"],
+                    "operations": [{"action": "SET", "property": "proficiency.skill.{THIS}.multiplier", "value": 1}]
+                },
+                { "action": "SET", "property": "proficiency.armor.Leve.multiplier", "value": 1 },
+                { "action": "SET", "property": "proficiency.armor.Media.multiplier", "value": 1 },
+                { "action": "SET", "property": "proficiency.armor.Escudo.multiplier", "value": 1 },
+                { "action": "SET", "property": "proficiency.weapon.Simples.multiplier", "value": 1 },
+                { "action": "SET", "property": "proficiency.weapon.Marcial.multiplier", "value": 1 },
+                { 
+                    "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Arma Marcial Inicial",
+                    "options": [
+                        {
+                            "label": "Machado Grande",
+                            "operations": [{ "action": "ADD_ITEM", "query": "items/Machado Grande" }]
+                        },
+                        {
+                            "label": "Outra Arma Marcial",
+                            "operations": [
+                                { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Marcial",
+                                    "options": {"action": "REQUEST", "query": "items/metadata.category == Marcial/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "items/{THIS}"}]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                { 
+                    "action": "CHOOSE_OPERATIONS", "n": 1, "label": "Arma Simples ou Machadinhas",
+                    "options": [
+                        {
+                            "label": "Duas Machadinhas",
+                            "operations": [{ "action": "ADD_ITEM", "amount": 2, "query": "items/Machadinha" }]
+                        },
+                        {
+                            "label": "Outra Arma Simples",
+                            "operations": [
+                                { "action": "CHOOSE_MAP", "n": 1, "label": "Arma Simples",
+                                    "options": {"action": "REQUEST", "query": "items/metadata.category == Simples/keys"},
+                                    "operations": [{"action": "ADD_ITEM", "query": "items/{THIS}"}]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                { "action": "ADD_ITEM", "query": "items/Pacote de Explorador" },
+                { "action": "ADD_ITEM", "amount": 4, "query": "items/Azagaia" }
+            ]
+        },
+        "level_1": {
+            "operations": [
+                { "action": "SET", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "INCREMENT", "property": "properties.level", "formula": "{properties.classes.Bárbaro}"},
+                { "action": "SET", "property": "properties.rage_damage", "value": 2 },
+                {
+                    "action": "ADD_FEATURE", 
+                    "name": "Fúria",
+                    "description": "Em batalha, você luta com uma ferocidade primitiva. No seu turno, você pode entrar em fúria com uma ação bônus. Vantagem em testes e salvaguardas de Força. Resistência a concussão, cortante e perfurante. Bônus de dano de fúria.",
+                    "counter": "resources.furia",
+                    "operations": [
+                        { "action": "SET", "property": "resources.furia", "type": "counter", "value": 2, "recoversOn": "long_rest" },
+                        { "action": "ADD_ACTION", "name": "Entrar em Fúria", "cost": [{ "resource": "furia", "amount": 1}, {"action": "bonus_action"}]}
+                    ]
+                },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Defesa sem Armadura",
+                    "description": "Quando você não estiver vestindo qualquer armadura, sua Classe de Armadura será 10 + seu modificador de Destreza + seu modificador de Constituição.",
+                    "operations": [
+                         { "action": "SET", "property": "properties.ac", "formula": "10 + {attributes.dex.modifier} + {attributes.con.modifier}" }
+                    ]
+                }
+            ]
+        },
+        "level_2": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Ataque Descuidado",
+                    "description": "Quando você fizer o seu primeiro ataque no turno, você pode decidir atacar descuidadamente. Concede vantagem nas jogadas de ataque corpo a corpo usando Força, mas ataques contra você também têm vantagem."
+                },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Sentido de Perigo",
+                    "description": "Você possui vantagem em testes de resistência de Destreza contra efeitos que você possa ver."
+                }
+            ]
+        },
+        "level_3": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "INCREMENT", "property": "resources.furia", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Caminho Primitivo",
+                    "description": "Escolha um caminho que molda a natureza da sua fúria.",
+                    "operations": [
+                        { 
+                            "action": "CHOOSE_MAP", "n": 1, "label": "Caminho Primitivo",
+                            "options": { "action": "REQUEST", "query": "subclasses/metadata.class == Bárbaro/keys" },
+                            "operations": [{ "action": "SET", "property": "properties.Bárbaro.subclass", "value": "{THIS}" }]
+                        }
+                    ]
+                },
+                { "action": "IMPORT", "query": "subclasses/{properties.Bárbaro.subclass}/level_3" }
+            ]
+        },
+        "level_4": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {"action": "Ability_Score_Improvement"}
+            ]
+        },
+        "level_5": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Ataque Extra",
+                    "description": "Você pode atacar duas vezes, ao invés de uma, sempre que você realizar a ação de Ataque no seu turno."
+                },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Movimento Rápido",
+                    "description": "Seu deslocamento aumenta em 3 metros enquanto você não estiver vestindo uma armadura pesada.",
+                    "operations": [{ "action": "INCREMENT", "property": "attributes.speed", "value": 3 }]
+                }
+            ]
+        },
+        "level_6": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "INCREMENT", "property": "resources.furia", "value": 1 },
+                { "action": "IMPORT", "query": "subclasses/name = properties.Bárbaro.subclass/level_6" }
+            ]
+        },
+        "level_7": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Instinto Selvagem",
+                    "description": "Você recebe vantagem nas jogadas de iniciativa. Além disso, se você estiver surpreso, você pode agir normalmente no seu primeiro turno se entrar em fúria."
+                }
+            ]
+        },
+        "level_8": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {"action": "Ability_Score_Improvement"}
+            ]
+        },
+        "level_9": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "SET", "property": "properties.rage_damage", "value": 3 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Crítico Brutal (1 dado)",
+                    "description": "Você pode rolar um dado de dano de arma adicional quando determinar o dano extra de um acerto crítico com uma arma corpo a corpo."
+                }
+            ]
+        },
+        "level_10": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "IMPORT", "query": "subclasses/name = properties.Bárbaro.subclass/level_10" }
+            ]
+        },
+        "level_11": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Fúria Implacável",
+                    "description": "Se você cair para 0 pontos de vida enquanto estiver em fúria e não morrer, você pode realizar um teste de Constituição CD 10. Se bem sucedido, você volta para 1 ponto de vida. A CD aumenta em 5 a cada uso."
+                }
+            ]
+        },
+        "level_12": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "INCREMENT", "property": "resources.furia", "value": 1 },
+                {"action": "Ability_Score_Improvement"}
+            ]
+        },
+        "level_13": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Crítico Brutal (2 dados)",
+                    "description": "Você rola dois dados adicionais no crítico."
+                }
+            ]
+        },
+        "level_14": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "IMPORT", "query": "subclasses/name = properties.Bárbaro.subclass/level_14" }
+            ]
+        },
+        "level_15": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Fúria Persistente",
+                    "description": "Sua fúria só termina prematuramente se você cair inconsciente ou decidir terminá-la."
+                }
+            ]
+        },
+        "level_16": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "SET", "property": "properties.rage_damage", "value": 4 },
+                {"action": "Ability_Score_Improvement"}
+            ]
+        },
+        "level_17": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "INCREMENT", "property": "resources.furia", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Crítico Brutal (3 dados)",
+                    "description": "Você rola três dados adicionais no crítico."
+                }
+            ]
+        },
+        "level_18": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Força Indomável",
+                    "description": "Se o total de um teste de Força seu for menor que o seu valor de Força, você pode usar esse valor no lugar do resultado."
+                }
+            ]
+        },
+        "level_19": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                {"action": "Ability_Score_Improvement"}
+            ]
+        },
+        "level_20": {
+            "operations": [
+                { "action": "INCREMENT", "property": "properties.classes.Bárbaro", "value": 1 },
+                { "action": "SET", "property": "resources.furia", "value": 99 },
+                {
+                    "action": "ADD_FEATURE",
+                    "name": "Campeão Primitivo",
+                    "description": "Seus valores de Força e Constituição aumentam em 4. Seu máximo para esses valores agora é 24.",
+                    "operations": [
+                        { "action": "INCREMENT", "property": "attributes.str.score", "value": 4 },
+                        { "action": "INCREMENT", "property": "attributes.con.score", "value": 4 }
+                    ]
+                }
+            ]
+        }
     }
 }

@@ -1,0 +1,18 @@
+{
+    "Iniciado em Combate": {
+        "metadata": {
+            "source": "Caldeirão de Tasha",
+            "requirements": {
+                "Proficiência Marcial": "proficiency.weapon.Marcial.multiplier >= 1"
+            }
+        },
+        "operations": [
+            {
+                "action": "CHOOSE_MAP", "n": 1, "label": "Escolha um Estilo de Luta",
+                "description": "Seu treinamento marcial o ajudou a adaptar um estilo de combate particular.",
+                "options": { "action": "REQUEST", "query": "features/metadata.type == fighting_style/keys" },
+                "operations": [{ "action": "IMPORT", "query": "features/{THIS}" }]
+            }
+        ]
+    }
+}

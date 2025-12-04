@@ -699,5 +699,29 @@
                 }
             }
         ]
+    },
+    "Insígnia de Patente": {
+        "metadata": { "type": "adventuring_gear" },
+        "description": "Um símbolo que denota sua patente na sua antiga organização militar."
+    },
+    "Fetiche de Inimigo": {
+        "metadata": { "type": "adventuring_gear" },
+        "description": "Uma adaga, lâmina quebrada ou pedaço de estandarte tomado de um inimigo caído."
+    },
+    "Baralho de Cartas": {
+        "metadata": { "type": "tool", "price": 0.5 },
+        "description": "Um conjunto de cartas para jogos de azar e perícia."
+    },
+    "Conjunto de Dados": {
+        "metadata": { "type": "tool", "price": 0.1 },
+        "description": "Um conjunto de dados de osso ou madeira para jogos de azar."
+    },
+    "Xadrez do Dragão": {
+        "metadata": { "type": "tool", "price": 1 },
+        "description": "Um jogo de estratégia jogado em um tabuleiro de três níveis."
+    },
+    "Jogo dos Três Dragões": {
+        "metadata": { "type": "tool", "price": 1 },
+        "description": "Um jogo de cartas popular em tavernas."
     }
 }
