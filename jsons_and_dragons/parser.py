@@ -785,6 +785,7 @@ class Character:
         classes = self.data["properties"]["classes"].items() # [(Classe, Nível)] Para Multiclasses
 
         return {
+            "id": self.id,
             "name": self.get_stat("personal.name"),
             "race": self.get_stat("personal.subrace"),
             "background": self.get_stat("personal.background"),
@@ -903,6 +904,7 @@ class Character:
 
         return {
             "header": {
+                "id": self.id,
                 "name": self.get_stat("personal.name"),
                 "race": self.get_stat("personal.subrace") or self.get_stat("personal.race"),
                 "class_level": class_text,
