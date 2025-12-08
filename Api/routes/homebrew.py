@@ -76,7 +76,7 @@ def upload_extracted_files(access_token: str, base_folder_id: str, zip_ref: zipf
         print(f"Enviando {file_info.filename}...")
         upload_or_update(access_token, filename, content, parent_id=current_parent_id)
 
-@router_homebrew.post("/homebrew/upload")
+@router_homebrew.post("/upload")
 async def upload_homebrew(
     name: str = Form(...),
     file: UploadFile = File(...),
