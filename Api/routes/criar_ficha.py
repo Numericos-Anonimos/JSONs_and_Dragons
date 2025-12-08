@@ -5,11 +5,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from jose import jwt
 from typing import Any, List, Union
-
-# Importamos as funções do gdrive
 from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
-
-# Importamos o parser e a classe Character
 from jsons_and_dragons import character
 from jsons_and_dragons.parser import Character
 
@@ -18,9 +14,8 @@ router_ficha = APIRouter()
 # --- Configuração ---
 ROOT_FOLDER = "JSONs_and_Dragons"
 CHARACTERS_FOLDER = "Characters"
-FILENAME_PKL = "character_state.pkl" # Arquivo que guardará a classe Python inteira
+FILENAME_PKL = "character_state.pkl" 
 
-# --- Segurança para o Swagger ---
 security = HTTPBearer()
 
 def obter_token_auth(creds: HTTPAuthorizationCredentials = Depends(security)):
@@ -49,11 +44,9 @@ def get_character_folder_id(access_token: str, char_id: int):
 
 def save_character_state(access_token: str, char_folder_id: str, character: Character):
     """Salva a classe Python serializada no Drive"""
-    # Salva as decisões
     json_export = character.to_json()
     upload_or_update(access_token, "decisions.json", json_export, parent_id=char_folder_id)
 
-    # Pega a string base64 do objeto (usando dill/pickle)
     content_str = character.to_pickle_string()
     upload_or_update(access_token, FILENAME_PKL, content_str, parent_id=char_folder_id)
 
@@ -92,10 +85,9 @@ class CriarFichaRequest(BaseModel):
     atributos: AtributosInput
 
 class NextDecisionRequest(BaseModel):
-    decision:  Union[str, int, list] # Pode ser string, int, ou lista, dependendo do que o parser pede
+    decision:  Union[str, int, list]
 
 # --- Endpoints ---
-
 @router_ficha.post("/ficha/")
 def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Depends(obter_token_auth)):
     """
@@ -134,7 +126,7 @@ def iniciar_ficha(dados: CriarFichaRequest, authorization: str = Depends(obter_t
     return {
         "id": next_id,
         "message": "Ficha iniciada com sucesso.",
-        "current_status": character.required_decision # Provavelmente estará pedindo nada (fila vazia) ou algo do metadata
+        "current_status": character.required_decision 
     }
 
 @router_ficha.post("/ficha/{char_id}/next")
@@ -143,27 +135,23 @@ def avancar_ficha(char_id: int, payload: NextDecisionRequest, authorization: str
     2. Recebe a resposta pendente, adiciona, processa e salva.
     """
     access_token = get_access_token(authorization)
-    
-    # 1. Carregar Estado
+
     character, folder_id = load_character_state(access_token, char_id)
-    
-    # 2. Adicionar a decisão recebida
+
     character.data["decisions"].append(payload.decision)
-    
-    # 3. Rodar a fila até a próxima pausa
+
     character.process_queue()
-    
-    # 4. Salvar
+
     save_character_state(access_token, folder_id, character)
     
     return {
-        "required_decision": character.required_decision, # Se {}, acabou
+        "required_decision": character.required_decision,
         "logs": "Decisão processada."
     }
 
 @router_ficha.post("/ficha/{char_id}/prev/{n}")
 def retroceder_ficha(char_id: int, n: int, authorization: str = Depends(obter_token_auth)):
-    # CORREÇÃO: Renomeado de 'avancar_ficha' para 'retroceder_ficha' para evitar conflito
+
     access_token = get_access_token(authorization)
     folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(char_id)])
 
@@ -191,13 +179,10 @@ def retroceder_ficha(char_id: int, n: int, authorization: str = Depends(obter_to
 
 @router_ficha.post("/ficha/{char_id}/raca/{raca}")
 def definir_raca(char_id: int, raca: str, authorization: str = Depends(obter_token_auth)):
-    """
-    3. Adiciona a Raça e processa.
-    """
+    """ Adiciona a Raça e processa """
     access_token = get_access_token(authorization)
     character, folder_id = load_character_state(access_token, char_id)
 
-    # Adiciona a lista ["Raça", raca]
     character.data["decisions"] += ["Raça", raca]
     character.add_race()
     save_character_state(access_token, folder_id, character)

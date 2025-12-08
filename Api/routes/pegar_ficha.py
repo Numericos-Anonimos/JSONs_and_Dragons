@@ -4,10 +4,7 @@ import requests
 from fastapi import APIRouter, HTTPException, Header, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt
-
-# Importações internas
 from jsons_and_dragons import character
-# Mantemos a importação, mas vamos usar um wrapper para facilitar o Swagger
 from .criar_ficha import get_access_token, get_character_folder_id, load_character_state
 from ..gdrive import ensure_path, list_folders_in_parent
 

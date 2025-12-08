@@ -38,7 +38,6 @@ def run_debug():
 
     print("\n=== 🕵️ INICIANDO VARREDURA DO DRIVE ===")
     
-    # 1. Buscar TODAS as pastas raiz com o nome do projeto
     print(f"\n1. Buscando pastas 'JSONs_and_Dragons'...")
     roots = list_files(token, "name = 'JSONs_and_Dragons' and mimeType = 'application/vnd.google-apps.folder' and trashed = false")
     
@@ -49,7 +48,6 @@ def run_debug():
     for root in roots:
         print(f"\n📁 PROJETO ENCONTRADO: '{root['name']}' (ID: {root['id']})")
         
-        # 2. Buscar pastas BD dentro deste root específico
         bds = list_files(token, f"name = 'BD' and '{root['id']}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false")
         
         if not bds:
@@ -57,8 +55,7 @@ def run_debug():
         
         for bd in bds:
             print(f"   └── 📁 PASTA BD (ID: {bd['id']})")
-            
-            # 3. Listar o que o script enxerga dentro da pasta BD
+
             files = list_files(token, f"'{bd['id']}' in parents and trashed = false")
             
             if not files:

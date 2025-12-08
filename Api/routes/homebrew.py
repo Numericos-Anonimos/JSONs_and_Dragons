@@ -6,20 +6,11 @@ import shutil
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt
-
-# Importações do projeto
-from Api.gdrive import (
-    upload_or_update, 
-    find_file_by_name, 
-    ensure_path, 
-    get_file_content, 
-    find_or_create_folder
-)
+from Api.gdrive import upload_or_update, find_file_by_name, ensure_path, get_file_content, find_or_create_folder
 
 router_homebrew = APIRouter()
 security = HTTPBearer()
 
-# --- Configurações ---
 ROOT_FOLDER = "JSONs_and_Dragons"
 BD_FOLDER = "BD"
 METADATA_FILE = "metadata.json"
@@ -54,16 +45,14 @@ def upload_extracted_files(access_token: str, base_folder_id: str, zip_ref: zipf
         if file_info.is_dir():
             continue
         
-        # Caminho relativo do arquivo no zip (ex: "pastas/arquivo.json")
         path_parts = file_info.filename.split('/')
         filename = path_parts[-1]
         folders = path_parts[:-1]
         
-        # Ignora arquivos ocultos ou de sistema se necessário (opcional)
         if filename.startswith('.') or filename == "":
             continue
 
-        # Navega/Cria pastas no Drive até chegar no destino
+
         current_parent_id = base_folder_id
         for folder_name in folders:
             current_parent_id = find_or_create_folder(access_token, folder_name, parent_id=current_parent_id)
@@ -100,7 +89,6 @@ async def upload_homebrew(
         if not bd_folder_id:
             raise HTTPException(status_code=500, detail="Pasta do Banco de Dados não encontrada no Drive.")
 
-        # 3. Ler e Atualizar metadata.json
         metadata_content = get_file_content(access_token, filename=METADATA_FILE, parent_id=bd_folder_id)
         
         if isinstance(metadata_content, str):
@@ -128,7 +116,6 @@ async def upload_homebrew(
         # 5. Processar o ZIP em memória
         content = await file.read()
         with zipfile.ZipFile(io.BytesIO(content)) as zip_ref:
-            # Valida se há arquivos maliciosos ou muito grandes aqui se necessário
             upload_extracted_files(access_token, module_folder_id, zip_ref)
 
         return {

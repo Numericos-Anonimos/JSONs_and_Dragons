@@ -5,7 +5,6 @@ import requests
 
 
 # --- Helpers de Navegação ---
-
 def find_file_by_name(access_token: str, filename: str, parent_id: str = None, mime_type: str = None):
     """Busca um arquivo pelo nome, opcionalmente dentro de uma pasta específica."""
     url = "https://www.googleapis.com/drive/v3/files"
@@ -52,7 +51,7 @@ def ensure_path(access_token: str, path_list: list):
     Garante que uma estrutura de pastas exista e retorna o ID da última pasta.
     Ex: ensure_path(token, ["JSONs_and_Dragons", "Characters"])
     """
-    parent_id = None # Root
+    parent_id = None 
     for folder in path_list:
         found_id = find_file_by_name(access_token, folder, parent_id, "application/vnd.google-apps.folder")
         if not found_id:
@@ -73,13 +72,11 @@ def list_folders_in_parent(access_token: str, parent_id: str):
     return r.json().get("files", [])
 
 # --- Upload e Download ---
-
 def upload_or_update(access_token: str, filename: str, content: str, parent_id: str = None):
     """Faz upload de um arquivo JSON ou atualiza se já existir."""
     file_id = find_file_by_name(access_token, filename, parent_id)
     metadata = {"name": filename, "mimeType": "application/json"}
     
-    # Se não existe e temos um pai, definimos o pai na criação
     if not file_id and parent_id:
         metadata["parents"] = [parent_id]
 
@@ -125,7 +122,6 @@ def get_file_content(access_token: str, file_id: str = None, filename: str = Non
         return None
 
 # --- Funções de Setup ---
-
 def upload_specific_folders(access_token: str, local_bd_path: str, drive_bd_id: str):
     """
     Envia apenas pastas específicas do BD local para o Google Drive.
@@ -138,12 +134,10 @@ def upload_specific_folders(access_token: str, local_bd_path: str, drive_bd_id: 
         if not os.path.exists(local_folder_path):
             continue
 
-        # Cria a pasta no Drive
+
         drive_folder_id = find_or_create_folder(access_token, folder_name, parent_id=drive_bd_id)
 
-        # Faz upload de todos os arquivos dentro dessa pasta
         for root, dirs, files in os.walk(local_folder_path):
-            # Mantém a estrutura de subpastas
             rel_path = os.path.relpath(root, local_folder_path)
             current_parent_id = drive_folder_id
 
@@ -165,16 +159,13 @@ def setup_drive_structure(access_token: str):
     """
     root_id = find_or_create_folder(access_token, "JSONs_and_Dragons")
 
-    # Tenta criar BD e Characters. Se BD já existir, find_or_create_folder retorna o ID existente
     bd_id = find_or_create_folder(access_token, "BD", parent_id=root_id)
     char_id = find_or_create_folder(access_token, "Characters", parent_id=root_id)
 
-    # Caminho do BD local
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     ROOT_DIR = os.path.abspath(os.path.join(ROOT_DIR, ".."))
     local_bd_path = os.path.join(ROOT_DIR, "BD")
 
-    # Verifica se a pasta BD era recém-criada
     url = "https://www.googleapis.com/drive/v3/files"
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {
@@ -185,14 +176,12 @@ def setup_drive_structure(access_token: str):
     files = r.json().get("files", [])
 
     if files and len(files) == 1:
-        # Upload do metadata.json do BD
         metadata_path = os.path.join(local_bd_path, "metadata.json")
         if os.path.exists(metadata_path):
             with open(metadata_path, "r", encoding="utf-8") as f:
                 metadata_content = f.read()
             upload_or_update(access_token, "metadata.json", metadata_content, bd_id)
-        
-        # Upload das pastas específicas
+    
         upload_specific_folders(access_token, local_bd_path, bd_id)
 
     return {
