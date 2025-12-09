@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt
 from jsons_and_dragons import character
 from .criar_ficha import get_access_token, get_character_folder_id, load_character_state
-from ..gdrive import ensure_path, list_folders_in_parent
+from ..gdrive import ensure_path, list_folders_in_parent, get_file_content
 
 router_coleta_ficha = APIRouter()
 
@@ -51,4 +51,20 @@ def pegar_ficha(id: int, authorization: str = Depends(obter_token_auth)):
     
     character, _ = load_character_state(access_token, id)
     return character.get_all()    
-        
+
+@router_coleta_ficha.get("/fichas/{char_id}/export")
+def exportar_ficha(char_id: int, authorization: str = Depends(obter_token_auth)):
+    """
+    Retorna o conteúdo bruto do decisions.json para download.
+    """
+    access_token = get_access_token(authorization)
+    folder_id = get_character_folder_id(access_token, char_id)
+    
+    # Baixa o conteúdo (que já vem como dict/list do get_file_content se for json)
+    decisions_content = get_file_content(access_token, filename="decisions.json", parent_id=folder_id)
+    
+    if not decisions_content:
+        raise HTTPException(status_code=404, detail="Arquivo de decisões não encontrado.")
+
+    # Retorna o JSON puro. O FastAPI converte a lista automaticamente para JSON.
+    return decisions_content

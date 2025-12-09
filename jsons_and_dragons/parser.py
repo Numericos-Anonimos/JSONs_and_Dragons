@@ -297,13 +297,6 @@ class IncrementOperation(Operation):
     recoversOn: str = "never"
 
     def run(self):
-        try:
-            self._run()
-        except Exception as e:
-            print(f"Erro ao incrementar {self.property = }, {self.value = }, {self.formula = }")
-            raise e
-
-    def _run(self):
         # 1. Busca o valor atual de forma segura
         curr_obj = get_nested(self.personagem.data, self.property)
         
@@ -734,7 +727,7 @@ class Character:
             class_data = self.db.query(f"classes/{class_name}")
             hit_dice = class_data["hitDiceValue"]
             if self.get_stat("properties.level") == 0: # MÁXIMO
-                self.ficha.append({"action": "SET", "property": "properties.hit_dice", "value": hit_dice})
+                self.ficha.append({"action": "INCREMENT", "property": "properties.hit_points", "value": hit_dice})
             else:
                 self.ficha.append({
                     "action": "CHOOSE_MAP", "n": 1, "label": f"Pontos de Vida (D{hit_dice})",
@@ -859,7 +852,7 @@ class Character:
                 
                 # Resolve valores dinâmicos ({attributes.str.modifier}, etc)
                 val_acerto_str = interpolate_and_eval(raw_acerto, self.data)
-                val_dano = interpolate_and_eval(raw_dano, self.data)
+                val_dano = interpolate_and_eval(raw_dano, self.data).replace("+ -", "-")
 
                 # Truque: Para pegar o bônus fixo (ex: +5) de uma string "1d20 + 5",
                 # podemos substituir '1d20' por '0' e avaliar a matemática.

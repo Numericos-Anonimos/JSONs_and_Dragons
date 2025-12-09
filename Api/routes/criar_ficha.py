@@ -1,6 +1,6 @@
 import os
 import json
-from fastapi import APIRouter, HTTPException, Body, Depends
+from fastapi import APIRouter, HTTPException, Body, Depends, UploadFile, File 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from jose import jwt
@@ -227,3 +227,54 @@ def definir_classe(char_id: int, classe: str, nivel: int, authorization: str = D
         "message": f"Classe {classe} (Nível {nivel}) adicionada.",
         "required_decision": character.required_decision
     }
+
+@router_ficha.post("/ficha/import")
+async def importar_ficha(
+    file: UploadFile = File(...), 
+    authorization: str = Depends(obter_token_auth)
+):
+    """
+    Faz upload de um arquivo .json (decisions.json) e cria um novo personagem
+    a partir dele.
+    """
+    access_token = get_access_token(authorization)
+
+    # 1. Ler e validar o arquivo
+    if not file.filename.endswith(".json"):
+        raise HTTPException(status_code=400, detail="O arquivo deve ser um .json")
+    
+    try:
+        content = await file.read()
+        decisions = json.loads(content)
+        
+        if not isinstance(decisions, list):
+            raise HTTPException(status_code=400, detail="O formato do JSON deve ser uma lista de decisões.")
+            
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Arquivo JSON inválido.")
+
+    # 2. Encontrar próximo ID (mesma lógica do iniciar_ficha)
+    chars_root_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER])
+    existing_folders = list_folders_in_parent(access_token, chars_root_id)
+    ids = [int(f["name"]) for f in existing_folders if f["name"].isdigit()]
+    next_id = max(ids) + 1 if ids else 1
+    
+    print(f"Importando arquivo '{file.filename}' para o ID: {next_id}")
+
+    try:
+        # 3. Processar o personagem com as decisões do arquivo
+        character = Character(id=next_id, access_token=access_token, decisions=decisions)
+        
+        # 4. Salvar no Drive (Cria a pasta e salva os arquivos)
+        char_folder_id = ensure_path(access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(next_id)])
+        save_character_state(access_token, char_folder_id, character)
+        
+        return {
+            "id": next_id,
+            "message": "Ficha importada com sucesso.",
+            "current_status": character.required_decision 
+        }
+        
+    except Exception as e:
+        print(f"Erro na importação: {e}")
+        raise HTTPException(status_code=500, detail=f"Falha ao processar a importação: {str(e)}")
