@@ -52,7 +52,7 @@ def resolve_value(value: Any, context: Dict) -> Any:
 
 def interpolate_and_eval(text: str, context: Dict) -> Any:
     if not isinstance(text, str): return resolve_value(text, context)
-    pattern = re.compile(r'\{([a-zA-Z0-9_.]+)\}')
+    pattern = re.compile(r'\{([^}]+)\}') # pattern = re.compile(r'\{([a-zA-Z0-9_.]+)\}')
     def replacer(match):
         path = match.group(1)
         raw_val = get_nested(context, path)
@@ -297,6 +297,13 @@ class IncrementOperation(Operation):
     recoversOn: str = "never"
 
     def run(self):
+        try:
+            self._run()
+        except Exception as e:
+            print(f"Erro ao incrementar {self.property = }, {self.value = }, {self.formula = }")
+            raise e
+
+    def _run(self):
         # 1. Busca o valor atual de forma segura
         curr_obj = get_nested(self.personagem.data, self.property)
         
@@ -794,10 +801,12 @@ class Character:
         }
 
     def get_all(self):
+        print(f"--- Carregando ID {self.id} ---")
         # 1. Informações Básicas
         classes_list = self.data["properties"]["classes"].items()
         class_text = " / ".join([f"{cls} {lvl}" for cls, lvl in classes_list])
-        
+        print("Informações Básicas Carregadas")
+
         # 2. Atributos e Salvaguardas
         stats = {}
         for attr in ["str", "dex", "con", "int", "wis", "cha"]:
@@ -806,6 +815,7 @@ class Character:
                 "modifier": self.get_stat(f"attributes.{attr}.modifier"),
                 "save": self.get_stat(f"attributes.{attr}.save") 
             }
+        print("Atributos Carregados")
 
         # 3. Skills
         skills = []
@@ -821,6 +831,7 @@ class Character:
                 "roll": roll
             })
         skills.sort(key=lambda x: x["name"])
+        print("Skills Carregadas")
 
         # 4. Combate
         combat = {
@@ -830,6 +841,7 @@ class Character:
             "speed": self.get_stat('attributes.speed'),
             "proficiency_bonus": proficiency_bonus
         }
+        print("Combate Carregado")
 
         # 5. Ataques
         attacks = []
@@ -868,6 +880,7 @@ class Character:
                     "damage": f"{val_dano} {meta.get('Tipo de Dano', '')}",
                     "range": meta.get("Alcance", "-")
                 })
+        print("Ataques Carregados")
 
         # 6. Equipamento
         inventory = []
@@ -879,6 +892,7 @@ class Character:
                 "amount": item_data.get("amount", 1),
                 "description": item_data.get("description", "")
             })
+        print("Equipamento Carregado")
 
         # 7. Features e Contadores        
         features_list = []
@@ -901,6 +915,7 @@ class Character:
                 "description": feat.get("description", "")[:100] + "...",
                 "counter": counter_val
             })
+        print("Features Carregadas")
 
         return {
             "header": {
