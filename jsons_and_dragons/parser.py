@@ -817,9 +817,11 @@ class Character:
         for skill_name, data in all_skills.items():
             total_bonus = self.get_stat(f"proficiency.skill.{skill_name}.bonus")
             roll = self.get_stat(f"proficiency.skill.{skill_name}.roll")
+            multiplier = self.get_stat(f"proficiency.skill.{skill_name}.multiplier")
             skills.append({
                 "name": skill_name,
                 "attribute": data.get("attribute", "").upper(),
+                "multiplier": multiplier,
                 "bonus": total_bonus,
                 "roll": roll
             })
