@@ -955,9 +955,8 @@ class Character:
         return result
 
     def get_basic_infos(self):
-        classes = self.data["properties"][
-            "classes"
-        ].items()  # [(Classe, Nível)] Para Multiclasses
+        # [(Classe, Nível)] Para Multiclasses
+        classes = self.data["properties"]["classes"].items()  
 
         return {
             "id": self.id,
@@ -971,9 +970,7 @@ class Character:
     def get_all(self):
         print(f"--- Carregando ID {self.id} ---")
         # 1. Informações Básicas
-        classes_list = self.data["properties"]["classes"].items()
-        class_text = " / ".join([f"{cls} {lvl}" for cls, lvl in classes_list])
-        print("Informações Básicas Carregadas")
+        # Não tem mais
 
         # 2. Atributos e Salvaguardas
         stats = {}
@@ -1103,7 +1100,7 @@ class Character:
                 "name": self.get_stat("personal.name"),
                 "race": self.get_stat("personal.subrace")
                 or self.get_stat("personal.race"),
-                "class_level": class_text,
+                "class_level": self.data["properties"]["classes"].items()
                 "background": self.get_stat("personal.background"),
             },
             "attributes": stats,
