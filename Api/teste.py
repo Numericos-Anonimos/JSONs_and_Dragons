@@ -15,7 +15,7 @@ JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 # Para pegar basta acessar o auth/login e pegar o token da URL. Colocar no .env
-jwt_token = os.getenv("JWT_TOKEN") 
+jwt_token = os.getenv("JWT_TOKEN")
 
 data = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 access_token = data["google_access_token"]

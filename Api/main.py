@@ -16,7 +16,7 @@ origins = [
     "http://localhost:4200",
     "https://localhost:4200",
     "https://jsons-and-dragons-frontend.onrender.com",
-    "*"
+    "*",
 ]
 
 app.add_middleware(
