@@ -1,5 +1,6 @@
 import json
 
+
 class Character:
     """
     Representa uma ficha de personagem de D&D, construída a partir

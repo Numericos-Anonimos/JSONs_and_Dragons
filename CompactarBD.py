@@ -1,6 +1,7 @@
-import os
 import json
+import os
 import shutil
+
 
 def compactar_diretorio(pasta_origem, pasta_destino):
     

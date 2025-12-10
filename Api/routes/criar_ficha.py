@@ -1,11 +1,18 @@
-import os
 import json
-from fastapi import APIRouter, HTTPException, Body, Depends, UploadFile, File 
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
-from jose import jwt
+import os
 from typing import Any, List, Union
-from Api.gdrive import upload_or_update, ensure_path, list_folders_in_parent, get_file_content
+
+from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import jwt
+from pydantic import BaseModel
+
+from Api.gdrive import (
+    ensure_path,
+    get_file_content,
+    list_folders_in_parent,
+    upload_or_update,
+)
 from jsons_and_dragons import character
 from jsons_and_dragons.parser import Character
 

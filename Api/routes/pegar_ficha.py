@@ -1,12 +1,15 @@
-import os
 import json
+import os
+
 import requests
-from fastapi import APIRouter, HTTPException, Header, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
+
 from jsons_and_dragons import character
+
+from ..gdrive import ensure_path, get_file_content, list_folders_in_parent
 from .criar_ficha import get_access_token, get_character_folder_id, load_character_state
-from ..gdrive import ensure_path, list_folders_in_parent, get_file_content
 
 router_coleta_ficha = APIRouter()
 

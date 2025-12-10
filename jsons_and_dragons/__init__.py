@@ -1,5 +1,6 @@
-from collections import deque
 import copy
+from collections import deque
+
 
 class CharacterBuilder:
     def __init__(self, db_loader):

@@ -1,7 +1,8 @@
 import os
+
 import requests
-from jose import jwt
 from dotenv import load_dotenv
+from jose import jwt
 
 load_dotenv()
 

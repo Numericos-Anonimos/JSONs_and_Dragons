@@ -1,14 +1,16 @@
-import json
-import os
-import sys
-import re
-import math
-from typing import List, Dict, Any, Union
-from pprint import pprint
-from jose import jwt
-import dill as pickle # Usamos dill para conseguir salvar as lambdas/funções
 import base64
+import json
+import math
+import os
+import re
+import sys
+from pprint import pprint
+from typing import Any, Dict, List, Union
+
+import dill as pickle  # Usamos dill para conseguir salvar as lambdas/funções
 from dotenv import load_dotenv
+from jose import jwt
+
 load_dotenv()
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +18,7 @@ project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from Api.gdrive import get_file_content, ensure_path
+from Api.gdrive import ensure_path, get_file_content
 
 # Configuração
 ROOT_FOLDER = "JSONs_and_Dragons"

@@ -1,12 +1,20 @@
-import os
-import json
-import zipfile
 import io
+import json
+import os
 import shutil
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import zipfile
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
-from Api.gdrive import upload_or_update, find_file_by_name, ensure_path, get_file_content, find_or_create_folder
+
+from Api.gdrive import (
+    ensure_path,
+    find_file_by_name,
+    find_or_create_folder,
+    get_file_content,
+    upload_or_update,
+)
 
 router_homebrew = APIRouter()
 security = HTTPBearer()

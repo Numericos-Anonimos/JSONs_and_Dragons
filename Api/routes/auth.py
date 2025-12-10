@@ -1,13 +1,15 @@
+import base64
+import json
+import os
+from datetime import datetime, timedelta
+
+from authlib.integrations.starlette_client import OAuth
+from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
-from authlib.integrations.starlette_client import OAuth
 from jose import jwt
-from datetime import datetime, timedelta
-import os
-import json
-import base64
-from dotenv import load_dotenv
-from Api.gdrive import upload_or_update, find_file_by_name, setup_drive_structure
+
+from Api.gdrive import find_file_by_name, setup_drive_structure, upload_or_update
 
 load_dotenv()
 

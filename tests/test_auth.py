@@ -1,10 +1,12 @@
-import pytest
-from fastapi.testclient import TestClient
-from Api.main import app  
-from Api.routes.auth import detect_environment   
-from unittest.mock import AsyncMock, patch
 import base64
 import json
+from unittest.mock import AsyncMock, patch
+
+import pytest
+from fastapi.testclient import TestClient
+
+from Api.main import app
+from Api.routes.auth import detect_environment
 
 client = TestClient(app)
 

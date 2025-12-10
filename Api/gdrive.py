@@ -1,7 +1,8 @@
-from jose import jwt
-import os
 import json
+import os
+
 import requests
+from jose import jwt
 
 
 # --- Helpers de Navegação ---
