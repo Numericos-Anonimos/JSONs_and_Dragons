@@ -336,6 +336,18 @@ async def importar_ficha(
             id=next_id, access_token=access_token, decisions=decisions
         )
 
+        # === CORREÇÃO: Executar o fluxo de decisões ===
+        # Verifica e processa Raça, Background e Classes se estiverem na lista
+        if character.n < len(decisions) and decisions[character.n] == "Raça":
+            character.add_race()
+
+        if character.n < len(decisions) and decisions[character.n] == "Background":
+            character.add_background()
+
+        while character.n < len(decisions) and decisions[character.n] == "Classe":
+            character.add_class()
+        # ===============================================
+
         # 4. Salvar no Drive (Cria a pasta e salva os arquivos)
         char_folder_id = ensure_path(
             access_token, [ROOT_FOLDER, CHARACTERS_FOLDER, str(next_id)]

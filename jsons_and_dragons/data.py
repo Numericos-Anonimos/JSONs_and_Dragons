@@ -13,9 +13,7 @@ DB_FOLDER = "BD"
 
 class db_homebrew:
     def __init__(
-        self, endereço: str, 
-        access_token: str | None = None,
-        use_local: bool = False
+        self, endereço: str, access_token: str | None = None, use_local: bool = False
     ):
         self.endereço = endereço
         self.token = access_token
@@ -197,4 +195,3 @@ class db_handler(db_homebrew):
                 elif isinstance(response, list) and isinstance(resultado_parcial, list):
                     response.extend(resultado_parcial)
         return response
-            
