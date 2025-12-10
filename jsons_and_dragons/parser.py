@@ -956,7 +956,7 @@ class Character:
 
     def get_basic_infos(self):
         # [(Classe, Nível)] Para Multiclasses
-        classes = self.data["properties"]["classes"].items()  
+        classes = self.data["properties"]["classes"].items()
 
         return {
             "id": self.id,
@@ -1100,7 +1100,7 @@ class Character:
                 "name": self.get_stat("personal.name"),
                 "race": self.get_stat("personal.subrace")
                 or self.get_stat("personal.race"),
-                "class_level": self.data["properties"]["classes"].items()
+                "class_level": self.data["properties"]["classes"].items(),
                 "background": self.get_stat("personal.background"),
             },
             "attributes": stats,
