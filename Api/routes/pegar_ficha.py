@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 
-from jsons_and_dragons import character
+from jsons_and_dragons import Character
 
 from ..gdrive import ensure_path, get_file_content, list_folders_in_parent
 from .criar_ficha import get_access_token, get_character_folder_id, load_character_state

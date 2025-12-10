@@ -13,8 +13,8 @@ from Api.gdrive import (
     list_folders_in_parent,
     upload_or_update,
 )
-from jsons_and_dragons import character
-from jsons_and_dragons.parser import Character
+
+from jsons_and_dragons import Character
 
 router_ficha = APIRouter()
 

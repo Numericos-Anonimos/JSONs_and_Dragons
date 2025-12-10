@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Depends
 
 from Api.routes.criar_ficha import get_access_token, obter_token_auth
-from jsons_and_dragons.parser import db_handler
+from jsons_and_dragons import db_handler
 
 router = APIRouter()
 
